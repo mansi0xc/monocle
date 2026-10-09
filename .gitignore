@@ -1,0 +1,29 @@
+# Private checkpoint reports.
+/commits/
+
+# Rust and generated WASM artifacts.
+/target/
+**/target/
+**/pkg/
+
+# JavaScript dependencies, builds, and test artifacts.
+node_modules/
+dist/
+coverage/
+.playwright/
+playwright-report/
+test-results/
+
+# Local configuration and credentials.
+.env
+.env.*
+!.env.example
+*.local
+
+# Temporary files and editor/OS artifacts.
+.DS_Store
+*.log
+*.tmp
+/tmp/
+.vscode/
+.idea/
