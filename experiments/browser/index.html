@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Monocle C1 - browser compatibility probe</title>
+  <style>
+    body { max-width: 900px; margin: 3rem auto; padding: 0 1rem; color: #000; background: #fff; font: 16px/1.6 system-ui, sans-serif; }
+    h1 { font-size: 1.6rem; } pre { white-space: pre-wrap; border: 1px solid #000; padding: 1rem; font-size: 13px; }
+  </style>
+</head>
+<body data-state="running">
+  <h1>Monocle: native / WASM compatibility probe</h1>
+  <p>This is a development experiment using synthetic public test keys. It makes no claim about stake, validator identity, or Solana block finality.</p>
+  <p id="summary" role="status">Loading the Rust verifier compiled to WASM...</p>
+  <pre id="result"></pre>
+  <script type="module" src="/probe.mjs"></script>
+</body>
+</html>

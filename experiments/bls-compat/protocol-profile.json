@@ -1,0 +1,84 @@
+{
+  "profile_id": "agave-4.4.0-beta.0-c1-synthetic",
+  "scope": "Fixed synthetic same-message BLS aggregate feasibility experiment; NOT a complete certificate verifier",
+  "agave": {
+    "tag": "v4.4.0-beta.0",
+    "revision": "98535e50e9bb38574e6b0c31ff284cd864d3ca88"
+  },
+  "solana_bls_signatures": {
+    "version": "4.0.0",
+    "sdk_revision": "6744904ade8b5ca176c6ceb828cc78eb3907569f",
+    "features": "default features disabled; no parallel feature"
+  },
+  "crypto_backend": {
+    "blst": "0.3.17",
+    "blstrs": "0.7.1"
+  },
+  "signature_dst": "BLS_SIG_BLS12381G2_XMD:SHA-256_SSWU_RO_POP_",
+  "pop_dst": "BLS_POP_BLS12381G2_XMD:SHA-256_SSWU_RO_POP_",
+  "public_key": {
+    "group": "G1",
+    "fixture_encoding": "uncompressed big-endian",
+    "bytes": 96
+  },
+  "signature": {
+    "group": "G2",
+    "fixture_encoding": "uncompressed big-endian",
+    "bytes": 192
+  },
+  "proof_of_possession": {
+    "group": "G2",
+    "fixture_bytes": 192,
+    "payload": "compressed public key, with no extra application payload"
+  },
+  "tested_payload": {
+    "kind": "Notar",
+    "tag_u8": 1,
+    "slot_u64_le": 42,
+    "block_id_hex": "4242424242424242424242424242424242424242424242424242424242424242",
+    "shred_version_u16_le": 1234,
+    "serialized_bytes": 43
+  },
+  "researched_but_not_implemented": {
+    "signer_store": "0.1.0 (Base2 and Base3 encodings)",
+    "thresholds_percent": {
+      "fast": 80,
+      "notarization": 60,
+      "finalize": 60,
+      "genesis": 82
+    },
+    "trust": "No epoch checkpoint, stake, or finality claim is evaluated by this probe"
+  },
+  "sources": [
+    {
+      "path": "Cargo.toml",
+      "url": "https://github.com/anza-xyz/agave/blob/98535e50e9bb38574e6b0c31ff284cd864d3ca88/Cargo.toml",
+      "sha256": "52d729a5afd0f7ccb805ea91cb77008362d9f4044511ee5538c7253cf9f61975"
+    },
+    {
+      "path": "votor-messages/src/wire.rs",
+      "url": "https://github.com/anza-xyz/agave/blob/98535e50e9bb38574e6b0c31ff284cd864d3ca88/votor-messages/src/wire.rs",
+      "sha256": "f32bb363b4ab82733e9f0bf734b7e5240db978c84ed0593daeed566ff173a144"
+    },
+    {
+      "path": "votor-messages/src/consensus_message.rs",
+      "url": "https://github.com/anza-xyz/agave/blob/98535e50e9bb38574e6b0c31ff284cd864d3ca88/votor-messages/src/consensus_message.rs",
+      "sha256": "41f4afac299c19511022202367edc1eefc5959c4c804f5ee27e2a1a9397c8407"
+    },
+    {
+      "path": "votor-messages/src/certificate.rs",
+      "url": "https://github.com/anza-xyz/agave/blob/98535e50e9bb38574e6b0c31ff284cd864d3ca88/votor-messages/src/certificate.rs",
+      "sha256": "3a0cdd58f2f6dc9c6c5b84b541d5f3ab95ca0dab9e9a7b59fdb2b8c63891abd9"
+    },
+    {
+      "path": "votor-messages/src/migration.rs",
+      "url": "https://github.com/anza-xyz/agave/blob/98535e50e9bb38574e6b0c31ff284cd864d3ca88/votor-messages/src/migration.rs",
+      "sha256": "1dfffa3ab486e37495e633cd00dcdf156f77be1ef6bf022ff740917fa920dd48"
+    },
+    {
+      "path": "bls-cert-verify/Cargo.toml",
+      "url": "https://github.com/anza-xyz/agave/blob/98535e50e9bb38574e6b0c31ff284cd864d3ca88/bls-cert-verify/Cargo.toml",
+      "sha256": "50200862b5fd8ae39156e5da23671f957770f6c1e52ac25ccfa0fd21543b4a7a"
+    }
+  ]
+}

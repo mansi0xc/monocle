@@ -43,7 +43,7 @@ At the foundation inspection on 2026-10-09:
 | wasm-pack | Not found on the inspected PATH |
 | Browser WASM target | Not present in the installed Rust target list |
 
-These are observations, not the selected or minimum supported toolchain. No dependency installation or toolchain change was performed in C0. C1 should choose and document the reproducible toolchain and any required target/build tool installation based on tested compatibility.
+These are observations, not the selected or minimum supported toolchain. No dependency installation or toolchain change was performed in C0. C1 pins the existing Rust 1.91.1 toolchain, adds its `wasm32-unknown-unknown` standard library and `llvm-tools` component, and resolves dependencies in `Cargo.lock`. No global default toolchain switch or npm installation was needed. Run instructions are in [compatibility.md](compatibility.md).
 
 ## Public documentation versus private handoffs
 

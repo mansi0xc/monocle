@@ -1,6 +1,12 @@
 # Validation strategy
 
-Status: planned. There is no executable verification implementation or test suite in the foundation checkpoint.
+Status: C1 contains eight native integration tests and six browser/native comparison cases. The broader product validation below remains planned.
+
+## Current executable checks
+
+Run `bash scripts/check-compat.sh` from the repository root. It checks formatting, native tests, Clippy, deterministic fixture regeneration, a WASM release build with no unresolved imports, and actual Chrome/Chromium execution. See [compatibility.md](compatibility.md) for the tested scope and prerequisites.
+
+This covers a fixed synthetic BLS aggregate and five negative cases, not untrusted bundle parsing, quorum, or finality evaluation.
 
 ## Evidence hierarchy
 

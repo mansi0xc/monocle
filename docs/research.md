@@ -1,6 +1,6 @@
 # Research and evidence ledger
 
-Reviewed: 2026-10-09. Sources below are primary protocol or implementation references. Links to moving branches are research pointers; the implementation must select immutable revisions in C1.
+Reviewed: 2026-10-09. Sources below are primary protocol or implementation references. The original moving-branch links below are research pointers. C1 now pins Agave `98535e50e9bb38574e6b0c31ff284cd864d3ca88` and Solana BLS 4.0.0 for its synthetic probe; see [compatibility.md](compatibility.md) and [the exact profile record](../experiments/bls-compat/protocol-profile.json).
 
 ## Existing observation supplied by Mansi
 
@@ -43,7 +43,7 @@ The matching historical validator rank map, keys, stake denominator, key qualifi
 | How are failures distinguished across the browser boundary? | Typed report schema and integration cases | C2-C5 |
 | Can a report be reproduced without live network access? | Export/re-import and browser offline verification checks | C6 |
 
-The current research supports the architecture, not a claim that these experiments have passed.
+C1 has now executed the fixed signature cases in native Rust and Chrome WASM, checked one payload against a wincode reference schema, and selected compatible leaf dependencies. Historical capture compatibility and checkpoint authenticity remain unresolved. These results do not imply that the complete certificate verifier or the remaining experiments have passed.
 
 ## Research practice for later checkpoints
 

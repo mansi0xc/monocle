@@ -1,0 +1,14 @@
+[workspace]
+members = ["experiments/bls-compat"]
+resolver = "2"
+
+[workspace.package]
+edition = "2024"
+rust-version = "1.91.1"
+publish = false
+
+[profile.release]
+lto = true
+codegen-units = 1
+opt-level = "s"
+panic = "abort"

@@ -4,28 +4,32 @@ Updated: 2026-10-09.
 
 ## Current state
 
-The repository began empty, with no commits on `main`. The project foundation is now prepared for owner review: idea, plan, architecture, cryptographic requirements, research, tests, workflow, decisions, and existing architecture diagrams.
+Mansi committed the foundation as `ad561d4` (`docs ready for project init yoo`). C1 now contains an executable synthetic BLS compatibility experiment: the same Rust library verifies the same stored aggregate natively and in Chrome WebAssembly, with real proof-of-possession checks and five negative cases.
 
-No Rust crate, application, capture tool, signing fixture, dependency lockfile, or automated verification test has been implemented. No signature has been verified by Monocle. No commit or push has been performed by the assistant.
+The product's bounded evidence parser, trusted-checkpoint selection, stake verification, finality evaluator, inspector UI, and tamper/replay flows are not implemented. No real testnet certificate or block finality has been verified by Monocle.
 
 ## Checkpoint progress
 
 | Checkpoint | State |
 | --- | --- |
-| C0 - Foundation | Prepared; awaiting Mansi's commit confirmation |
-| C1 - Protocol/native/WASM feasibility | Not started; next after confirmation |
-| C2 - Evidence contracts and trust selection | Not started |
-| C3 - Native verification and signed fixtures | Not started |
+| C0 - Foundation | Committed by Mansi: `ad561d4` |
+| C1 - Protocol/native/WASM feasibility | Implemented; awaiting Mansi's commit confirmation |
+| C2 - Evidence contracts and trust selection | Not started; next after confirmation |
+| C3 - Native verification and signed fixtures | Not started beyond C1's fixed primitive probe |
 | C4 - Finality composition | Not started |
-| C5 - Browser inspector | Not started |
+| C5 - Browser inspector | Not started; C1 page is only a test harness |
 | C6 - Tamper lab and replay | Not started |
 | C7 - Real capture integration and demo | Not started |
 
-## Known open dependencies
+## Evidence
 
-- Immutable protocol revision and compatible cryptographic dependencies have not been selected.
-- Browser WASM compilation and execution have not been established.
-- Historical context for the supplied testnet genesis capture has not been acquired and authenticated.
-- A real ordinary-certificate capture path has not been demonstrated.
+See [compatibility.md](compatibility.md) for exact scope, build commands, selected sources/dependencies, browser results, and the archive-linking issue resolved during C1. Eight native integration tests and six native/browser cases pass. C1 uses synthetic public test keys with no stake or validator-authenticity claim.
 
-The owner can review the private C0 handoff in the ignored local `commits/` folder. It is intentionally not linked from public documentation as a tracked artifact. Remaining implementation waits for explicit commit confirmation.
+## Open dependencies
+
+- Authentic historical validator context for the supplied genesis capture.
+- General untrusted evidence contracts and bounds.
+- Full certificate/bitmap decoding, stake arithmetic, and evidence composition.
+- Full upstream certificate differential validation and browser/product integration.
+
+A detailed C1 handoff is stored locally under the ignored `commits/` directory. No assistant commit, staging, or push has occurred. Remaining implementation waits for Mansi's explicit commit confirmation.

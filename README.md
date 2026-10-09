@@ -4,7 +4,7 @@ An open-source finality debugger for Solana's Alpenglow consensus.
 
 Monocle is designed to inspect certificate evidence, check signatures and stake thresholds against an explicitly trusted validator checkpoint, and explain the result. Its planned tamper lab preserves the original evidence, applies a controlled change, and shows which verification checks change. Portable bundles make experiments reproducible offline.
 
-**Project status:** design foundation prepared. The Rust verifier, browser application, capture tooling, and automated tests have not been implemented yet. This repository does not currently verify certificates.
+**Project status:** C1 compatibility experiment implemented. A real three-signer BLS aggregate is verified natively and in browser WASM, with five negative cases and eight native tests. This is a synthetic cryptographic probe; general certificate parsing, stake/finality evaluation, the product UI, and real-network verification remain unimplemented.
 
 ## What the MVP will do
 
@@ -27,15 +27,22 @@ The MVP uses a fixed checkpoint. Authenticating validator-set changes across epo
 | [Cryptography](docs/cryptography.md) | BLS aggregation, stake arithmetic, payloads, and checkpoint trust |
 | [Research](docs/research.md) | Primary sources, observations, and unresolved implementation questions |
 | [Testing](docs/testing.md) | Required positive, negative, interoperability, and browser checks |
+| [C1 compatibility experiment](docs/compatibility.md) | Pinned sources, real native/browser checks, and reproducible commands |
 | [Development workflow](docs/development-workflow.md) | Owner-controlled commit gates and environment setup |
 | [Decisions](docs/decisions.md) | Architectural choices and their tradeoffs |
 | [Status](docs/status.md) | What exists and what is next |
 
 ## Planned implementation
 
-A Rust library will own verification and finality evaluation. A small native tool will prepare fixtures and capture files; a WASM build will run the same verification logic in a browser worker. A TypeScript interface will handle inspection, mutations, comparison, and local import/export. Library selection and native/WASM compatibility must be established in the first implementation checkpoint before this structure is committed to in code.
+A Rust library will own verification and finality evaluation. A small native tool will prepare fixtures and capture files; a WASM build will run the same verification logic in a browser worker. A TypeScript interface will handle inspection, mutations, comparison, and local import/export. C1 establishes a working native/WASM path using the Solana BLS leaf crate; the broader component structure remains planned.
 
-There is no installation or application start command yet. Reproducible build and test instructions will be added with the corresponding implementation.
+Run the compatibility experiment from the repository root:
+
+```sh
+bash scripts/check-compat.sh
+```
+
+It requires Rustup, a WASM-capable Clang, Node.js, and Chrome/Chromium (`CHROME_BIN` can select its executable). The pinned toolchain includes the WASM target and LLVM tools. See [compatibility.md](docs/compatibility.md) for individual commands and limits. There is no product application start command yet.
 
 ## Development ownership
 

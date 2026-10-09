@@ -1,6 +1,6 @@
 # Implementation plan
 
-Prepared: 2026-10-09. This is an ordered delivery plan, not a record of completed implementation.
+Prepared: 2026-10-09. This is an ordered delivery plan. See [status.md](status.md) for checkpoint completion and pending owner commits.
 
 ## Commit gates
 
@@ -23,7 +23,7 @@ C0 Foundation
 
 The numbers describe logical milestones; each may become a smaller owner-controlled commit if needed. The important constraint is a coherent reviewable increment, not an artificially fixed number of commits.
 
-## C0 - Project foundation (current handoff)
+## C0 - Project foundation (committed)
 
 Deliver the project idea, plan, architecture, cryptographic model, source notes, test strategy, development workflow, status, and persistent assistant instructions. Preserve the existing five-sheet architecture PDF. Exclude private handoff material from normal Git staging.
 
@@ -35,9 +35,9 @@ Acceptance:
 - Local handoff explains what was researched, what is still unknown, and the next gate.
 - No commit or push is made by the assistant.
 
-## C1 - Pin the protocol and prove native/WASM feasibility
+## C1 - Pin the protocol and prove native/WASM feasibility (current handoff)
 
-This is the next authorized implementation checkpoint after C0 is committed.
+The fixed-fixture compatibility experiment is implemented; its results and limitations are in [compatibility.md](compatibility.md). C2 waits for the owner to commit this checkpoint.
 
 Tasks:
 
@@ -56,7 +56,7 @@ Acceptance:
 - No mock crypto is used as a substitute for this gate.
 - If WASM is blocked, the cause and alternatives are documented. Stop at the gate before building a UI around an assumed solution.
 
-Unresolved choices include direct upstream reuse versus a compatible adapter, dependency versions, build tooling, and runtime support for upstream threading/C dependencies. Do not resolve these by assumption in C0.
+C1 selects `solana-bls-signatures 4.0.0` with default and parallel features disabled, a small Notar payload adapter, Rust 1.91.1, and LLVM archive tooling. This proves the leaf-crypto path, not direct browser reuse of the full Agave verifier. Full certificate adapters and their compatibility tests remain for C2-C3.
 
 ## C2 - Define evidence contracts and trusted context
 

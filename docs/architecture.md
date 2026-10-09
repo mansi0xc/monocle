@@ -1,6 +1,6 @@
 # Architecture
 
-Status: proposed implementation. The [architecture PDF](architecture.pdf) provides five diagram sheets; this document defines the responsibilities and important details behind them.
+Status: proposed product architecture; a fixed-fixture native/WASM cryptographic experiment is implemented in C1. The [architecture PDF](architecture.pdf) provides five diagram sheets; this document defines the responsibilities and important details behind them.
 
 ## System boundary
 
@@ -35,7 +35,7 @@ Transport sources are untrusted inputs to the verifier. TLS, a familiar endpoint
 | Report inspector | Trace, stake participation, evidence scope, assumptions | Hide unperformed checks behind a success badge |
 | Exporter | Evidence, mutation log, profile/checkpoint identities, prior reports | Treat a stored result as proof when re-imported |
 
-The native tool and worker should call the same core for the same profile. Native/WASM compatibility remains an explicit feasibility gate, not an accomplished integration.
+The native tool and worker should call the same core for the same profile. C1 demonstrates the shared leaf-cryptography path; full certificate integration remains to be implemented. See [compatibility.md](compatibility.md).
 
 ## Proposed source layout
 
@@ -52,7 +52,7 @@ docs/                # public design, research, usage, and status
 commits/             # local ignored checkpoint handoffs
 ```
 
-This layout is planned. No crate or application directory is created merely to imply progress. Exact build tools follow the C1 compatibility result.
+This product layout is planned. C1 lives separately in `experiments/bls-compat/` and `experiments/browser/`, with reproducible scripts and a pinned Rust workspace. It does not create product components merely to imply progress.
 
 ## Core interfaces
 

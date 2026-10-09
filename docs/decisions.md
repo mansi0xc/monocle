@@ -8,11 +8,11 @@ Use a separately trusted, fixed epoch checkpoint as the starting context. This b
 
 ## D002 - One Rust core for native and browser verification
 
-Target native Rust and browser WASM from shared verification logic. This reduces divergence and permits offline inspection. Adoption is conditional on the C1 execution test; the exact dependency and build choices are open.
+Target native Rust and browser WASM from shared verification logic. This reduces divergence and permits offline inspection. C1 passes for the Solana BLS leaf crate on native Rust and browser WASM. Full product integration remains separate; see D009.
 
 ## D003 - Pin supported protocol profiles
 
-Tie message interpretation, signer encoding, cryptographic parameters, and thresholds to an immutable upstream revision. Unknown formats remain unsupported rather than being interpreted heuristically. Pinning is required before implementation claims compatibility.
+Tie message interpretation, signer encoding, cryptographic parameters, and thresholds to an immutable upstream revision. Unknown formats remain unsupported rather than being interpreted heuristically. C1 pins a synthetic probe profile to Agave `98535e50e9bb38574e6b0c31ff284cd864d3ca88`; historical capture compatibility is not established by that choice.
 
 ## D004 - Three conclusions with per-check results
 
@@ -34,6 +34,18 @@ Mansi creates every commit and push. Each assistant work checkpoint ends with a 
 
 Establish the proposal and acceptance criteria, then test actual native/WASM cryptographic compatibility before building an extensive UI. The first product increment must have a genuine verification path, not mocked success indicators.
 
+## D009 - Reuse leaf cryptography with a narrow protocol adapter
+
+C1 uses Solana BLS 4.0.0, blst 0.3.17, and blstrs 0.7.1 under a pinned Rust 1.91.1 toolchain. A small Notar payload adapter is checked against fixed bytes and a wincode reference schema. The full Agave certificate crate is not imported; its broader dependency graph and newer workspace toolchain are unnecessary for this feasibility proof. Complete certificate compatibility remains a later gate.
+
+## D010 - Require a self-contained WASM link and actual execution
+
+Use LLVM archive tooling for the cross-build and reject unresolved runtime imports. A plain successful build previously left BLS symbols unresolved because Apple archive tools did not index the WASM object. Browser execution now checks the actual linked module against native results.
+
+## D011 - Keep the feasibility probe deterministic
+
+The WASM experiment fails closed if a dependency requests entropy and does not enable parallel features. It verifies fixed public test material; it neither generates production keys nor provides an arbitrary signing API. Revisit the entropy backend deliberately if a future feature needs randomness.
+
 ## Open decisions
 
-Exact BLS dependency and license; upstream profile SHA; Rust/WASM build tooling; checkpoint qualification mechanism; evidence digest/canonicalization specification; concrete import limits; supported fallback variants; capture/export source for historical context. Resolve these at their corresponding checkpoint with evidence and tradeoffs.
+Authentic checkpoint qualification; evidence digest/canonicalization; concrete import limits; supported fallback variants; historical capture source; general product WASM API; project publication license. Resolve these at their corresponding checkpoint with evidence and tradeoffs.
