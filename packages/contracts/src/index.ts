@@ -64,7 +64,7 @@ export interface ProtocolProfile {
   schema_version: 1;
   id: string;
   agave_revision: string;
-  capability: 'contracts_only';
+  capability: 'contracts_only' | 'base2_certificate_verification';
   recognized_formats: readonly string[];
   recognized_certificate_kinds: readonly string[];
   recognized_claim_kinds: readonly string[];
@@ -83,7 +83,11 @@ export type DiagnosticCode =
   | 'INVALID_STAKE' | 'INVALID_MUTATION' | 'UNSUPPORTED_PROFILE' | 'PROFILE_MISMATCH'
   | 'UNSUPPORTED_CERTIFICATE' | 'MISSING_CHECKPOINT' | 'CHECKPOINT_NOT_TRUSTED'
   | 'CHECKPOINT_MISMATCH' | 'CONTEXT_MISMATCH' | 'VERIFIER_NOT_IMPLEMENTED'
-  | 'PREREQUISITE_MISSING' | 'OK';
+  | 'MALFORMED_CERTIFICATE' | 'UNSUPPORTED_WIRE_VERSION' | 'ENVELOPE_MISMATCH'
+  | 'CLAIM_MISMATCH' | 'UNSUPPORTED_SIGNER_ENCODING' | 'MALFORMED_BITMAP'
+  | 'UNKNOWN_SIGNER_RANK' | 'EMPTY_SIGNER_SET' | 'INVALID_PUBLIC_KEY'
+  | 'MISSING_POP' | 'INVALID_POP' | 'INVALID_SIGNATURE' | 'INSUFFICIENT_STAKE'
+  | 'STAKE_OVERFLOW' | 'FINALITY_NOT_EVALUATED' | 'PREREQUISITE_MISSING' | 'OK';
 export interface Diagnostic { code: DiagnosticCode; path: string; message: string }
 export type Stage = 'input' | 'profile' | 'context' | 'certificate_decoding' | 'signers'
   | 'key_qualification' | 'signature' | 'quorum' | 'finality';
@@ -129,4 +133,34 @@ export function createVerifyRequest(
 }
 export function encodeVerifyRequest(request: VerifyRequest): Uint8Array {
   return new TextEncoder().encode(JSON.stringify(request));
+}
+
+export type CertificateKind = 'notarization' | 'finalization' | 'fast_finalization' | 'genesis';
+export interface CertificateReport {
+  certificate_id: string;
+  raw_digest: ContentDigest;
+  conclusion: 'VERIFIED' | 'REJECTED' | 'INCONCLUSIVE';
+  kind: CertificateKind | null;
+  slot: DecimalU64 | null;
+  block_id_hex: Hex | null;
+  signed_payload_hex: Hex | null;
+  signer_ranks: number[];
+  /** Selected checkpoint weight; signature acceptance is a separate check. */
+  selected_stake: DecimalU64 | null;
+  total_stake: DecimalU64 | null;
+  threshold_percent: number | null;
+  checks: CheckResult[];
+}
+/** C3 only establishes individual certificate validity under the selected checkpoint. */
+export interface CertificateVerificationReport {
+  schema_version: 1;
+  run_id: string | null;
+  bundle_digest: ContentDigest | null;
+  profile_id: string | null;
+  checkpoint_digest: ContentDigest | null;
+  conclusion: 'VERIFIED' | 'REJECTED' | 'INCONCLUSIVE';
+  evidence_scope: 'individual_certificates';
+  checks: CheckResult[];
+  certificates: CertificateReport[];
+  assumptions: string[];
 }

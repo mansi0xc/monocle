@@ -96,8 +96,7 @@ pub fn preflight(request_bytes: &[u8], trust: &TrustStore) -> VerificationReport
         Stage::Input,
         "Bounded schema and transport checks passed; certificate bytes remain unverified",
     );
-    let profile = protocol_profile();
-    if request.profile_id != profile.id {
+    let Some(profile) = profile_by_id(&request.profile_id) else {
         return report.stop(
             Stage::Profile,
             Diagnostic::new(
@@ -107,7 +106,7 @@ pub fn preflight(request_bytes: &[u8], trust: &TrustStore) -> VerificationReport
             ),
             false,
         );
-    }
+    };
     if bundle.profile_id != request.profile_id {
         return report.stop(
             Stage::Profile,
@@ -139,7 +138,10 @@ pub fn preflight(request_bytes: &[u8], trust: &TrustStore) -> VerificationReport
             false,
         );
     }
-    report.pass(Stage::Profile, "Recognized contracts-only profile; no wire compatibility or finality conclusion established");
+    report.pass(
+        Stage::Profile,
+        "Recognized profile metadata; no certificate verification is performed by preflight",
+    );
     let Some(digest) = request.selected_checkpoint.as_ref() else {
         return report.stop(
             Stage::Context,
@@ -210,7 +212,7 @@ pub fn preflight(request_bytes: &[u8], trust: &TrustStore) -> VerificationReport
         TrustBasis::OperatorPinned { reason } => format!("Operator-pinned checkpoint: {reason}"),
     });
     report.assumptions.push(
-        "Checkpoint PoPs and curve points have not been cryptographically qualified by preflight"
+        "Trust selection alone does not qualify BLS keys; later checks must validate each selected signer's PoP"
             .into(),
     );
     for stage in STAGES.into_iter().skip(3) {
@@ -220,7 +222,7 @@ pub fn preflight(request_bytes: &[u8], trust: &TrustStore) -> VerificationReport
             Diagnostic::new(
                 Code::VerifierNotImplemented,
                 "$",
-                "Certificate verification and finality evaluation are not implemented in C2",
+                "This preflight call does not perform certificate verification or finality evaluation",
             ),
         );
     }

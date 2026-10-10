@@ -3,6 +3,12 @@
 version = 4
 
 [[package]]
+name = "autocfg"
+version = "1.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f2032f911046de80f0a198e0901378627c33f59ea0ac00e363d481118bd70a53"
+
+[[package]]
 name = "base64"
 version = "0.22.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -254,6 +260,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "monocle-certificate-compat"
+version = "0.1.0"
+dependencies = [
+ "monocle-core",
+ "serde_json",
+]
+
+[[package]]
+name = "monocle-certificate-fixtures"
+version = "0.1.0"
+dependencies = [
+ "bitvec",
+ "blstrs",
+ "hex",
+ "serde_json",
+ "sha2",
+ "solana-bls-signatures",
+ "solana-signer-store",
+ "wincode",
+]
+
+[[package]]
 name = "monocle-contracts-compat"
 version = "0.1.0"
 dependencies = [
@@ -265,11 +293,37 @@ dependencies = [
 name = "monocle-core"
 version = "0.1.0"
 dependencies = [
+ "bitvec",
+ "blstrs",
+ "getrandom",
  "hex",
  "serde",
  "serde_json",
  "serde_path_to_error",
  "sha2",
+ "solana-bls-signatures",
+ "solana-signer-store",
+ "wincode",
+]
+
+[[package]]
+name = "num-derive"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ed3955f1a9c7c0c15e092f9c887db08b1fc683305fdf6eb6684f22555355e202"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.119",
+]
+
+[[package]]
+name = "num-traits"
+version = "0.2.19"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "071dfc062690e90b734c0b2273ce72ad0ffa95f0c74596bc250dcfd960262841"
+dependencies = [
+ "autocfg",
 ]
 
 [[package]]
@@ -461,6 +515,17 @@ dependencies = [
  "rand",
  "thiserror",
  "zeroize",
+]
+
+[[package]]
+name = "solana-signer-store"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "36329bba208f0e41954389ae4ad5d973fe15952672cfd71a9b49deb7d2ecbc2f"
+dependencies = [
+ "bitvec",
+ "num-derive",
+ "num-traits",
 ]
 
 [[package]]

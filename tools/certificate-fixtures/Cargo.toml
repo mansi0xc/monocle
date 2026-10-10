@@ -1,0 +1,17 @@
+[package]
+name = "monocle-certificate-fixtures"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[dependencies]
+solana-bls-signatures = { version = "=4.0.0", default-features = false }
+solana-signer-store = "=0.1.0"
+bitvec = "=1.1.1"
+wincode = { version = "=0.6.1", features = ["derive"] }
+serde_json = "=1.0.145"
+hex = "=0.4.3"
+sha2 = "=0.10.9"
+
+blstrs = "=0.7.1"

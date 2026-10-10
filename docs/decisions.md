@@ -62,6 +62,18 @@ C2 uses a contracts-only profile and `preflight_only` report scope. Unknown vers
 
 Use explicit file, nesting, entry, and byte limits; require every certificate to be selected exactly once. C2 mutation metadata describes one bounded equal-length replacement per affected certificate. Parent history validation and mutation application wait for C6. These are MVP container decisions, not Solana consensus limits.
 
+## D016 - Explicit Base2 certificate profile and separate result scope
+
+C3 accepts full versioned V1 consensus certificate messages for four kinds, with Base2 signers only. It reconstructs exact source votes, qualifies selected keys with actual standard PoPs, and checks real signatures and exact stake. Inspection success is scoped to individual certificates; block and migration claims stay inconclusive until C4. C2's preflight contract remains separate.
+
+## D017 - Source-derived reference encoding, independent runtime decoding
+
+The C3 generator does not depend on the runtime core. It uses reduced pinned wincode schemas and the upstream signer-store encoder. Runtime decoding is bounded and manual; tests compare explicit bytes and the reference schemas. This avoids a self-confirming shared serializer but does not claim full upstream verifier execution. Nonzero unused bitmap padding is intentionally rejected, a documented stricter rule than upstream.
+
+## D018 - Actual PoPs without a registration shortcut
+
+C3 verifies public-key-bound proofs with no extra application payload and never creates a qualified key from an imported Boolean. Trust in the checkpoint and its stake/rank data is still supplied separately. Application-specific registration proofs and historical provenance require additional evidence before real captures can be verified.
+
 ## Open decisions
 
 Authentic historical checkpoint acquisition and key qualification; supported fallback variants; historical capture source; general product WASM API; project publication license. Resolve these at their corresponding checkpoint with evidence and tradeoffs.

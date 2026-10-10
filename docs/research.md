@@ -54,3 +54,11 @@ Record exact source revisions, dependency versions, commands, decisive results, 
 C2 uses a duplicate-rejecting, bounded JSON visitor before typed decoding; a generic JSON value parse alone would erase repeated object fields. Exact-source hashing avoids inventing a canonical JSON representation. SHA-256 is supplied by RustCrypto, with an independent known-answer test and browser WebCrypto comparison.
 
 The [C2 contract specification](contracts.md) records primary library documentation, version pins, resource limits, and the trust boundary. This checkpoint does not select a new consensus rule or establish historical capture compatibility.
+
+## C3 implementation findings (2026-10-11)
+
+The pinned wire schema distinguishes containing certificate tags from source-vote tags. Fast-finalization uses notarization vote signatures; finalization signs only a slot and shred version. The four supported thresholds are inclusive 60/60/80/82%, and the upstream certificate verifier checks signatures before quorum using externally supplied qualified rank/stake context.
+
+C3 directly reuses signer-store 0.1.0 Base2 decoding. Inspection found that it truncates unused padding bits; Monocle intentionally requires zero padding. Checked SDK point conversions and real PoP checks qualify selected keys. Synthetic on-curve points outside the prime-order subgroups test both G1 and G2 rejection, alongside identity/malformed points and wrong-key PoPs.
+
+The reduced schema/reference and bounded runtime adapter agree on four wire kinds and exact source payloads. This is not a differential run of the full Agave verifier. Exact sources, file hashes, policy differences, and remaining qualification/context limits are in [the C3 specification](certificate-verification.md) and [profile record](../experiments/certificate-compat/protocol-profile.json). The historical genesis capture remains unverified.

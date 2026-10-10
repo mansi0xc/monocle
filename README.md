@@ -4,7 +4,7 @@ An open-source finality debugger for Solana's Alpenglow consensus.
 
 Monocle is designed to inspect certificate evidence, check signatures and stake thresholds against an explicitly trusted validator checkpoint, and explain the result. Its planned tamper lab preserves the original evidence, applies a controlled change, and shows which verification checks change. Portable bundles make experiments reproducible offline.
 
-**Project status:** C2 evidence contracts and checkpoint selection implemented. Bounded Rust parsing, exact integer transport, preserved-byte digests, and explicit local trust selection run in native Rust and a browser WASM harness. C1's real synthetic BLS checks remain in place. Full certificate/signature/quorum integration, finality evaluation, the product UI, and real-network verification remain unimplemented.
+**Project status:** C3 individual certificate verification is implemented for four certificate kinds with Base2 signer bitmaps. The shared Rust core checks exact signed bytes, real BLS aggregates, selected-key proofs of possession, and integer stake thresholds against an explicitly selected checkpoint. Native and browser WASM harnesses exercise deterministic signed fixtures. Finality composition, the product UI, and real-network verification remain unimplemented.
 
 ## What the MVP will do
 
@@ -27,6 +27,7 @@ The MVP uses a fixed checkpoint. Authenticating validator-set changes across epo
 | [Cryptography](docs/cryptography.md) | BLS aggregation, stake arithmetic, payloads, and checkpoint trust |
 | [Research](docs/research.md) | Primary sources, observations, and unresolved implementation questions |
 | [Testing](docs/testing.md) | Required positive, negative, interoperability, and browser checks |
+| [C3 certificate verification](docs/certificate-verification.md) | Supported wire profile, BLS/PoP checks, exact thresholds, and limits |
 | [C2 evidence contracts](docs/contracts.md) | Input schema, bounds, digests, trust selection, and preflight semantics |
 | [C1 compatibility experiment](docs/compatibility.md) | Pinned sources, real native/browser checks, and reproducible commands |
 | [Development workflow](docs/development-workflow.md) | Owner-controlled commit gates and environment setup |
@@ -35,16 +36,16 @@ The MVP uses a fixed checkpoint. Authenticating validator-set changes across epo
 
 ## Planned implementation
 
-A Rust library will own verification and finality evaluation. A small native tool will prepare fixtures and capture files; a WASM build will run the same verification logic in a browser worker. A TypeScript interface will handle inspection, mutations, comparison, and local import/export. C1 establishes a working native/WASM path using the Solana BLS leaf crate; C2 adds `crates/monocle-core` for input and context preparation and `packages/contracts` for TypeScript transport. Certificate verification and the product interface remain planned.
+The Rust library owns individual certificate verification; finality evaluation is the next checkpoint. A small native tool will prepare fixtures and capture files; a WASM build will run the same verification logic in a browser worker. A TypeScript interface will handle inspection, mutations, comparison, and local import/export. C1 establishes a working native/WASM path using the Solana BLS leaf crate; C2 adds `crates/monocle-core` for input and context preparation and `packages/contracts` for TypeScript transport. C3 adds the certificate verifier, an independent signed-fixture generator, and a browser certificate harness. The product interface remains planned.
 
 Run the current checks from the repository root:
 
 ```sh
 npm ci --ignore-scripts --no-audit --no-fund
-bash scripts/check-contracts.sh
+bash scripts/check-certificates.sh
 ```
 
-It requires Rustup, a WASM-capable Clang, Node.js, and Chrome/Chromium (`CHROME_BIN` can select its executable). The pinned toolchain includes the WASM target and LLVM tools. See [contracts.md](docs/contracts.md) and [compatibility.md](docs/compatibility.md) for commands and limits. There is no product application start command yet.
+It requires Rustup, a WASM-capable Clang, Node.js, and Chrome/Chromium (`CHROME_BIN` can select its executable). The pinned toolchain includes the WASM target and LLVM tools. See [certificate-verification.md](docs/certificate-verification.md) and [compatibility.md](docs/compatibility.md) for commands and limits. There is no product application start command yet.
 
 ## Development ownership
 

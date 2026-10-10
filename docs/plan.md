@@ -56,11 +56,11 @@ Acceptance:
 - No mock crypto is used as a substitute for this gate.
 - If WASM is blocked, the cause and alternatives are documented. Stop at the gate before building a UI around an assumed solution.
 
-C1 selects `solana-bls-signatures 4.0.0` with default and parallel features disabled, a small Notar payload adapter, Rust 1.91.1, and LLVM archive tooling. This proves the leaf-crypto path, not direct browser reuse of the full Agave verifier. Full certificate adapters and their compatibility tests remain for C2-C3.
+C1 selects `solana-bls-signatures 4.0.0` with default and parallel features disabled, a small Notar payload adapter, Rust 1.91.1, and LLVM archive tooling. This proves the leaf-crypto path, not direct browser reuse of the full Agave verifier. C3 now implements the four-kind Base2 adapter and compatibility tests; full upstream differential execution remains unperformed.
 
-## C2 - Define evidence contracts and trusted context (current handoff)
+## C2 - Define evidence contracts and trusted context (committed)
 
-Implemented scope and constraints are in [contracts.md](contracts.md). C3 waits for the owner to commit C2.
+Implemented scope and constraints are in [contracts.md](contracts.md). Mansi committed C2 as `39399a6`.
 
 Create the Rust workspace modules and TypeScript boundary contracts supported by the C1 result. Define versioned `ProofBundle`, `CertificateEnvelope`, `EpochCheckpoint`, `ProtocolProfile`, `VerifyRequest`, `VerificationReport`, and `MutationRecord` representations.
 
@@ -74,7 +74,9 @@ Acceptance:
 - Missing context produces an inconclusive report with dependent checks not performed.
 - Schema/profile compatibility has deterministic behavior across native and browser boundaries.
 
-## C3 - Native verifier and cryptographic fixtures
+## C3 - Native verifier and cryptographic fixtures (current handoff)
+
+Implemented scope and compatibility evidence are in [certificate-verification.md](certificate-verification.md). Four certificate kinds with Base2 signers are covered. C4 waits for Mansi to commit C3.
 
 Implement profile-specific message construction, signer decoding, rank lookup, public-key/PoP qualification, aggregate signature verification, and checked stake accumulation. Prefer upstream verification behavior or a differential reference harness to independently establish compatibility.
 

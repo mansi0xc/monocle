@@ -11,9 +11,10 @@ import assert from 'node:assert/strict';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const contracts = process.argv[2] === 'contracts';
-if (process.argv[2] && !contracts) throw new Error('Expected no argument or contracts');
-const browserAssets = contracts ? 'experiments/contracts-browser' : 'experiments/browser';
-const wasmName = contracts ? 'monocle_contracts_compat' : 'monocle_bls_compat';
+const certificates = process.argv[2] === 'certificates';
+if (process.argv[2] && !contracts && !certificates) throw new Error('Expected no argument, contracts, or certificates');
+const browserAssets = certificates ? 'experiments/certificate-browser' : contracts ? 'experiments/contracts-browser' : 'experiments/browser';
+const wasmName = certificates ? 'monocle_certificate_compat' : contracts ? 'monocle_contracts_compat' : 'monocle_bls_compat';
 const candidates = [process.env.CHROME_BIN, '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', '/usr/bin/chromium', '/usr/bin/chromium-browser', '/usr/bin/google-chrome'].filter(Boolean);
 const chrome = candidates.find(existsSync);
 if (!chrome) throw new Error('Chromium/Chrome not found. Set CHROME_BIN to the browser executable.');
@@ -60,7 +61,7 @@ let child; let timer; let closed;
 try {
   await new Promise((done, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', done); });
   const url = `http://127.0.0.1:${server.address().port}/`;
-  const native = JSON.parse(execFileSync('cargo', ['run', '--locked', '--quiet', ...(contracts ? ['-p', 'monocle-contracts-compat'] : ['--bin', 'probe'])], { cwd: root, encoding: 'utf8', timeout: 60_000 }));
+  const native = JSON.parse(execFileSync('cargo', ['run', '--locked', '--quiet', ...(certificates ? ['-p', 'monocle-certificate-compat'] : contracts ? ['-p', 'monocle-contracts-compat'] : ['--bin', 'probe'])], { cwd: root, encoding: 'utf8', timeout: 60_000 }));
   let stderr = '';
   child = spawn(chrome, [
     '--headless', '--disable-gpu', '--no-first-run', '--no-default-browser-check',
@@ -77,9 +78,9 @@ try {
   clearTimeout(timer);
   if (delivered.state !== 'passed') throw new Error(`Browser did not pass: ${delivered.report}`);
   const browser = JSON.parse(delivered.report);
-  if (contracts) {
+  if (contracts || certificates) {
     assert.deepEqual(browser.result, native);
-    console.log(JSON.stringify({ experiment: 'C2 contracts', native_browser_match: true, browser_checks: browser.checks, cases: native.cases.map(item => ({ name: item.name, conclusion: item.report.conclusion })), runtime: browser.runtime }, null, 2));
+    console.log(JSON.stringify({ experiment: certificates ? 'C3 certificates' : 'C2 contracts', native_browser_match: true, browser_checks: browser.checks, cases: native.cases.map(item => ({ name: item.name, conclusion: item.report.conclusion })), runtime: browser.runtime }, null, 2));
   } else {
     assert.deepEqual(browser.cases, native.cases);
     console.log(JSON.stringify({ profile_id: native.profile_id, agave_revision: native.agave_revision, native_browser_match: true, ...browser }, null, 2));

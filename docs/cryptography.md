@@ -1,6 +1,6 @@
 # Cryptographic model and implementation obligations
 
-Status: product requirements plus a completed C1 primitive experiment. C1 derives public deterministic test keys and verifies their serialized aggregate and proofs of possession on native Rust and browser WASM. C2 adds SHA-256 source identities and structural checkpoint checks. It does not cryptographically qualify checkpoint keys or PoPs. No production keys are generated and no real-network finality is verified.
+Status: C1 proves fixed native/browser BLS execution; C2 supplies input and checkpoint boundaries; C3 implements individual certificate verification with checked points, actual selected-key PoPs, and exact stake thresholds. See [certificate-verification.md](certificate-verification.md) for the supported profile and compatibility evidence. No real-network finality is verified.
 
 ## Three questions that must remain separate
 
@@ -24,7 +24,7 @@ Protocol context: [SIMD-0326](https://github.com/solana-foundation/solana-improv
 
 An aggregate verifier must not accept arbitrary attacker-chosen public keys under assumptions that require proof of key possession. A malicious key registration can otherwise exploit relationships between public keys. Proof-of-possession validation and an authentic validator registry address different problems: possession of a key does not establish its rightful stake.
 
-Monocle's checkpoint policy must choose between verifying actual qualification evidence and trusting a source that already performed the required qualification. Imported metadata saying a key was validated is not itself evidence. The UI and report must disclose which route was used. A conversion into an upstream qualified-key type must never bypass the required trust decision.
+C3 requires actual standard public-key-bound PoPs for each selected signer. It does not accept a trusted-source Boolean as a substitute; alternative qualification policies require a separate deliberate profile. Imported metadata saying a key was validated is not itself evidence. The UI and report must disclose which route was used. A conversion into an upstream qualified-key type must never bypass the required trust decision.
 
 Relevant implementation surface: [Agave certificate verifier](https://github.com/anza-xyz/agave/blob/master/bls-cert-verify/src/cert_verify.rs).
 
@@ -92,10 +92,16 @@ Certificates in this scope do not verify transaction execution results, account 
 
 ## What remains to establish in code
 
-C1 pins the BLS dependency and upstream reference, checks one Notar payload layout, verifies uncompressed fixture points and public-key PoPs, and demonstrates browser execution. See [compatibility.md](compatibility.md). Bitmap decoding, authentic checkpoint qualification, complete malformed-point coverage, stake thresholds, certificate composition, and full upstream differential checks remain for later milestones.
+C1 pins the BLS dependency and upstream reference, checks one Notar payload layout, verifies uncompressed fixture points and public-key PoPs, and demonstrates browser execution. See [compatibility.md](compatibility.md). C3 adds Base2 decoding, actual standard PoP checks, malformed/identity/subgroup tests, and exact stake thresholds. Authentic historical checkpoint acquisition, application-specific registration qualification, additional malformed-point/fuzz coverage, certificate composition, and full upstream differential execution remain open.
 
 ## C2 input and trust implementation
 
 The core preserves original bytes, rejects duplicate JSON keys and lossy numeric transport, and hashes exact inputs with SHA-256. Checkpoint ranks remain in their declared order, duplicate identities/keys are rejected, and listed stake uses u128 accumulation against the original denominator. These are input invariants, not quorum decisions.
 
-Only an explicit local `TrustStore.pin` decision makes a parsed checkpoint selectable; bundle labels, digest references, and imported Boolean flags cannot do so. PoP bytes remain unqualified until C3. See [contracts.md](contracts.md) for precise limits and report semantics.
+Only an explicit local `TrustStore.pin` decision makes a parsed checkpoint selectable; bundle labels, digest references, and imported Boolean flags cannot do so. Parsing and preflight alone leave PoP bytes unqualified; the separate C3 certificate API performs those checks. See [contracts.md](contracts.md) for precise limits and report semantics.
+
+## C3 implemented scope
+
+The four-kind Base2 profile reconstructs source vote payloads separately from containing wire messages, verifies BLS aggregates using qualified selected keys, and retains the original trusted denominator. Fast-finalization uses a Notar vote payload; finalization signs a slot only. `selected_stake` is a decoded fact and must be read alongside the signature check. All finality composition remains unperformed.
+
+Standard PoPs bind the compressed public key and no additional application payload. They do not authenticate checkpoint membership or prove vote-account registration. Nonzero unused bitmap padding is deliberately rejected, even though upstream truncates it. These restrictions and independently encoded fixture tests are documented in [certificate-verification.md](certificate-verification.md).

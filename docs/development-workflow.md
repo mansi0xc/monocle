@@ -58,3 +58,7 @@ Do not publish, deploy, or change repository settings merely because a checkpoin
 ## C2 boundary tooling
 
 C2 adds the `monocle-core` workspace crate and a private npm package used only to pin TypeScript 5.9.3 for contract checks. Use `npm ci --ignore-scripts --no-audit --no-fund`, then `bash scripts/check-contracts.sh`. Compiled TypeScript, shape-check fixtures, and WASM remain under ignored `target/`; `node_modules/` is ignored. No global npm installation or product UI framework is required.
+
+## C3 verification tooling
+
+Use `bash scripts/check-certificates.sh` for the complete current gate. It includes earlier checkpoint checks, the signed fixture regeneration comparison, and the C3 native/browser comparison. `cargo run --locked --quiet -p monocle-certificate-compat` prints the fixed corpus reports. Arbitrary-input native consumers can call `monocle_core::certificate::verify_certificates`; there is no general-purpose CLI or product browser input interface yet. Fixture generation is a separate development tool and has no dependency on the verification core.

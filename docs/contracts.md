@@ -1,6 +1,6 @@
 # C2: evidence contracts and explicit checkpoint selection
 
-Status: implemented as a Rust library and TypeScript transport package. The browser compatibility harness executes the same Rust preflight logic. No certificate decoder, signature/quorum verifier, finality evaluator, product worker, or inspector UI is introduced by C2.
+Status: implemented as a Rust library and TypeScript transport package. The browser compatibility harness executes the same Rust preflight logic. No certificate decoder, signature/quorum verifier, finality evaluator, product worker, or inspector UI is introduced by C2. The separate [C3 API](certificate-verification.md) now implements individual certificate checks; this document describes the preflight boundary.
 
 ## Entry points and source layout
 
@@ -26,7 +26,7 @@ Status: implemented as a Rust library and TypeScript transport package. The brow
 
 All input structs reject unknown fields. In particular, `trusted`, `pop_verified`, embedded checkpoints, and imported verification reports are not accepted as shortcuts. Optional fields accept omission or JSON `null`; serialization emits them explicitly as `null` when absent.
 
-There are no duplicate normalized signature, bitmap, or block fields in a certificate envelope. Its raw bytes will be decoded by C3 under a supported source format. The envelope's kind and the bundle's slot/block claim are unverified assertions until that decoding and semantic binding occurs.
+There are no duplicate normalized signature, bitmap, or block fields in a certificate envelope. Its raw bytes are decoded by the separate C3 API under a supported source format. The envelope's kind and the bundle's slot/block claim are unverified assertions until that decoding and semantic binding occurs.
 
 Every certificate must be selected by the claim exactly once. C2 rejects duplicate IDs, absent references, or unselected extra certificates. This avoids silently changing which evidence a run considers. The order of the raw certificate list is retained.
 
@@ -34,7 +34,7 @@ Every certificate must be selected by the claim exactly once. C2 rejects duplica
 
 Slots, epochs, stake values, and mutation offsets use canonical decimal **strings** covering the full `u64` range, from `"0"` to `"18446744073709551615"`. JSON numbers are rejected for these fields, even if a small number would be exactly representable. Leading zeroes, signs, spaces, decimal points, scientific notation, and overflow are rejected. Schema versions, shred versions, and rank indices use bounded JSON integers that are exactly representable by JavaScript.
 
-Binary fields use even-length lowercase hex with no `0x` prefix. Fixed-width fields enforce their lengths: genesis hash and validator identity 32 bytes, uncompressed BLS key 96 bytes, and optional uncompressed PoP 192 bytes. These are **encoding checks only**. A correctly sized string of zero bytes is not thereby a valid group point or PoP; cryptographic validation remains C3 work.
+Binary fields use even-length lowercase hex with no `0x` prefix. Fixed-width fields enforce their lengths: genesis hash and validator identity 32 bytes, uncompressed BLS key 96 bytes, and optional uncompressed PoP 192 bytes. These are **encoding checks only**. A correctly sized string of zero bytes is not thereby a valid group point or PoP; cryptographic validation is performed by the separate C3 API.
 
 `ContentDigest` is `sha256:` followed by 64 lowercase hex digits. It hashes the exact preserved source bytes, including whitespace, order, and trailing newline. There is no JSON canonicalization step. Reformatting a checkpoint changes its identity and requires a new explicit selection/pin. A document can serialize and reparse with the same evidence bytes and values while acquiring a different outer file digest.
 
@@ -96,7 +96,7 @@ The selected checkpoint must match the profile, genesis hash, epoch, and shred v
 
 ## Preflight behavior
 
-The compiled profile is `agave-98535e50-contracts-v1`, tied to Agave `98535e50e9bb38574e6b0c31ff284cd864d3ca88`. It is separate from C1's synthetic signature probe profile. Its capability is explicitly `contracts_only`.
+The C2 compiled profile is `agave-98535e50-contracts-v1`, tied to Agave `98535e50e9bb38574e6b0c31ff284cd864d3ca88`. It is separate from C1's synthetic signature probe profile. Its capability is explicitly `contracts_only`.
 
 It recognizes the **names** of the `agave-certificate-wincode` format and four certificate kinds: notarization, finalization, fast finalization, and genesis. It recognizes certificate inspection, block-finality, and genesis-migration claim names. Recognizing a name does not decode its bytes or implement its semantics. Unsupported names produce an inconclusive report; they are never guessed from input shape.
 
@@ -129,7 +129,7 @@ bash scripts/check-contracts.sh
 
 The browser runner waits for an explicit completion report over its temporary loopback server, with a 60-second deadline; it does not infer success from a page-load event.
 
-This type-checks the TypeScript boundary, checks actual Rust/fixture JSON against those types, runs all native tests and Clippy, regenerates the original C1 signature fixture, builds both WASM probes, and executes both in actual Chrome/Chromium. `CHROME_BIN` can select the executable. It requires the C1 Rust/Clang prerequisites and Node.js; C2 adds only a pinned TypeScript development dependency, not a UI framework.
+This type-checks the TypeScript boundary, checks actual Rust/fixture JSON against those types, runs all native tests and Clippy, regenerates the original C1 signature fixture, builds the workspace WASM probes, and executes the C1 and C2 probes in actual Chrome/Chromium. Use `check-certificates.sh` for the additional C3 regeneration and browser gate. `CHROME_BIN` can select the executable. It requires the C1 Rust/Clang prerequisites and Node.js; C2 adds only a pinned TypeScript development dependency, not a UI framework.
 
 To inspect the native preflight corpus:
 

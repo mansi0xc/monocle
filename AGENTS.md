@@ -17,7 +17,7 @@ These rules are explicit instructions from Mansi and apply to every assistant wo
 
 ## Project context
 
-Read `docs/status.md`, `docs/idea.md`, `docs/plan.md`, and the relevant architecture/cryptography documents before implementation. Keep public documentation aligned with implemented behavior. C1 proves fixed-fixture native/browser BLS execution. C2 adds bounded contracts and explicit checkpoint selection; its preflight always remains inconclusive after successful preparation. Neither is a complete certificate or finality verifier. Consult current status before making claims.
+Read `docs/status.md`, `docs/idea.md`, `docs/plan.md`, and the relevant architecture/cryptography documents before implementation. Keep public documentation aligned with implemented behavior. C1 proves fixed-fixture native/browser BLS execution. C2 adds bounded contracts and explicit checkpoint selection; its preflight always remains inconclusive after successful preparation. C3 adds individual certificate verification for the explicit Base2 profile, including real signatures, PoPs, and quorum. Finality composition is not implemented. Consult current status before making claims.
 
 Monocle is a finality debugger with a fixed trusted validator checkpoint for the MVP. It is not yet an authenticated light client. Synthetic fixtures, raw RPC captures, validated certificates, and block-finality conclusions are distinct objects and must be presented distinctly.
 

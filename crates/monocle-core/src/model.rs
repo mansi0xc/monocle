@@ -135,6 +135,15 @@ pub fn protocol_profile() -> ProtocolProfile {
     }
 }
 
+/// The C2 contracts-only profile remains available without changing its capability.
+pub fn profile_by_id(id: &str) -> Option<ProtocolProfile> {
+    match id {
+        PROFILE_ID => Some(protocol_profile()),
+        crate::certificate::PROFILE_ID => Some(crate::certificate::protocol_profile()),
+        _ => None,
+    }
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum Conclusion {

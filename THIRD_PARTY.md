@@ -7,6 +7,8 @@ Monocle consumes established cryptographic implementations as Cargo dependencies
 | solana-bls-signatures | 4.0.0 | Apache-2.0 | Solana signature and proof-of-possession API |
 | blst | 0.3.17 | Apache-2.0 | BLS12-381 native/WASM cryptographic backend |
 | blstrs | 0.7.1 | MIT OR Apache-2.0 | Rust curve and pairing wrappers |
+| solana-signer-store | 0.1.0 | Apache-2.0 | Runtime Base2 decoding and development fixture encoding |
+| bitvec | 1.1.1 | MIT | Packed-bit reference fixtures; transitive signer-store dependency |
 | wincode | 0.6.1 | Apache-2.0 | Test-only independent schema serialization |
 | serde | 1.0.228 | MIT OR Apache-2.0 | Fixed fixture decoding and reporting |
 | serde_json | 1.0.145 | MIT OR Apache-2.0 | JSON fixture/report transport for the experiment |
@@ -27,3 +29,5 @@ The Notar payload layout and the small reference schema in `experiments/bls-comp
 The adapted reference uses a reduced Notar-only enum and local field types. The runtime serializer is an explicit 43-byte adapter, not an imported full Agave vote/certificate decoder. The source revisions, inspected-file hashes, domain strings, and formats are recorded in [the experiment profile](experiments/bls-compat/protocol-profile.json).
 
 Project publication licensing remains an owner decision; this notice does not assign a license to all Monocle-authored code.
+
+C3 adapts the four-kind complete wire layout and source-vote layout in `crates/monocle-core/src/certificate/wire.rs` and `tools/certificate-fixtures/src/reference.rs` from the same Apache-2.0 Agave revision. The reference is reduced to four certificate kinds and three vote payloads, with local field types. The runtime adapter adds allocation/consumption limits; Base2 decoding directly uses the upstream signer-store crate and adds a documented stricter padding check. The existing upstream license copy applies to this attribution as well. See [C3 profile and inspected-source hashes](experiments/certificate-compat/protocol-profile.json).

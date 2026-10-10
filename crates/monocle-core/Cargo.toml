@@ -11,3 +11,13 @@ serde_json = "=1.0.145"
 serde_path_to_error = "=0.1.20"
 hex = "=0.4.3"
 sha2 = "=0.10.9"
+solana-bls-signatures = { version = "=4.0.0", default-features = false }
+solana-signer-store = "=0.1.0"
+
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+getrandom = { version = "=0.2.16", features = ["custom"] }
+
+[dev-dependencies]
+wincode = { version = "=0.6.1", features = ["derive"] }
+bitvec = "=1.1.1"
+blstrs = "=0.7.1"
