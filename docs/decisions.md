@@ -46,6 +46,22 @@ Use LLVM archive tooling for the cross-build and reject unresolved runtime impor
 
 The WASM experiment fails closed if a dependency requests entropy and does not enable parallel features. It verifies fixed public test material; it neither generates production keys nor provides an arbitrary signing API. Revisit the entropy backend deliberately if a future feature needs randomness.
 
+## D012 - Preserve source bytes and hash them without JSON canonicalization
+
+C2 retains original UTF-8 input, uses SHA-256 over exactly those bytes, and keeps evidence parsing in Rust. TypeScript transports the original JSON text rather than parsing and re-stringifying it. Whitespace changes alter identity; digests do not confer authenticity.
+
+## D013 - Separate local trust decisions from import
+
+A parsed checkpoint is untrusted until explicitly pinned in the local Rust trust store. A request selects an existing digest, and a bundle reference only constrains that selection. Operator reasons and synthetic-only decisions are disclosed. No imported flag bypasses PoP qualification.
+
+## D014 - Report preparation separately from verification
+
+C2 uses a contracts-only profile and `preflight_only` report scope. Unknown versions/formats and missing or mismatched context stay inconclusive. A valid input/context combination still leaves all certificate verification stages unperformed. The C1 BLS probe is not silently promoted into a complete verifier.
+
+## D015 - Bound the initial container and mutation policy
+
+Use explicit file, nesting, entry, and byte limits; require every certificate to be selected exactly once. C2 mutation metadata describes one bounded equal-length replacement per affected certificate. Parent history validation and mutation application wait for C6. These are MVP container decisions, not Solana consensus limits.
+
 ## Open decisions
 
-Authentic checkpoint qualification; evidence digest/canonicalization; concrete import limits; supported fallback variants; historical capture source; general product WASM API; project publication license. Resolve these at their corresponding checkpoint with evidence and tradeoffs.
+Authentic historical checkpoint acquisition and key qualification; supported fallback variants; historical capture source; general product WASM API; project publication license. Resolve these at their corresponding checkpoint with evidence and tradeoffs.

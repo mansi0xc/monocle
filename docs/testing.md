@@ -1,12 +1,12 @@
 # Validation strategy
 
-Status: C1 contains eight native integration tests and six browser/native comparison cases. The broader product validation below remains planned.
+Status: C1 provides eight native crypto tests and six browser/native cases. C2 adds 18 native contract tests, 13 complete report comparisons in browser WASM, and TypeScript transport/shape checks. The broader product validation below remains planned.
 
 ## Current executable checks
 
-Run `bash scripts/check-compat.sh` from the repository root. It checks formatting, native tests, Clippy, deterministic fixture regeneration, a WASM release build with no unresolved imports, and actual Chrome/Chromium execution. See [compatibility.md](compatibility.md) for the tested scope and prerequisites.
+Run `npm ci --ignore-scripts --no-audit --no-fund`, then `bash scripts/check-contracts.sh` from the repository root. It checks formatting, native tests, Clippy, deterministic fixture regeneration, a WASM release build with no unresolved imports, and actual Chrome/Chromium execution. See [compatibility.md](compatibility.md) for the tested scope and prerequisites.
 
-This covers a fixed synthetic BLS aggregate and five negative cases, not untrusted bundle parsing, quorum, or finality evaluation.
+The current suite covers the synthetic BLS baseline plus bounded input parsing, byte identity, exact integer transport, and explicit context selection. C2 compares actual Rust reports with TypeScript types and native versus browser outputs. Browser WebCrypto independently checks the source digest. Quorum, complete certificate verification, and finality evaluation remain unimplemented. See [contracts.md](contracts.md).
 
 ## Evidence hierarchy
 

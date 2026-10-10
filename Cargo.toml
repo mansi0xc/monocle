@@ -1,5 +1,5 @@
 [workspace]
-members = ["experiments/bls-compat"]
+members = ["experiments/bls-compat", "crates/monocle-core", "experiments/contracts-compat"]
 resolver = "2"
 
 [workspace.package]

@@ -6,7 +6,7 @@ Status: proposed MVP; foundation prepared on 2026-10-09.
 
 Monocle is an open-source finality debugger for Solana's Alpenglow consensus, designed to make cryptographic verification understandable and reproducible. It checks certificate signatures and validator stake thresholds against a trusted checkpoint, explaining why verification succeeds, fails, or remains inconclusive. Its tamper lab and portable evidence bundles let developers experiment with altered certificates, compare results, and replay verification offline.
 
-These sentences describe the intended product. The repository now contains a small native/browser BLS compatibility experiment; the full inspector, certificate evaluator, and tamper application remain unimplemented.
+These sentences describe the intended product. The repository now contains native/browser BLS compatibility checks plus bounded evidence contracts and explicit local checkpoint selection; the full inspector, certificate evaluator, and tamper application remain unimplemented.
 
 ## The problem
 

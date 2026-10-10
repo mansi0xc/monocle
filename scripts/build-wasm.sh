@@ -13,11 +13,13 @@ if [[ ! -x "$llvm_ar" ]]; then
 fi
 export AR_wasm32_unknown_unknown="$llvm_ar"
 export CC_wasm32_unknown_unknown="${CC_wasm32_unknown_unknown:-clang}"
-cargo build --locked --release --lib --target wasm32-unknown-unknown
+cargo build --locked --workspace --release --lib --target wasm32-unknown-unknown
 node --input-type=module - <<'JS'
 import { readFile } from 'node:fs/promises';
-const module = await WebAssembly.compile(await readFile('target/wasm32-unknown-unknown/release/monocle_bls_compat.wasm'));
-const imports = WebAssembly.Module.imports(module);
-if (imports.length) throw new Error(`Unresolved WASM imports: ${JSON.stringify(imports)}`);
-console.log('WASM link check passed: no unresolved runtime imports.');
+for (const name of ['monocle_bls_compat', 'monocle_contracts_compat']) {
+  const module = await WebAssembly.compile(await readFile(`target/wasm32-unknown-unknown/release/${name}.wasm`));
+  const imports = WebAssembly.Module.imports(module);
+  if (imports.length) throw new Error(`Unresolved WASM imports: ${JSON.stringify(imports)}`);
+  console.log(`${name}: WASM link check passed; no unresolved runtime imports.`);
+}
 JS

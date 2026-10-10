@@ -20,7 +20,7 @@ The native fixture generator derives three publicly known test keys, signs one N
 
 A small hand-written payload adapter is checked against both a fixed expected byte string and a separately defined `wincode` schema matching the pinned Notar/Block fields. This is a source-level serialization check, not execution of Agave's complete certificate verifier.
 
-The Rust library has a deliberately narrow, pointer-free WASM ABI: enumerate a fixed set of embedded probe cases and return `1` for accepted, `0` for cryptographic rejection, or `2` for an experiment/input error. It is not the product's general-purpose input API. C2 will define that boundary and bounded untrusted parsing.
+The Rust library has a deliberately narrow, pointer-free WASM ABI: enumerate a fixed set of embedded probe cases and return `1` for accepted, `0` for cryptographic rejection, or `2` for an experiment/input error. It is not the product's general-purpose input API. C2 now defines the evidence contracts and bounded parsing; the product worker/WASM API remains C5 work. See [contracts.md](contracts.md).
 
 ## Reproduce the checks
 
@@ -30,7 +30,7 @@ Prerequisites: Rustup, a WASM-capable Clang, Node.js, and Chrome or Chromium. `r
 bash scripts/check-compat.sh
 ```
 
-The script runs formatting checks, eight native integration tests, Clippy with warnings denied, deterministic fixture regeneration, a WASM release build, an unresolved-import check, and real headless-browser execution compared with the native executable. Browser testing uses a temporary profile and a loopback server; both are cleaned up when the run finishes. There is no npm dependency installation step.
+The script runs formatting checks, the workspace native tests (including C1's eight integration tests), Clippy with warnings denied, deterministic fixture regeneration, a WASM release build, an unresolved-import check, and real headless-browser execution compared with the native executable. Browser testing uses a temporary profile and a loopback server; both are cleaned up when the run finishes. There is no npm dependency installation step.
 
 Individual commands:
 
@@ -71,4 +71,6 @@ Per-run environment and detailed outcomes are recorded in the ignored local chec
 
 No rank bitmap is decoded by C1. No historical validator set or stake denominator is authenticated. No stake threshold or finality composition is evaluated. No real testnet certificate is verified. Complete subgroup/identity/encoding edge-case coverage and full upstream differential certificate tests remain for the verifier checkpoint. The experiment page is a developer test harness, not the planned inspector or tamper lab.
 
-The next milestone is C2, defining versioned evidence contracts and explicit trusted-context selection, after the owner commits this checkpoint.
+C1 was committed as `08274f5`. C2 adds evidence contracts and explicit trusted-context selection; see [status.md](status.md) for the current commit gate.
+
+C2 updates the shared browser runner to wait for an explicit loopback completion report instead of a virtual-time DOM snapshot. Both experiment pages use this test-only mechanism; it sends no evidence to an external service.

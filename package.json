@@ -1,0 +1,11 @@
+{
+  "name": "monocle-contracts-workspace",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check:contracts": "tsc -p packages/contracts/tsconfig.json && node packages/contracts/test/check.mjs"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3"
+  }
+}

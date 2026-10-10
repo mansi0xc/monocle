@@ -35,9 +35,9 @@ Acceptance:
 - Local handoff explains what was researched, what is still unknown, and the next gate.
 - No commit or push is made by the assistant.
 
-## C1 - Pin the protocol and prove native/WASM feasibility (current handoff)
+## C1 - Pin the protocol and prove native/WASM feasibility (committed)
 
-The fixed-fixture compatibility experiment is implemented; its results and limitations are in [compatibility.md](compatibility.md). C2 waits for the owner to commit this checkpoint.
+The fixed-fixture compatibility experiment is implemented; its results and limitations are in [compatibility.md](compatibility.md). Mansi committed C1 as `08274f5`.
 
 Tasks:
 
@@ -58,7 +58,9 @@ Acceptance:
 
 C1 selects `solana-bls-signatures 4.0.0` with default and parallel features disabled, a small Notar payload adapter, Rust 1.91.1, and LLVM archive tooling. This proves the leaf-crypto path, not direct browser reuse of the full Agave verifier. Full certificate adapters and their compatibility tests remain for C2-C3.
 
-## C2 - Define evidence contracts and trusted context
+## C2 - Define evidence contracts and trusted context (current handoff)
+
+Implemented scope and constraints are in [contracts.md](contracts.md). C3 waits for the owner to commit C2.
 
 Create the Rust workspace modules and TypeScript boundary contracts supported by the C1 result. Define versioned `ProofBundle`, `CertificateEnvelope`, `EpochCheckpoint`, `ProtocolProfile`, `VerifyRequest`, `VerificationReport`, and `MutationRecord` representations.
 

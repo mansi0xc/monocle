@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "profile_id": "agave-98535e50-contracts-v1",
+  "context": {
+    "genesis_hash_hex": "1111111111111111111111111111111111111111111111111111111111111111",
+    "epoch": "42",
+    "shred_version": 1234
+  },
+  "claim": {
+    "kind": "certificate_inspection",
+    "slot": "18446744073709551615",
+    "block_id_hex": null,
+    "certificate_ids": [
+      "sample-1"
+    ]
+  },
+  "certificates": [
+    {
+      "schema_version": 1,
+      "id": "sample-1",
+      "kind": "notarization",
+      "format": "agave-certificate-wincode",
+      "raw_hex": "010203ff"
+    }
+  ],
+  "checkpoint_reference": "sha256:b9e7178fb274cc186d3edd237158b0dc5c7974b0c34b50b7fa61959c89b68588",
+  "provenance": {
+    "kind": "synthetic",
+    "description": "OPAQUE PARSER FIXTURE: these four certificate bytes are not a valid Agave certificate."
+  },
+  "parent_digest": null,
+  "mutations": []
+}

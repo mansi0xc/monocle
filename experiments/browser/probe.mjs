@@ -24,3 +24,10 @@ try {
   document.getElementById('summary').textContent = 'FAIL: compatibility experiment did not pass.';
   document.getElementById('result').textContent = String(error?.stack ?? error);
 }
+
+// Local test harness completion channel; never sends evidence to an external service.
+await fetch('/__result', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({ state: document.body.dataset.state, report: document.getElementById('result').textContent }),
+});

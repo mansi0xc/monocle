@@ -48,3 +48,9 @@ C1 has now executed the fixed signature cases in native Rust and Chrome WASM, ch
 ## Research practice for later checkpoints
 
 Record exact source revisions, dependency versions, commands, decisive results, and rejected alternatives. Public documentation should retain reusable findings; the local commit handoff should retain the detailed work narrative. Do not copy broad rollout dates, marketing performance figures, or the original idea document's "trustless" claim into product claims without the evidence required for that statement.
+
+## C2 implementation findings (2026-10-10)
+
+C2 uses a duplicate-rejecting, bounded JSON visitor before typed decoding; a generic JSON value parse alone would erase repeated object fields. Exact-source hashing avoids inventing a canonical JSON representation. SHA-256 is supplied by RustCrypto, with an independent known-answer test and browser WebCrypto comparison.
+
+The [C2 contract specification](contracts.md) records primary library documentation, version pins, resource limits, and the trust boundary. This checkpoint does not select a new consensus rule or establish historical capture compatibility.

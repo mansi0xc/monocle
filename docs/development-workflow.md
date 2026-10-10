@@ -54,3 +54,7 @@ Public docs explain the project, design, setup, test commands, assumptions, and 
 If source research invalidates a design assumption, update the relevant decision and plan with evidence. Do not force code to match an obsolete diagram. If a change would remove the Rust/WASM architecture or materially change the trust model, document the alternatives and resolve the product choice before implementing the substitution.
 
 Do not publish, deploy, or change repository settings merely because a checkpoint is complete. Those are separate actions from preparing the owner's next commit.
+
+## C2 boundary tooling
+
+C2 adds the `monocle-core` workspace crate and a private npm package used only to pin TypeScript 5.9.3 for contract checks. Use `npm ci --ignore-scripts --no-audit --no-fund`, then `bash scripts/check-contracts.sh`. Compiled TypeScript, shape-check fixtures, and WASM remain under ignored `target/`; `node_modules/` is ignored. No global npm installation or product UI framework is required.

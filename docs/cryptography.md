@@ -1,6 +1,6 @@
 # Cryptographic model and implementation obligations
 
-Status: product requirements plus a completed C1 primitive experiment. C1 derives public deterministic test keys and verifies their serialized aggregate and proofs of possession on native Rust and browser WASM. No production keys are generated and no real-network finality is verified.
+Status: product requirements plus a completed C1 primitive experiment. C1 derives public deterministic test keys and verifies their serialized aggregate and proofs of possession on native Rust and browser WASM. C2 adds SHA-256 source identities and structural checkpoint checks. It does not cryptographically qualify checkpoint keys or PoPs. No production keys are generated and no real-network finality is verified.
 
 ## Three questions that must remain separate
 
@@ -93,3 +93,9 @@ Certificates in this scope do not verify transaction execution results, account 
 ## What remains to establish in code
 
 C1 pins the BLS dependency and upstream reference, checks one Notar payload layout, verifies uncompressed fixture points and public-key PoPs, and demonstrates browser execution. See [compatibility.md](compatibility.md). Bitmap decoding, authentic checkpoint qualification, complete malformed-point coverage, stake thresholds, certificate composition, and full upstream differential checks remain for later milestones.
+
+## C2 input and trust implementation
+
+The core preserves original bytes, rejects duplicate JSON keys and lossy numeric transport, and hashes exact inputs with SHA-256. Checkpoint ranks remain in their declared order, duplicate identities/keys are rejected, and listed stake uses u128 accumulation against the original denominator. These are input invariants, not quorum decisions.
+
+Only an explicit local `TrustStore.pin` decision makes a parsed checkpoint selectable; bundle labels, digest references, and imported Boolean flags cannot do so. PoP bytes remain unqualified until C3. See [contracts.md](contracts.md) for precise limits and report semantics.

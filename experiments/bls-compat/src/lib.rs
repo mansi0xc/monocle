@@ -58,7 +58,7 @@ fn decode<const N: usize>(value: &str) -> Result<[u8; N], ProbeError> {
 }
 
 /// Only called with this experiment's bounded, embedded, synthetic fixture.
-/// C2 will introduce the separate general-purpose evidence/trust boundary.
+/// C2 defines a separate evidence/trust boundary in monocle-core; this probe stays fixed.
 fn verify_fixture(
     fixture: &Fixture,
     payload: &[u8],

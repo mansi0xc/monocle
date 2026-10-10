@@ -1,6 +1,6 @@
 # Third-party sources and licenses
 
-Monocle C1 consumes established cryptographic implementations as Cargo dependencies; it does not vendor or replace their cryptographic primitives. Exact package checksums and transitive versions are in `Cargo.lock`.
+Monocle consumes established cryptographic implementations as Cargo dependencies; it does not vendor or replace their cryptographic primitives. Exact package checksums and transitive versions are in `Cargo.lock`.
 
 | Component | Pinned version | Declared license | Role |
 | --- | --- | --- | --- |
@@ -11,6 +11,9 @@ Monocle C1 consumes established cryptographic implementations as Cargo dependenc
 | serde | 1.0.228 | MIT OR Apache-2.0 | Fixed fixture decoding and reporting |
 | serde_json | 1.0.145 | MIT OR Apache-2.0 | JSON fixture/report transport for the experiment |
 | hex | 0.4.3 | MIT OR Apache-2.0 | Human-readable fixture bytes |
+| sha2 | 0.10.9 | MIT OR Apache-2.0 | Exact-source SHA-256 identities in C2 |
+| serde_path_to_error | 0.1.20 | MIT OR Apache-2.0 | Bounded input diagnostic field paths |
+| TypeScript | 5.9.3 | Apache-2.0 | Development-only boundary type checking; pinned in package-lock.json |
 | getrandom | 0.2.16 | MIT OR Apache-2.0 | Target-specific fail-closed entropy hook; no randomness is needed for verification |
 
 These are license declarations inspected in the package manifests, not a security audit or complete legal analysis of every transitive dependency.

@@ -1,6 +1,6 @@
 # Architecture
 
-Status: proposed product architecture; a fixed-fixture native/WASM cryptographic experiment is implemented in C1. The [architecture PDF](architecture.pdf) provides five diagram sheets; this document defines the responsibilities and important details behind them.
+Status: proposed product architecture with C1 leaf cryptography and C2 input/context preparation implemented. The [architecture PDF](architecture.pdf) provides five diagram sheets; this document defines the responsibilities and important details behind them.
 
 ## System boundary
 
@@ -52,7 +52,7 @@ docs/                # public design, research, usage, and status
 commits/             # local ignored checkpoint handoffs
 ```
 
-This product layout is planned. C1 lives separately in `experiments/bls-compat/` and `experiments/browser/`, with reproducible scripts and a pinned Rust workspace. It does not create product components merely to imply progress.
+C2 implements `crates/monocle-core/` and a TypeScript transport package at `packages/contracts/`; the CLI, product WASM wrapper, and web application remain planned. C1 lives separately in `experiments/bls-compat/` and `experiments/browser/`, with reproducible scripts and a pinned Rust workspace. C2 adds `experiments/contracts-compat/` and `experiments/contracts-browser/` for cross-target contract checks. See [contracts.md](contracts.md).
 
 ## Core interfaces
 
@@ -79,7 +79,7 @@ Network transport, timestamps, human-readable labels, and source claims are prov
 | `MutationRecord` | Original identity, changed field/bytes, operation, before/after values, derived identity |
 | `VerificationReport` | Per-check outcomes, per-certificate results, evidence scope, conclusion, assumptions |
 
-The JSON-facing representation must not lose `u64` precision. Decimal strings are the proposed transport for slots and stake values; the Rust core validates their exact ranges. Digests should use a specified representation: initially hash preserved bytes rather than an unspecified JSON key order. Semantic canonicalization, if introduced, needs a separate documented rule.
+The JSON-facing representation must not lose `u64` precision. C2 uses canonical decimal strings for slots, epochs, and stake, validated as u64. SHA-256 digests identify exact preserved bytes rather than an unspecified JSON key order. Semantic canonicalization, if introduced, needs a separate documented rule.
 
 ## Verification lifecycle
 
@@ -91,7 +91,7 @@ The JSON-facing representation must not lose `u64` precision. Decimal strings ar
 6. Compose supported certificate evidence into a scoped conclusion.
 7. Return all completed checks and reasons for skipped checks.
 
-Invalid input can fail early. Missing prerequisites leave dependent checks unperformed. The evaluator must not assume that every certificate present in a bundle is relevant to the requested claim; define claim selection and handling of extra certificates before accepting multi-certificate bundles.
+Invalid input can fail early. Missing prerequisites leave dependent checks unperformed. The evaluator must not assume that every certificate present in a bundle is relevant to the requested claim; C2 requires the claim to select every supplied certificate exactly once. Actual certificate interpretation and evidence composition remain later gates.
 
 ## Browser execution and persistence
 
