@@ -1,4 +1,4 @@
-# Browser inspector (C5, extended in C6)
+# Browser inspector (C5, extended in C6/C7)
 
 Monocle now has a React/TypeScript inspector at `apps/web`, backed by the same Rust core used by the native tests. It accepts arbitrary Monocle v1 proof bundles and checkpoint files within the existing limits. All built-in examples are signed synthetic evidence. C5 adds no new cryptographic primitive or consensus rule. C6 adds [tamper experiments and replay](tamper-replay.md); the shared runtime details below reflect that extension.
 
@@ -31,7 +31,7 @@ The other examples cover slow finality, genesis-anchor evidence, missing finaliz
 
 ## Import and trust
 
-A proof bundle is limited to 1 MiB and a checkpoint to 4 MiB. File size is checked before reading; Rust repeats authoritative bounds, duplicate-key rejection, schema/hex validation, and structural limits. A raw `getAgGenesisCert` response is not the Monocle bundle schema; the capture adapter remains C7 work.
+A proof bundle is limited to 1 MiB and a checkpoint to 4 MiB. File size is checked before reading; Rust repeats authoritative bounds, duplicate-key rejection, schema/hex validation, and structural limits. A raw `getAgGenesisCert` response is not the Monocle bundle schema. Use the separate C7 **Recorded RPC evidence** controls for [capture inspection](capture-import.md), bounded to 64 KiB. This mode clears prior verification/trust and remains inconclusive without historical context.
 
 Original byte arrays stay in memory. The worker passes their original UTF-8 text through the request envelope without parsing and reserializing the evidence. Rust computes SHA-256 over the original source. Slots, epochs, and stakes remain decimal strings; the UI makes no threshold decisions with floating-point numbers.
 
@@ -53,6 +53,7 @@ Replacing the checkpoint revokes its selection immediately, including when repla
 | 6 | Empty bytes | Clear candidate and trust |
 | 7 | Mutation request with original source | Derived bundle with exact patch metadata |
 | 8 | Replay archive bytes | Validated archive; no trust selection or current verdict |
+| 9 | Raw genesis JSON-RPC response bytes | Capture inspection and missing prerequisites; never a verification success |
 
 Responses are `{ok:true,value:...}` or `{ok:false,error:Diagnostic}`. An execution failure has no usable old output. Request run IDs must match the worker envelope and returned report; C6 comparison reports use distinct baseline/derived IDs checked together. The app never accepts imported reports as results.
 
@@ -75,7 +76,7 @@ The monochrome interface uses text, check/cross symbols, visible keyboard focus,
 bash scripts/check-web.sh
 ```
 
-This runs the C1–C4 regression gate, C5/C6 Rust tests, the production web build/typecheck, frontend formatting, 35 full native-versus-arbitrary-input-WASM report comparisons plus six experiment/replay comparisons, eight worker lifecycle unit tests, and 20 Chrome product tests. Chrome/Chromium is required; `CHROME_BIN` overrides the default macOS/Linux executable.
+This runs the C1–C4 regression gate, C5/C6/C7 Rust tests, the production web build/typecheck, frontend formatting, 35 full native-versus-arbitrary-input-WASM report comparisons plus six experiment/replay and eight capture comparisons, eight worker lifecycle unit tests, and 26 Chrome product tests. Chrome/Chromium is required; `CHROME_BIN` overrides the default macOS/Linux executable.
 
 Browser coverage includes empty/keyboard entry, explicit trust, fast/slow/genesis results, invalid signatures, under-quorum evidence, missing counterparts, malformed/oversized/non-UTF-8/saved-report inputs, exact u64/digest transport, hostile text, trust revocation/operator reasons, cancellation, missing WASM, delayed file reads, incompatible context/profile, narrow screens, reduced motion, and automated WCAG A/AA scans. Screenshots and failure traces are generated only under ignored `test-results/`. Automated accessibility checks do not replace assistive-technology testing.
 

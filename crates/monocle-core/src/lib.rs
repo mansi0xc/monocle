@@ -1,4 +1,5 @@
 //! Bounded evidence contracts, explicit checkpoint trust, and scoped Base2 certificate checks.
+pub mod capture;
 pub mod certificate;
 mod error;
 pub mod experiment;

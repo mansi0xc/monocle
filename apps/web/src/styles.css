@@ -1034,3 +1034,72 @@ footer {
     text-align: right;
   }
 }
+
+.capture-report {
+  padding: 24px;
+}
+.capture-report > h2 {
+  font-size: 2rem;
+  line-height: 1.2;
+  letter-spacing: -0.04em;
+  margin: 12px 0;
+}
+.capture-report > p {
+  max-width: 72ch;
+}
+.capture-report section {
+  margin-top: 32px;
+}
+.capture-report details {
+  margin: 24px 0;
+}
+.capture-requirements {
+  padding-left: 22px;
+  max-width: 72ch;
+}
+.capture-requirements li {
+  padding-left: 4px;
+  margin: 12px 0;
+}
+.capture-checks {
+  list-style: none;
+  padding: 0;
+}
+.capture-checks li {
+  padding: 16px 0;
+  border-bottom: 1px solid var(--line);
+}
+.capture-checks li > div {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+}
+.capture-checks p {
+  font-size: 0.875rem;
+  max-width: 72ch;
+  margin: 8px 0;
+}
+.capture-checks code {
+  font-size: 0.75rem;
+  overflow-wrap: anywhere;
+}
+.capture-actions {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 24px;
+}
+.capture-note {
+  border-left: 2px solid var(--ink);
+  padding: 0 16px;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 740px) {
+  .capture-report {
+    padding: 20px;
+  }
+  .capture-report > h2 {
+    font-size: 1.75rem;
+  }
+}

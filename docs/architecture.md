@@ -1,17 +1,17 @@
 # Architecture
 
-Status: proposed product architecture with C1 leaf cryptography, C2 input/context preparation, C3 individual certificate verification, C4 direct evidence composition, C5 browser inspection, and C6 mutation/comparison/replay implemented. Capture adaptation remains proposed. The [architecture PDF](architecture.pdf) provides five diagram sheets; this document defines the responsibilities and important details behind them.
+Status: proposed product architecture with C1 leaf cryptography, C2 input/context preparation, C3 individual certificate verification, C4 direct evidence composition, C5 browser inspection, C6 mutation/comparison/replay, and C7 read-only genesis RPC inspection implemented. Conversion of a raw capture into verifiable wire evidence remains conditional on historical context and compatibility evidence. The [architecture PDF](architecture.pdf) provides five diagram sheets; this document defines the responsibilities and important details behind them.
 
 ## System boundary
 
-Monocle's primary workflow is local verification. A static web host serves application assets. The browser imports evidence and a separately selected checkpoint, invokes a Rust/WASM worker, and displays the resulting report. Native tools currently generate synthetic fixtures; the capture adapter remains planned. The MVP requires neither a Solana program nor a wallet connection.
+Monocle's primary workflow is local verification. A static web host serves application assets. The browser imports evidence and a separately selected checkpoint, invokes a Rust/WASM worker, and displays the resulting report. Native tools generate synthetic fixtures; the C7 local-file command inspects recorded RPC responses without making network requests or synthesizing absent context. The MVP requires neither a Solana program nor a wallet connection.
 
 ```mermaid
 flowchart LR
     RPC[Genesis RPC capture] --> A[Capture adapter]
-    NODE[Optional node footer export] --> A
+    NODE[Optional future node footer export] -.-> B
     FIX[Signed synthetic fixtures] --> B[Bundle assembler]
-    A --> B
+    A --> CI[Capture inspection: context missing]
     B --> UI[Browser controller]
     PIN[Separately trusted checkpoint] --> S[Local session store]
     UI --> S
@@ -27,7 +27,7 @@ Transport sources are untrusted inputs to the verifier. TLS, a familiar endpoint
 
 | Component | Owns | Must not do |
 | --- | --- | --- |
-| Capture adapter | Decode a supported source envelope and preserve captured bytes/context | Label a fetch as a successful verification |
+| Capture adapter | Inspect the supported genesis RPC envelope, preserve source bytes, and explain missing context | Label a fetch as a successful verification |
 | Bundle assembler | Versioned packaging, provenance, checkpoint reference | Silently rewrite signed bytes or manufacture absent context |
 | Browser controller | User actions, run IDs, file limits, worker lifecycle | Make its own conflicting cryptographic verdict |
 | Session store | Original bytes, derived copies, selected checkpoint, reports | Mutate the baseline or import a trusted flag from a bundle |
@@ -52,7 +52,7 @@ docs/                # public design, research, usage, and status
 commits/             # local ignored checkpoint handoffs
 ```
 
-C2 implements `crates/monocle-core/` and a TypeScript transport package at `packages/contracts/`; C5 implements `crates/monocle-wasm/` and `apps/web/`; a general CLI and capture adapter remain planned. C1 lives separately in `experiments/bls-compat/` and `experiments/browser/`, with reproducible scripts and a pinned Rust workspace. C2 adds `experiments/contracts-compat/` and `experiments/contracts-browser/` for cross-target contract checks. C3 adds `tools/certificate-fixtures/`, `experiments/certificate-compat/`, and `experiments/certificate-browser/`. C4 adds a `finality` module and a native/browser finality corpus harness. See [finality.md](finality.md).
+C2 implements `crates/monocle-core/` and a TypeScript transport package at `packages/contracts/`; C5 implements `crates/monocle-wasm/` and `apps/web/`; C7 adds the narrow `crates/monocle-core/src/bin/monocle-capture.rs` CLI and `capture` module. A general verifier CLI, node exporter, and context-backed wire conversion remain future work. C1 lives separately in `experiments/bls-compat/` and `experiments/browser/`, with reproducible scripts and a pinned Rust workspace. C2 adds `experiments/contracts-compat/` and `experiments/contracts-browser/` for cross-target contract checks. C3 adds `tools/certificate-fixtures/`, `experiments/certificate-compat/`, and `experiments/certificate-browser/`. C4 adds a `finality` module and a native/browser finality corpus harness. See [finality.md](finality.md).
 
 ## Core interfaces
 
@@ -77,6 +77,7 @@ Network transport, timestamps, human-readable labels, and source claims are prov
 | `EpochCheckpoint` | Epoch/context, canonical ordered ranks, BLS keys, stake, protocol denominator, qualification provenance; separately trusted |
 | `ProtocolProfile` | Immutable upstream revision, allowed formats, payload rules, cryptographic encodings/ciphersuite, supported certificate rules |
 | `MutationRecord` | Certificate ID, exact byte offset, equal-length before/after bytes, parent/result certificate digests |
+| `CaptureReport` | Source digest, distinct RPC observation, extracted fields, unperformed checks, missing historical prerequisites; always capture-inspection scope |
 | `ReplayArchive` | Exact baseline/derived JSON strings, profile/policy IDs, optional checkpoint bytes and digest, untrusted saved reports |
 | `VerificationReport` | Per-check outcomes, per-certificate results, evidence scope, conclusion, assumptions |
 

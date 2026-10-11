@@ -4,6 +4,7 @@ import type {
   EvidenceVerificationReport,
   ProofBundle,
   MutationAction,
+  CaptureReport,
 } from "../../../packages/contracts/src/index";
 export type Inspected<T> = { digest: ContentDigest; document: T };
 export type Bundle = {
@@ -36,6 +37,7 @@ export type ReplayImport = {
 };
 export type ExportedReplay = { bytes: Uint8Array; filename: string };
 export type Job =
+  | { kind: "capture"; bytes: Uint8Array }
   | {
       kind: "mutate";
       baseline: Uint8Array;
@@ -75,6 +77,7 @@ export type Job =
       selection: Selection | null;
     };
 export type JobResult =
+  | CaptureReport
   | Bundle
   | Comparison
   | ReplayImport

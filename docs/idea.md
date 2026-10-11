@@ -1,12 +1,12 @@
 # Monocle: project idea
 
-Status: proposed MVP; foundation prepared on 2026-10-09.
+Status: MVP workflows implemented through C7; owner review/commit pending. Real-network verification remains unestablished.
 
 ## Description
 
 Monocle is an open-source finality debugger for Solana's Alpenglow consensus, designed to make cryptographic verification understandable and reproducible. It checks certificate signatures and validator stake thresholds against a trusted checkpoint, explaining why verification succeeds, fails, or remains inconclusive. Its tamper lab and portable evidence bundles let developers experiment with altered certificates, compare results, and replay verification offline.
 
-These sentences describe the intended product. The repository now contains native/browser BLS compatibility checks plus bounded evidence contracts and explicit local checkpoint selection; C3/C4 now add individual certificate checks and direct evidence composition. C5 adds the working browser inspector, file import, explicit checkpoint selection, and worker-backed reports. C6 implements the tamper application and portable replay, limited to one equal-length byte replacement from an unmodified baseline. Both comparison reports are freshly verified; imported reports are ignored.
+These sentences describe the intended product. The repository now contains native/browser BLS compatibility checks plus bounded evidence contracts and explicit local checkpoint selection; C3/C4 now add individual certificate checks and direct evidence composition. C5 adds the working browser inspector, file import, explicit checkpoint selection, and worker-backed reports. C6 implements the tamper application and portable replay, limited to one equal-length byte replacement from an unmodified baseline. Both comparison reports are freshly verified; imported reports are ignored. C7 adds separately labeled recorded RPC inspection and the graduation demo guide. A capture missing historical context remains inconclusive.
 
 ## The problem
 
@@ -37,7 +37,7 @@ Example: a report should explain that the selected checkpoint is for a different
 
 ### 2. Controlled tamper lab
 
-Keep the original bundle immutable and create a separate derived copy for each experiment. Record exactly what changed. The user can alter a signed field, change a signer selection, or remove a piece of context, then compare the original and derived reports.
+Keep the original bundle immutable and create a separate derived copy for each experiment. Record exactly what changed. The C6 lab supports one equal-length byte replacement within a certificate, including a signature, signed field, or bitmap edit. Context selection can also be removed to observe an inconclusive run; changing bundle metadata or stacking mutations is not part of the lab contract.
 
 Changing a bitmap usually also changes the public-key aggregate and breaks the signature check. A demonstration of insufficient stake with a valid signature therefore needs its own correctly signed fixture. The interface must distinguish these experiments.
 

@@ -1,6 +1,6 @@
 # Monocle interface
 
-Implemented C5/C6 product surface: `apps/web/src/styles.css`. Product direction is in [PRODUCT.md](PRODUCT.md).
+Implemented C5/C6/C7 product surface: `apps/web/src/styles.css`. Product direction is in [PRODUCT.md](PRODUCT.md).
 
 ## Visual system
 
@@ -19,3 +19,7 @@ Errors include a recoverable next action. The result exposes scope before the de
 ## Validation and boundaries
 
 Chrome screenshots were inspected at 1440px and 375px. Automated accessibility checks exercise empty, verified, and narrow layouts. These checks do not establish conformance across all assistive technologies or browsers. C6 adds a native disclosure for mutation controls, a before/after trace table, original/experiment report selection, and local replay controls. The table shows changed checks by default and supports inspecting all checks; on narrow screens it scrolls inside its own labeled region. Profile/checkpoint requirements and the difference between loaded assets and offline cold start remain explicit.
+
+## Recorded evidence
+
+C7 keeps recorded RPC inputs in a separate labeled section beside synthetic examples. Capture output leads with inconclusive scope and extracted identity, followed by missing prerequisites, an explicit unperformed-check trace, preserved bytes, and exact download. It uses the existing monochrome typography, borders, native controls, and responsive facts layout. No network status or trust is inferred from the sample's filename.

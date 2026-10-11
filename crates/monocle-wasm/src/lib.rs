@@ -31,7 +31,7 @@ fn value<T: Serialize>(result: Result<T, Diagnostic>) -> Value {
 
 impl Session {
     /// ABI v2 operations: inspect bundle, inspect checkpoint, select synthetic,
-    /// select operator (UTF-8 reason), verify request, clear trust, mutate, inspect replay.
+    /// select operator (UTF-8 reason), verify request, clear trust, mutate, inspect replay, inspect genesis RPC.
     pub fn execute(&mut self, operation: u32, input: &[u8]) -> Value {
         // Failed replacement/selection also revokes earlier trust, including
         // inputs rejected by the bridge-wide size check.
@@ -98,6 +98,7 @@ impl Session {
             }
             7 => value(monocle_core::experiment::apply_mutation(input)),
             8 => value(monocle_core::experiment::parse_replay(input)),
+            9 => value(monocle_core::capture::inspect_genesis_rpc(input)),
             _ => value::<()>(Err(diagnostic(
                 Code::InvalidSchema,
                 "operation",

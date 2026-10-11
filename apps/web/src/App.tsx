@@ -5,12 +5,16 @@ import type {
   ProofBundle,
   ContentDigest,
   MutationAction,
+  CaptureReport,
 } from "../../../packages/contracts/src/index";
 import {
   MAX_BUNDLE_BYTES,
   MAX_REPLAY_BYTES,
+  MAX_CAPTURE_BYTES,
 } from "../../../packages/contracts/src/index";
 import examples from "../generated/examples.json";
+import recordedCapture from "../generated/capture.json";
+import { CaptureView } from "./CaptureView";
 import {
   MAX_CHECKPOINT_BYTES,
   type Bundle,
@@ -43,6 +47,11 @@ export default function App() {
     );
   const revision = useRef(0);
   const [bundle, setBundle] = useState<Bundle | null>(null);
+  const [capture, setCapture] = useState<{
+    bytes: Uint8Array;
+    name: string;
+    report: CaptureReport;
+  } | null>(null);
   const [checkpoint, setCheckpoint] = useState<Checkpoint | null>(null);
   const [selection, setSelection] = useState<Selection | null>(null);
   const [basis, setBasis] = useState<"synthetic" | "operator">("synthetic");
@@ -115,6 +124,7 @@ export default function App() {
   }
   async function loadExample() {
     const ticket = invalidate("Inspecting the synthetic example…");
+    setCapture(null);
     setBundle(null);
     setDerived(null);
     setRequiredCheckpoint(null);
@@ -149,6 +159,7 @@ export default function App() {
   async function importFile(kind: "bundle" | "checkpoint", file: File) {
     const ticket = invalidate(`Inspecting ${kind}…`);
     if (kind === "bundle") {
+      setCapture(null);
       setBundle(null);
       setDerived(null);
       setRequiredCheckpoint(null);
@@ -188,6 +199,55 @@ export default function App() {
     } catch (error) {
       failed(error, ticket);
     }
+  }
+  async function importCapture(
+    input: File | { bytes: Uint8Array; name: string },
+  ) {
+    const ticket = invalidate("Inspecting recorded genesis RPC response…");
+    setCapture(null);
+    setBundle(null);
+    setDerived(null);
+    setCheckpoint(null);
+    setSelection(null);
+    setRequiredCheckpoint(null);
+    setReplayInfo("");
+    setActiveReport("baseline");
+    try {
+      const size = input instanceof File ? input.size : input.bytes.byteLength;
+      if (size > MAX_CAPTURE_BYTES)
+        throw new Error("RPC response exceeds the 64 KiB file limit.");
+      const bytes =
+        input instanceof File
+          ? new Uint8Array(await input.arrayBuffer())
+          : input.bytes;
+      if (ticket !== revision.current) return;
+      const result = await runner.current!.run<CaptureReport>({
+        kind: "capture",
+        bytes,
+      });
+      if (ticket !== revision.current) return;
+      setCapture({ bytes, name: input.name, report: result });
+      setBusy("");
+      setNotice(
+        "RPC response inspected. No cryptographic verification or trust selection was performed.",
+      );
+    } catch (error) {
+      failed(error, ticket);
+    }
+  }
+  function downloadCapture() {
+    if (!capture) return;
+    const url = URL.createObjectURL(
+      new Blob([new Uint8Array(capture.bytes)], { type: "application/json" }),
+    );
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "genesis-rpc-response.json";
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    setNotice("Original RPC response downloaded without modification.");
   }
   function selectCheckpoint() {
     if (!checkpoint) return;
@@ -276,6 +336,7 @@ export default function App() {
     const ticket = invalidate(
       "Inspecting replay and checking its mutation history…",
     );
+    setCapture(null);
     setBundle(null);
     setDerived(null);
     setCheckpoint(null);
@@ -440,6 +501,7 @@ export default function App() {
                       className="text-button"
                       onClick={() => {
                         invalidate();
+                        setCapture(null);
                         setBundle(null);
                         setDerived(null);
                         setRequiredCheckpoint(null);
@@ -509,6 +571,42 @@ export default function App() {
                 </div>
               )}
             </section>
+            <section className="input-section capture-controls">
+              <h2>Recorded RPC evidence</h2>
+              <p className="small muted">
+                Inspect a saved getAgGenesisCert response. Historical context is
+                required before it can become verification input.
+              </p>
+              <button
+                className="full-width"
+                onClick={() =>
+                  void importCapture({
+                    bytes: encoder.encode(recordedCapture.source_json),
+                    name: "Recorded testnet response",
+                  })
+                }
+              >
+                Load recorded testnet response
+              </button>
+              <p className="small muted">
+                Supplied by the project owner; retrieval time and endpoint
+                origin have not been independently established.
+              </p>
+              <label htmlFor="capture-file">Import genesis RPC response</label>
+              <input
+                id="capture-file"
+                type="file"
+                accept=".json,application/json"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  e.target.value = "";
+                  if (file) void importCapture(file);
+                }}
+              />
+              <p className="small muted">
+                Raw JSON-RPC response · up to 64 KiB
+              </p>
+            </section>
             <section className="input-section">
               <h2>
                 <span className="step">2</span> Validator checkpoint
@@ -520,6 +618,7 @@ export default function App() {
               <label htmlFor="checkpoint-file">Import checkpoint</label>
               <input
                 id="checkpoint-file"
+                disabled={Boolean(capture)}
                 type="file"
                 accept=".json,application/json"
                 onChange={(e) => {
@@ -628,7 +727,9 @@ export default function App() {
                 </div>
               ) : (
                 <p className="empty-note">
-                  Load an example or import the validator set for your evidence.
+                  {capture
+                    ? "Capture inspection cannot use an unrelated checkpoint. Load a Monocle proof bundle to select verification context."
+                    : "Load an example or import the validator set for your evidence."}
                 </p>
               )}
             </section>
@@ -656,9 +757,11 @@ export default function App() {
                 </button>
               )}
               <p className="small muted">
-                {!selection
-                  ? "Without a selected checkpoint, verification remains inconclusive."
-                  : "Verification uses the selected checkpoint and the pinned protocol profile."}
+                {capture
+                  ? "This response lacks historical context. The inspection lists what must be supplied; verification has not run."
+                  : !selection
+                    ? "Without a selected checkpoint, verification remains inconclusive."
+                    : "Verification uses the selected checkpoint and the pinned protocol profile."}
               </p>
             </section>
             <section className="input-section replay-controls">
@@ -715,9 +818,11 @@ export default function App() {
               <span className="small muted">
                 {busy
                   ? "Working…"
-                  : report
-                    ? "Run complete"
-                    : "Awaiting verification"}
+                  : capture
+                    ? "Capture inspected"
+                    : report
+                      ? "Run complete"
+                      : "Awaiting verification"}
               </span>
             </div>
             <div className="announcement" role="status" aria-live="polite">
@@ -731,6 +836,18 @@ export default function App() {
                   Correct the input or retry the operation.
                 </p>
               </div>
+            )}
+            {capture && (
+              <CaptureView
+                report={capture.report}
+                name={capture.name}
+                download={downloadCapture}
+                clear={() => {
+                  invalidate();
+                  setCapture(null);
+                  setNotice("Capture cleared.");
+                }}
+              />
             )}
             {bundle && (
               <TamperLab
@@ -791,7 +908,8 @@ export default function App() {
                 checkpoint={selection ? (cp ?? null) : null}
               />
             ) : (
-              !busy && (
+              !busy &&
+              !capture && (
                 <div className="empty-report">
                   <div className="empty-symbol" aria-hidden="true">
                     ⊙

@@ -24,4 +24,4 @@ Inputs and trust selection are deliberate actions. Display the original-byte dig
 
 ## Delivery
 
-C5 provides the browser inspector backed by the existing Rust verifier. C6 adds a single immutable-baseline experiment, fresh comparison, and portable replay with explicit trust reselection. Offline use is supported only in a loaded production session. Real capture integration belongs to C7. Follow the owner-controlled commit checkpoints in AGENTS.md.
+C5 provides the browser inspector backed by the existing Rust verifier. C6 adds a single immutable-baseline experiment, fresh comparison, and portable replay with explicit trust reselection. Offline use is supported only in a loaded production session. C7 adds a separate recorded RPC inspection path and a graduation demo guide. Capture import cannot inherit a verified result or checkpoint trust; absent historical context stays visible. Follow the owner-controlled commit checkpoints in AGENTS.md.

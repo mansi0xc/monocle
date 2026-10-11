@@ -70,7 +70,8 @@ self.onmessage = async ({
       return bytes;
     }
     let value: JobResult;
-    if (job.kind === "bundle") value = call(1, job.bytes);
+    if (job.kind === "capture") value = call(9, job.bytes);
+    else if (job.kind === "bundle") value = call(1, job.bytes);
     else if (job.kind === "checkpoint") value = call(2, job.bytes);
     else if (job.kind === "example")
       value = {

@@ -120,9 +120,9 @@ Acceptance:
 - Exact values survive the JavaScript/WASM boundary.
 - Keyboard use, focus, loading, error, and empty states work.
 
-## C6 - Tamper lab and portable replay (current handoff)
+## C6 - Tamper lab and portable replay (committed)
 
-Implemented behavior and limits are in [tamper-replay.md](tamper-replay.md). One equal-length replacement is derived from an immutable baseline, both reports are recomputed under the same selection, and archives carry exact inputs without granting trust. C7 waits for Mansi to commit C6.
+Implemented behavior and limits are in [tamper-replay.md](tamper-replay.md). One equal-length replacement is derived from an immutable baseline, both reports are recomputed under the same selection, and archives carry exact inputs without granting trust. Mansi committed C6 as `95a990a`.
 
 Add immutable baseline state, derived experiments, explicit mutation records, comparable diagnostics, and export/import of evidence. Preserve report provenance and recompute imported results. Make checkpoint availability and profile version requirements explicit during replay.
 
@@ -134,7 +134,10 @@ Acceptance:
 - Tampering with a saved report cannot create a verified outcome.
 - Verification completes with network requests disabled once the app assets and necessary local inputs are loaded.
 
-## C7 - Capture adapter, documentation, and demonstration
+## C7 - Capture adapter, documentation, and demonstration (current handoff)
+
+Implemented: [recorded RPC import and native inspection](capture-import.md), [fixture catalog](fixture-catalog.md), and [graduation demo](demo.md). C7 follows the documented missing-context branch: the supplied recording is inspectable and portable offline, but historical checkpoint authenticity, signing context, and compatible qualification have not been established. No real-network verification is claimed. Await Mansi's review/commit before further implementation.
+
 
 Add a read-only adapter for a supported real capture format. Start with genesis RPC capture ingestion; verify only if the correct trusted historical checkpoint and signed context can be obtained. A custom node/footer exporter is a stretch dependency, not an assumed public API.
 

@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "inspect:capture": "cargo run --locked --quiet -p monocle-core --bin monocle-capture --",
     "check:contracts": "tsc -p packages/contracts/tsconfig.json && node packages/contracts/test/check.mjs",
     "prepare:web": "bash scripts/build-wasm.sh && node scripts/prepare-web.mjs",
     "dev": "npm run prepare:web && vite apps/web --config apps/web/vite.config.ts",

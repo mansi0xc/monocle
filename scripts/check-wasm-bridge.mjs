@@ -107,3 +107,58 @@ for (const c of replayCases) {
 console.log(
   `Replay bridge: ${replayCases.length} native/WASM mutation, archive, lineage and boundary comparisons passed.`,
 );
+
+// Raw RPC integers enter Rust unchanged; JS never parses transport slots for the product.
+const captureSource = await readFile(
+  "fixtures/captures/testnet-genesis-rpc.json",
+  "utf8",
+);
+const captureCases = [
+  captureSource,
+  captureSource.replace('"slot":444625255', '"slot":18446744073709551615'),
+  '{"jsonrpc":"2.0","id":1,"result":null}',
+  '{"jsonrpc":"2.0","id":1,"error":{"code":-32601,"message":"Method not found"}}',
+  '{"jsonrpc":"2.0","id":1,"error":{"code":-32000,"message":"Temporarily unavailable"}}',
+  '{"jsonrpc":"2.0","jsonrpc":"2.0"}',
+  captureSource.replace('"id":1', '"id":1,"trusted":true'),
+  " ".repeat(64 * 1024 + 1),
+];
+for (const input of captureCases) {
+  let expected;
+  try {
+    expected = JSON.parse(
+      execFileSync(
+        "cargo",
+        [
+          "run",
+          "--locked",
+          "--quiet",
+          "-p",
+          "monocle-core",
+          "--bin",
+          "monocle-capture",
+          "--",
+          "-",
+        ],
+        {
+          input,
+          encoding: "utf8",
+          maxBuffer: 1024 * 1024,
+          stdio: ["pipe", "pipe", "pipe"],
+        },
+      ),
+    );
+  } catch (error) {
+    assert.equal(error.status, 2);
+    const diagnostic = JSON.parse(error.stderr);
+    assert.throws(() => call(9, encoder.encode(input)), {
+      message: `${diagnostic.code} · ${diagnostic.path}: ${diagnostic.message}`,
+    });
+    continue;
+  }
+  assert.deepEqual(call(9, encoder.encode(input)), expected);
+  assert.equal(expected.conclusion, "INCONCLUSIVE");
+}
+console.log(
+  `Capture bridge: ${captureCases.length} complete native/WASM RPC, integer and rejection comparisons passed.`,
+);

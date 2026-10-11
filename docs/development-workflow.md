@@ -76,3 +76,9 @@ Use `npm run dev` to build WASM and launch the local inspector. Use `bash script
 The full gate remains `bash scripts/check-web.sh`; no dependency or global-tool change is needed for C6. `crates/monocle-wasm/examples/replay_probe.rs` supplies native operation results to the actual WASM parity check. Production offline testing uses `npm run build:web` and `npm run preview`; wait for **Ready for offline verification** before disconnecting, and keep the page open. Development-server operation is not covered by that offline promise.
 
 The byte ABI is now version 2, with operations 7 (mutation) and 8 (replay validation). Rebuild the web assets after Rust changes; old JavaScript/WASM ABI combinations fail explicitly. Bundle/checkpoint/core request caps remain unchanged even though the outer replay/bridge cap is 16 MiB. C6 changes remain one owner-controlled checkpoint; real capture work must wait for the owner's commit confirmation.
+
+## C7 capture and demonstration tooling
+
+Use `npm run inspect:capture -- fixtures/captures/testnet-genesis-rpc.json` for native inspection, or the direct Cargo command in [capture-import.md](capture-import.md) for clean JSON output. `-` reads standard input. The command never performs network I/O or writes evidence files; exit success describes parsed input rather than a verified certificate. No new dependency is needed. Operation 9 is additive within ABI v2; rebuild matching assets before running the browser.
+
+The [graduation demo](demo.md) and [fixture catalog](fixture-catalog.md) describe the complete supported workflow. C7 ends the planned MVP checkpoints with real-capture verification still conditional on missing historical evidence. Further feature work follows owner review and a new agreed scope, not an automatic extension past this commit boundary.

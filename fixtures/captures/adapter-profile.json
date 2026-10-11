@@ -1,0 +1,33 @@
+{
+  "adapter_id": "agave-genesis-rpc-v1",
+  "agave_revision": "98535e50e9bb38574e6b0c31ff284cd864d3ca88",
+  "scope": "Read-only JSON-RPC capture inspection; no wire synthesis, checkpoint selection or cryptographic verification",
+  "capture": {
+    "path": "testnet-genesis-rpc.json",
+    "sha256": "fb00f5a8912f597f25b8a840655270f0912681201aeb7744263d9aeb77630f7d",
+    "declared_endpoint": "https://api.testnet.solana.com",
+    "method": "getAgGenesisCert",
+    "declared_slot": "444625255",
+    "origin": "User-supplied response in project conversation; JSON body transcribed with trailing LF",
+    "retrieved_at": null,
+    "endpoint_independently_authenticated": false,
+    "historical_context_available": false
+  },
+  "sources": [
+    {
+      "path": "rpc/src/rpc.rs",
+      "url": "https://github.com/anza-xyz/agave/blob/98535e50e9bb38574e6b0c31ff284cd864d3ca88/rpc/src/rpc.rs",
+      "sha256": "474f27ef71749bfe047e4c3bf4d9aff45ce06c9cd7316acdf4b9b04d1bb42f96"
+    },
+    {
+      "path": "votor-messages/src/wire.rs",
+      "url": "https://github.com/anza-xyz/agave/blob/98535e50e9bb38574e6b0c31ff284cd864d3ca88/votor-messages/src/wire.rs",
+      "sha256": "f32bb363b4ab82733e9f0bf734b7e5240db978c84ed0593daeed566ff173a144"
+    },
+    {
+      "path": "votor-messages/src/migration.rs",
+      "url": "https://github.com/anza-xyz/agave/blob/98535e50e9bb38574e6b0c31ff284cd864d3ca88/votor-messages/src/migration.rs",
+      "sha256": "1dfffa3ab486e37495e633cd00dcdf156f77be1ef6bf022ff740917fa920dd48"
+    }
+  ]
+}

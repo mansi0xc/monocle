@@ -58,6 +58,14 @@ const examples = choices.map(([id, title, description]) => {
   };
 });
 await writeFile(new URL("examples.json", out), JSON.stringify(examples));
+const capture = await readFile(
+  new URL("../fixtures/captures/testnet-genesis-rpc.json", import.meta.url),
+  "utf8",
+);
+await writeFile(
+  new URL("capture.json", out),
+  JSON.stringify({ source_json: capture }),
+);
 console.log(
-  "Prepared WASM and six synthetic examples. No saved results are shipped.",
+  "Prepared WASM, six synthetic examples and one recorded RPC response. No saved results are shipped.",
 );

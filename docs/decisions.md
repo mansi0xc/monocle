@@ -110,6 +110,14 @@ Replay v1 stores original JSON as strings instead of parsed objects, preserving 
 
 Inline the production worker with Vite and retain one immutable fetched WASM buffer in page memory. Each new worker receives a copy, preserving cancellation/isolation while avoiding later network dependencies. The readiness label follows successful asset loading. This deliberately avoids a service-worker update/cache lifecycle; refresh, cold load, and development-server offline operation are outside the guarantee. Browser tests disconnect networking and assert zero new HTTP requests throughout replay.
 
+## D028 - Treat an RPC capture as a separate input type
+
+C7's read-only adapter takes a complete single JSON-RPC response, preserves exact source identity, and distinguishes certificate/null/method-error/other-error observations. It does not manufacture a ProofBundle with placeholder epoch or shred version. The product clears prior reports and checkpoint selection; the capture report has its own inconclusive scope. Raw source download/re-import is separate from C6 replay archives. The same parser runs in the native CLI and WASM operation 9.
+
+## D029 - Complete the demo with an honest missing-context branch
+
+Use the owner's recorded response for an endpoint-independent demonstration, with provenance and unknown retrieval time stated explicitly. Retain real cryptographic synthetic examples for signature/quorum/finality experiments. Historical checkpoint authentication, producer compatibility, and proof qualification remain future evidence requirements; no current-bank query or synthetic checkpoint substitutes for them. The demo guide explains both paths and the boundaries of loaded-session offline use.
+
 ## Open decisions
 
 Authentic historical checkpoint acquisition and key qualification; supported fallback variants; historical capture source; project publication license. Resolve these at their corresponding checkpoint with evidence and tradeoffs.

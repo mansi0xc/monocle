@@ -77,6 +77,7 @@ export interface VerifyRequest {
   selected_checkpoint?: ContentDigest | null;
 }
 export type DiagnosticCode =
+  | 'CAPTURE_CONTEXT_MISSING' | 'RPC_CERTIFICATE_UNAVAILABLE' | 'RPC_METHOD_UNAVAILABLE' | 'RPC_REQUEST_FAILED'
   | 'INPUT_TOO_LARGE' | 'MALFORMED_JSON' | 'DUPLICATE_FIELD' | 'STRUCTURE_LIMIT'
   | 'INVALID_SCHEMA' | 'INVALID_INTEGER' | 'INVALID_HEX' | 'UNKNOWN_FIELD'
   | 'UNSUPPORTED_VERSION' | 'LIMIT_EXCEEDED' | 'DUPLICATE_ID' | 'INVALID_RANK_MAP'
@@ -212,3 +213,21 @@ export interface ReplayArchive {
   saved_reports: { baseline: unknown | null; derived: unknown | null } | null;
 }
 export const MAX_REPLAY_BYTES = 16 * 1024 * 1024;
+
+
+export const MAX_CAPTURE_BYTES = 64 * 1024;
+export interface CaptureReport {
+  schema_version: 1;
+  adapter_id: 'agave-genesis-rpc-v1';
+  source_digest: ContentDigest;
+  source_bytes: number;
+  observation: 'certificate_present' | 'no_certificate' | 'method_unavailable' | 'rpc_error';
+  conclusion: 'INCONCLUSIVE';
+  evidence_scope: 'capture_inspection';
+  certificate: { slot: DecimalU64; block_id_hex: Hex; signature_hex: Hex; bitmap_hex: Hex } | null;
+  rpc_error_code: string | null;
+  rpc_error_message: string | null;
+  checks: CheckResult[];
+  requirements: string[];
+  assumptions: string[];
+}
