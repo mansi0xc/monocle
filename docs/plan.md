@@ -90,9 +90,9 @@ Acceptance:
 - Fixture provenance, selected ranks, signed payload bytes, and expected results are reproducible.
 - Tests do not rely solely on a generator and verifier sharing the same unexamined serialization logic.
 
-## C4 - Finality composition and diagnostics (current handoff)
+## C4 - Finality composition and diagnostics (committed)
 
-Implemented policy, API, and validation are in [finality.md](finality.md). C5 waits for Mansi to commit C4.
+Implemented policy, API, and validation are in [finality.md](finality.md). Mansi committed C4 as `8fe23fa`.
 
 Implement the semantic evaluator above individually checked certificates. Separate fast finality, the paired slow path, and migration/genesis evidence. Preserve per-certificate outcomes and a typed overall evidence scope.
 
@@ -104,7 +104,9 @@ Acceptance:
 - Unsupported kinds and missing counterparts are explained without being mistaken for invalid signatures.
 - `REJECTED` means the supplied claim failed, not that the chain proves the block can never finalize.
 
-## C5 - Browser inspector backed by the actual core
+## C5 - Browser inspector backed by the actual core (current handoff)
+
+Implemented behavior, run instructions, and limitations are in [browser-inspector.md](browser-inspector.md). C6 waits for Mansi to commit C5.
 
 Build a restrained React/TypeScript interface after the crypto path has been established. Run WASM in a worker, give each request a run ID, and prevent stale results from overwriting newer selections.
 

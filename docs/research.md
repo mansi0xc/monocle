@@ -68,3 +68,9 @@ The reduced schema/reference and bounded runtime adapter agree on four wire kind
 Pinned `runtime/src/validated_block_finalization.rs` distinguishes fast certificates from paired Notar/Finalize evidence for the same slot and verifies each aggregate independently. `votor/src/consensus_pool.rs` pairs certificates in either arrival order by slot, takes the block identity from notarization, and handles Genesis through migration status. Migration state includes activation/phase/ancestry conditions beyond the presence of a valid genesis certificate.
 
 C4 follows those direct evidence paths under the existing fixed checkpoint. It does not port the full runtime, authenticate migration state, or claim a differential Agave execution. The complete-bundle acceptance rule, explicit target requirement, stricter supported-kind scope, and deterministic witness selection are Monocle policies. Source hashes and distinctions are recorded in [the policy record](../experiments/finality-compat/policy.json) and [C4 specification](finality.md).
+
+## C5 browser boundary findings (2026-10-11)
+
+The product can reuse the existing zero-import WASM build with a small Rust-owned buffer ABI; no new cryptographic dependency or scheme is needed. Memory growth requires fresh JavaScript views, and terminating a worker provides an immediate cancellation boundary even during synchronous BLS verification. Original JSON strings must reach the strict Rust parser unchanged; generic JavaScript parsing would erase duplicate keys and risk integer conversion.
+
+React/Vite setup, worker termination, memory-view behavior, version pins, executable checks, and remaining limits are documented with primary sources in [the C5 inspector specification](browser-inspector.md). Synthetic browser success remains conditional on a separately selected synthetic checkpoint and does not verify a network capture.

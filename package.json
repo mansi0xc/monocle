@@ -1,11 +1,31 @@
 {
-  "name": "monocle-contracts-workspace",
+  "name": "monocle",
   "private": true,
   "type": "module",
   "scripts": {
-    "check:contracts": "tsc -p packages/contracts/tsconfig.json && node packages/contracts/test/check.mjs"
+    "check:contracts": "tsc -p packages/contracts/tsconfig.json && node packages/contracts/test/check.mjs",
+    "prepare:web": "bash scripts/build-wasm.sh && node scripts/prepare-web.mjs",
+    "dev": "npm run prepare:web && vite apps/web --config apps/web/vite.config.ts",
+    "typecheck:web": "tsc -p apps/web/tsconfig.json",
+    "build:web": "npm run prepare:web && npm run typecheck:web && vite build apps/web --config apps/web/vite.config.ts",
+    "preview": "vite preview apps/web --config apps/web/vite.config.ts",
+    "test:web": "node --experimental-strip-types --test apps/web/tests/runner.test.ts && playwright test --config apps/web/playwright.config.ts",
+    "format:check": "prettier --check \"apps/web/src/*.{ts,tsx,css}\" \"apps/web/tests/*.ts\" \"apps/web/*.ts\" apps/web/index.html apps/web/tsconfig.json scripts/prepare-web.mjs scripts/check-wasm-bridge.mjs package.json"
   },
   "devDependencies": {
-    "typescript": "5.9.3"
+    "@axe-core/playwright": "4.13.0",
+    "@playwright/test": "1.64.0",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "prettier": "3.9.10",
+    "typescript": "5.9.3",
+    "vite": "8.3.4"
+  },
+  "dependencies": {
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "engines": {
+    "node": ">=24.10.0"
   }
 }

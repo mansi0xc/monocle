@@ -27,3 +27,6 @@ test-results/
 /tmp/
 .vscode/
 .idea/
+
+# Reproducibly generated browser inputs.
+/apps/web/generated/

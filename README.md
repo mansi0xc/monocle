@@ -4,7 +4,7 @@ An open-source finality debugger for Solana's Alpenglow consensus.
 
 Monocle is designed to inspect certificate evidence, check signatures and stake thresholds against an explicitly trusted validator checkpoint, and explain the result. Its planned tamper lab preserves the original evidence, applies a controlled change, and shows which verification checks change. Portable bundles make experiments reproducible offline.
 
-**Project status:** C4 verifies direct fast/slow block-finality evidence and separately scoped genesis migration anchors under an explicitly trusted checkpoint. The Rust core checks real BLS signatures, proofs of possession, individual stake thresholds, and evidence composition. Synthetic end-to-end reports agree between native Rust and browser WASM. The product inspector, tamper/replay workflow, and real-network verification remain unimplemented.
+**Project status:** C5 adds a working black-and-white browser inspector. Import a Monocle proof bundle, explicitly select a checkpoint, and inspect real Rust/WASM signature, stake, and fast/slow finality checks. Genesis results retain their separate migration-anchor scope. Built-in examples are synthetic; tamper/replay and real-network verification remain future work.
 
 ## What the MVP will do
 
@@ -27,6 +27,7 @@ The MVP uses a fixed checkpoint. Authenticating validator-set changes across epo
 | [Cryptography](docs/cryptography.md) | BLS aggregation, stake arithmetic, payloads, and checkpoint trust |
 | [Research](docs/research.md) | Primary sources, observations, and unresolved implementation questions |
 | [Testing](docs/testing.md) | Required positive, negative, interoperability, and browser checks |
+| [C5 browser inspector](docs/browser-inspector.md) | Run the app, import evidence, select trust, and understand the worker boundary |
 | [C4 finality composition](docs/finality.md) | Fast/slow paths, migration-anchor scope, diagnostics, and assumptions |
 | [C3 certificate verification](docs/certificate-verification.md) | Supported wire profile, BLS/PoP checks, exact thresholds, and limits |
 | [C2 evidence contracts](docs/contracts.md) | Input schema, bounds, digests, trust selection, and preflight semantics |
@@ -35,18 +36,24 @@ The MVP uses a fixed checkpoint. Authenticating validator-set changes across epo
 | [Decisions](docs/decisions.md) | Architectural choices and their tradeoffs |
 | [Status](docs/status.md) | What exists and what is next |
 
-## Planned implementation
-
-The Rust library owns individual certificate verification and direct evidence composition. A small native tool will prepare fixtures and capture files; a WASM build will run the same verification logic in a browser worker. A TypeScript interface will handle inspection, mutations, comparison, and local import/export. C1 establishes a working native/WASM path using the Solana BLS leaf crate; C2 adds `crates/monocle-core` for input and context preparation and `packages/contracts` for TypeScript transport. C3 adds the certificate verifier, an independent signed-fixture generator, and a browser certificate harness. C4 adds the scoped evidence evaluator and composition corpus. The product interface remains planned.
-
-Run the current checks from the repository root:
+## Run the inspector
 
 ```sh
 npm ci --ignore-scripts --no-audit --no-fund
-bash scripts/check-finality.sh
+npm run dev
 ```
 
-It requires Rustup, a WASM-capable Clang, Node.js, and Chrome/Chromium (`CHROME_BIN` can select its executable). The pinned toolchain includes the WASM target and LLVM tools. See [finality.md](docs/finality.md) and [compatibility.md](docs/compatibility.md) for commands and limits. There is no product application start command yet.
+Use Node.js 24.10 or later, the pinned Rust toolchain with WASM/LLVM components, and a WASM-capable Clang. Open the local address Vite prints, load an example, select its checkpoint, and verify. `npm run build:web` builds static assets; `npm run preview` serves them locally. No wallet or RPC connection is required.
+
+For the full implemented gate:
+
+```sh
+bash scripts/check-web.sh
+```
+
+The gate requires Chrome/Chromium (`CHROME_BIN` can select its executable) and includes native crypto, previous browser corpora, arbitrary-input WASM parity, and inspector interactions/accessibility. See [browser-inspector.md](docs/browser-inspector.md) for setup, trust semantics, limits, and unverified environments.
+
+The Rust library owns verification and composition. `crates/monocle-wasm` exposes a bounded byte interface; `apps/web` manages original inputs, explicit trust, worker lifecycle, and report presentation. The native fixture generator stays separate from the verification path. Mutation comparison, portable replay, and the real-capture adapter remain later checkpoints.
 
 ## Development ownership
 

@@ -1,6 +1,6 @@
 # Architecture
 
-Status: proposed product architecture with C1 leaf cryptography, C2 input/context preparation, C3 individual certificate verification, and C4 direct evidence composition implemented. The [architecture PDF](architecture.pdf) provides five diagram sheets; this document defines the responsibilities and important details behind them.
+Status: proposed product architecture with C1 leaf cryptography, C2 input/context preparation, C3 individual certificate verification, C4 direct evidence composition, and C5 browser inspection implemented. Capture adaptation, mutations, and export remain proposed. The [architecture PDF](architecture.pdf) provides five diagram sheets; this document defines the responsibilities and important details behind them.
 
 ## System boundary
 
@@ -35,7 +35,7 @@ Transport sources are untrusted inputs to the verifier. TLS, a familiar endpoint
 | Report inspector | Trace, stake participation, evidence scope, assumptions | Hide unperformed checks behind a success badge |
 | Exporter | Evidence, mutation log, profile/checkpoint identities, prior reports | Treat a stored result as proof when re-imported |
 
-The native tool and worker should call the same core for the same profile. C3/C4 demonstrate the shared individual-certificate and direct evidence-composition paths in native Rust and browser WASM. The general-purpose worker interface remains C5 work. See [certificate-verification.md](certificate-verification.md).
+The native tool and worker should call the same core for the same profile. C3/C4 demonstrate the shared individual-certificate and direct evidence-composition paths in native Rust and browser WASM. C5 implements the arbitrary-input worker interface and inspector; see [browser-inspector.md](browser-inspector.md). See [certificate-verification.md](certificate-verification.md).
 
 ## Proposed source layout
 
@@ -52,7 +52,7 @@ docs/                # public design, research, usage, and status
 commits/             # local ignored checkpoint handoffs
 ```
 
-C2 implements `crates/monocle-core/` and a TypeScript transport package at `packages/contracts/`; the CLI, product WASM wrapper, and web application remain planned. C1 lives separately in `experiments/bls-compat/` and `experiments/browser/`, with reproducible scripts and a pinned Rust workspace. C2 adds `experiments/contracts-compat/` and `experiments/contracts-browser/` for cross-target contract checks. C3 adds `tools/certificate-fixtures/`, `experiments/certificate-compat/`, and `experiments/certificate-browser/`. C4 adds a `finality` module and a native/browser finality corpus harness. See [finality.md](finality.md).
+C2 implements `crates/monocle-core/` and a TypeScript transport package at `packages/contracts/`; C5 implements `crates/monocle-wasm/` and `apps/web/`; a general CLI and capture adapter remain planned. C1 lives separately in `experiments/bls-compat/` and `experiments/browser/`, with reproducible scripts and a pinned Rust workspace. C2 adds `experiments/contracts-compat/` and `experiments/contracts-browser/` for cross-target contract checks. C3 adds `tools/certificate-fixtures/`, `experiments/certificate-compat/`, and `experiments/certificate-browser/`. C4 adds a `finality` module and a native/browser finality corpus harness. See [finality.md](finality.md).
 
 ## Core interfaces
 

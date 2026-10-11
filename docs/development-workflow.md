@@ -61,8 +61,12 @@ C2 adds the `monocle-core` workspace crate and a private npm package used only t
 
 ## C3 verification tooling
 
-Use `bash scripts/check-certificates.sh` for the complete current gate. It includes earlier checkpoint checks, the signed fixture regeneration comparison, and the C3 native/browser comparison. `cargo run --locked --quiet -p monocle-certificate-compat` prints the fixed corpus reports. Arbitrary-input native consumers can call `monocle_core::certificate::verify_certificates`; there is no general-purpose CLI or product browser input interface yet. Fixture generation is a separate development tool and has no dependency on the verification core.
+Use `bash scripts/check-certificates.sh` for the C3 gate. It includes earlier checkpoint checks, the signed fixture regeneration comparison, and the C3 native/browser comparison. `cargo run --locked --quiet -p monocle-certificate-compat` prints the fixed corpus reports. Arbitrary-input native consumers can call `monocle_core::certificate::verify_certificates`; the C5 inspector now adds browser input; a general-purpose CLI remains unimplemented. Fixture generation is a separate development tool and has no dependency on the verification core.
 
 ## C4 evidence tooling
 
-Use `bash scripts/check-finality.sh` for the complete current gate. `cargo run --locked --quiet -p monocle-finality-compat` prints the fixed end-to-end corpus reports. The core entry point is `monocle_core::finality::verify_evidence`; product browser import and worker control still belong to C5. `generate_finality` is a second binary in the existing fixture package; its default run remains the original C3 generator for compatibility.
+Use `bash scripts/check-finality.sh` for the C4 gate. `cargo run --locked --quiet -p monocle-finality-compat` prints the fixed end-to-end corpus reports. The core entry point is `monocle_core::finality::verify_evidence`; C5 wraps this entry point with browser import and worker control. `generate_finality` is a second binary in the existing fixture package; its default run remains the original C3 generator for compatibility.
+
+## C5 product tooling
+
+Use `npm run dev` to build WASM and launch the local inspector. Use `bash scripts/check-web.sh` for the complete implemented gate. Node.js 24.10 or later is required by the current local test tooling; React, Vite, browser tests, formatting, and accessibility tools are pinned in the npm lockfile. Generated WASM/example inputs, production output, dependencies, screenshots, and test traces are ignored. See [browser-inspector.md](browser-inspector.md). No deploy or publication is part of this checkpoint.

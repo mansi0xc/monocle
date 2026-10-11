@@ -16,7 +16,7 @@ export CC_wasm32_unknown_unknown="${CC_wasm32_unknown_unknown:-clang}"
 cargo build --locked --workspace --release --lib --target wasm32-unknown-unknown
 node --input-type=module - <<'JS'
 import { readFile } from 'node:fs/promises';
-for (const name of ['monocle_bls_compat', 'monocle_contracts_compat', 'monocle_certificate_compat', 'monocle_finality_compat']) {
+for (const name of ['monocle_wasm', 'monocle_bls_compat', 'monocle_contracts_compat', 'monocle_certificate_compat', 'monocle_finality_compat']) {
   const module = await WebAssembly.compile(await readFile(`target/wasm32-unknown-unknown/release/${name}.wasm`));
   const imports = WebAssembly.Module.imports(module);
   if (imports.length) throw new Error(`Unresolved WASM imports: ${JSON.stringify(imports)}`);

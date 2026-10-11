@@ -1,0 +1,78 @@
+import { readFile } from "node:fs/promises";
+import { execFileSync } from "node:child_process";
+import assert from "node:assert/strict";
+import { loadVerifier } from "../apps/web/src/wasm.ts";
+const bytes = await readFile(
+  "target/wasm32-unknown-unknown/release/monocle_wasm.wasm",
+);
+const corpus = JSON.parse(
+  await readFile("fixtures/finality/corpus.json", "utf8"),
+);
+const native = JSON.parse(
+  execFileSync(
+    "cargo",
+    ["run", "--locked", "--quiet", "-p", "monocle-finality-compat"],
+    { encoding: "utf8", maxBuffer: 4 * 1024 * 1024 },
+  ),
+);
+const encoder = new TextEncoder();
+for (const c of corpus.cases) {
+  const call = await loadVerifier(bytes);
+  const checkpoint = call(2, encoder.encode(c.checkpoint_json));
+  if (c.select_checkpoint) assert.equal(call(3), checkpoint.digest);
+  const bundle = JSON.parse(c.bundle_json);
+  const result = call(
+    5,
+    encoder.encode(
+      JSON.stringify({
+        schema_version: 1,
+        run_id: c.name,
+        profile_id: bundle.profile_id ?? "agave-98535e50-base2-v1",
+        bundle_json: c.bundle_json,
+        selected_checkpoint: c.select_checkpoint ? checkpoint.digest : null,
+      }),
+    ),
+  );
+  assert.deepEqual(
+    result,
+    native.cases.find((n) => n.name === c.name).report,
+    c.name,
+  );
+}
+const { instance } = await WebAssembly.instantiate(bytes, {});
+const api = instance.exports;
+assert.equal(api.monocle_execute(1), 0, "execute without allocation fails");
+assert.equal(
+  api.monocle_input_alloc(6 * 1024 * 1024 + 4097),
+  0,
+  "oversized allocation fails",
+);
+assert.equal(
+  api.monocle_execute(5),
+  0,
+  "failed allocation cannot reuse prior input",
+);
+const call = await loadVerifier(bytes);
+assert.throws(() => call(1, new Uint8Array([255])), /MALFORMED_JSON/);
+assert.throws(
+  () => call(1, encoder.encode('{"schema_version":1,"schema_version":1}')),
+  /DUPLICATE_FIELD/,
+);
+const base = JSON.parse(corpus.cases[0].bundle_json);
+base.claim.slot = "18446744073709551615";
+assert.equal(
+  call(1, encoder.encode(JSON.stringify(base))).document.claim.slot,
+  base.claim.slot,
+);
+// Exercise successive memory growth and then a small request using fresh views.
+assert.throws(
+  () => call(2, encoder.encode(" ".repeat(4 * 1024 * 1024))),
+  /MALFORMED_JSON/,
+);
+assert.equal(
+  call(1, encoder.encode(JSON.stringify(base))).document.claim.slot,
+  base.claim.slot,
+);
+console.log(
+  `Bridge: ${corpus.cases.length} full WASM/native report comparisons; ABI bounds, UTF-8, duplicates, u64, and memory growth passed.`,
+);

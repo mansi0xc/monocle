@@ -86,6 +86,18 @@ A valid fast path does not hide a bad or unsupported extra. Mixed migration/ordi
 
 A valid 82% genesis certificate establishes migration-anchor evidence under the chosen context, not completion of the transition or ordinary block finality. Activation, ancestry, TowerBFT, and local migration phase checks require evidence outside the current contract. Preserve this distinction in the future inspector.
 
+## D022 - Bounded byte ABI without a new crypto or binding dependency
+
+C5 uses a small Rust-owned input/output bridge around the established core. It does not introduce wasm-bindgen tooling or a second verifier. Original evidence bytes enter authoritative Rust parsing; only locally issued operations can pin a parsed checkpoint. Native tests and full-report comparisons exercise the same boundary. JavaScript must recreate memory views after execution. The application host itself remains trusted.
+
+## D023 - Terminate a fresh worker for every operation
+
+Each import inspection or verification gets a fresh worker and unique request ID. Completion, cancellation, error, timeout, and replacement terminate that worker. Input revision guards also discard late file reads. The app intentionally pays the small startup cost to avoid persistent trust/allocator state across runs. A selected checkpoint is retained in page memory as a separate local decision and reparsed/repinned during each verification.
+
+## D024 - Monochrome inspection before experiment controls
+
+C5 exposes source identity, provenance, explicit checkpoint selection, check traces, certificate bytes, signer weights, and assumptions. Native controls and a stacked narrow layout support keyboard and small-screen use. No decorative confidence scores or saved verdicts substitute for the core result. Mutation/export/replay controls wait for C6.
+
 ## Open decisions
 
-Authentic historical checkpoint acquisition and key qualification; supported fallback variants; historical capture source; general product WASM API; project publication license. Resolve these at their corresponding checkpoint with evidence and tradeoffs.
+Authentic historical checkpoint acquisition and key qualification; supported fallback variants; historical capture source; project publication license. Resolve these at their corresponding checkpoint with evidence and tradeoffs.
