@@ -118,7 +118,7 @@ C2's `preflight` never returns `VERIFIED`. Its evidence scope is always `preflig
 
 The current operation is `replace_bytes`, with one equal-length patch record per affected certificate. Parent bundle digest and mutation list must appear together. The target must exist, the offset must fit without overflow, the after-bytes must match the target slice, and the result certificate digest must match its current raw bytes.
 
-The parent digest and before-bytes remain unverified history claims because C2 does not load the parent artifact. It does not apply mutations, authenticate lineage, or perform replay. Those operations belong to C6. Multiple edits to the same certificate must wait for an explicit richer history contract rather than being silently interpreted.
+When parsing a standalone bundle, the parent digest and before-bytes remain unverified history claims because this parser does not load the parent artifact. C6 adds a separate [replay validator](tamper-replay.md) that loads the exact original and reconstructs the derived document, checking one replacement across the whole bundle. This proves content consistency, not author or capture authenticity. Chained/multiple edits are outside the C6 archive contract.
 
 ## Reproduce and inspect
 
@@ -137,7 +137,7 @@ To inspect the native preflight corpus:
 cargo run --locked --quiet -p monocle-contracts-compat
 ```
 
-The C2 corpus compares 13 complete reports between native and browser WASM. Browser checks independently compare Rust SHA-256 with WebCrypto and exercise the compiled TypeScript helpers. This is not arbitrary-file import through a product worker: the compatibility probe has a fixed embedded corpus and bounded output-reading exports. The production browser API and worker lifecycle remain C5 work.
+The C2 corpus compares 13 complete reports between native and browser WASM. Browser checks independently compare Rust SHA-256 with WebCrypto and exercise the compiled TypeScript helpers. This is not arbitrary-file import through a product worker: the compatibility probe has a fixed embedded corpus and bounded output-reading exports. The production browser API and worker lifecycle are implemented separately in [C5](browser-inspector.md), with [C6](tamper-replay.md) adding mutation/replay operations. The C2 preflight still does not verify certificates.
 
 ## Sources informing implementation
 

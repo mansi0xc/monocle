@@ -1,6 +1,6 @@
 # Monocle interface
 
-Implemented C5 product surface: `apps/web/src/styles.css`. Product direction is in [PRODUCT.md](PRODUCT.md).
+Implemented C5/C6 product surface: `apps/web/src/styles.css`. Product direction is in [PRODUCT.md](PRODUCT.md).
 
 ## Visual system
 
@@ -12,10 +12,10 @@ Main heading 1.75rem, result heading 2rem, section heading 1.125rem, interface b
 
 ## Interaction
 
-Every input change clears the previous result. Loading never implies verification or checkpoint authenticity. Native selects, file inputs, checkboxes, details, and table semantics provide familiar keyboard behavior. Focus outlines are 2px with an offset; a skip link and live status region support navigation. The spinner indicates active work and becomes static with reduced motion. Hover transitions are limited to 160ms; there are no decorative entrance animations.
+Changing evidence, the active experiment, or checkpoint context clears the previous results. Editing an unsubmitted experiment form does not alter the active evidence; export preserves current reports. Loading never implies verification or checkpoint authenticity. Native selects, file inputs, checkboxes, details, and table semantics provide familiar keyboard behavior. Focus outlines are 2px with an offset; a skip link and live status region support navigation. The spinner indicates active work and becomes static with reduced motion. Hover transitions are limited to 160ms; there are no decorative entrance animations.
 
 Errors include a recoverable next action. The result exposes scope before the detailed trace, then certificates, exact weights, signed bytes, and assumptions. Signer tables paginate at 50 entries and retain an internal horizontal scroll region at narrow widths.
 
 ## Validation and boundaries
 
-Chrome screenshots were inspected at 1440px and 375px. Automated accessibility checks exercise empty, verified, and narrow layouts. These checks do not establish conformance across all assistive technologies or browsers. Keep additional formats and tamper/replay actions out of the UI until their core behavior is implemented.
+Chrome screenshots were inspected at 1440px and 375px. Automated accessibility checks exercise empty, verified, and narrow layouts. These checks do not establish conformance across all assistive technologies or browsers. C6 adds a native disclosure for mutation controls, a before/after trace table, original/experiment report selection, and local replay controls. The table shows changed checks by default and supports inspecting all checks; on narrow screens it scrolls inside its own labeled region. Profile/checkpoint requirements and the difference between loaded assets and offline cold start remain explicit.

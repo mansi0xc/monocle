@@ -10,13 +10,13 @@ interface Exports extends WebAssembly.Exports {
 export async function loadVerifier(bytes: BufferSource) {
   const { instance } = await WebAssembly.instantiate(bytes, {});
   const api = instance.exports as Exports;
-  if (api.monocle_abi_version() !== 1)
+  if (api.monocle_abi_version() !== 2)
     throw new Error("Unsupported verifier ABI. Rebuild the app assets.");
   return function call<T>(
     operation: number,
     input: Uint8Array = new Uint8Array(),
   ): T {
-    if (input.byteLength > 6 * 1024 * 1024 + 4096)
+    if (input.byteLength > 16 * 1024 * 1024)
       throw new Error("Verifier input exceeds its size limit.");
     const ptr = api.monocle_input_alloc(input.byteLength);
     if (!ptr)
@@ -25,7 +25,7 @@ export async function loadVerifier(bytes: BufferSource) {
     if (api.monocle_execute(operation) !== 1)
       throw new Error("The verifier could not complete this operation.");
     const size = api.monocle_output_len();
-    if (!size || size > 8 * 1024 * 1024)
+    if (!size || size > 32 * 1024 * 1024)
       throw new Error("The verifier returned an invalid response size.");
     // Execution can grow memory. Never reuse the pre-execution view.
     const output = new Uint8Array(

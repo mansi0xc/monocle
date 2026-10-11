@@ -94,3 +94,47 @@ test("creation and posting failures are reported", async () => {
   await assert.rejects(new Runner(() => worker).run(verify), /send/);
   assert.equal(worker.stopped, true);
 });
+
+test("cancel during asset preparation prevents posting into a replacement job", async () => {
+  const worker = new FakeWorker();
+  let release!: (value: ArrayBuffer) => void;
+  const runner = new Runner(
+    () => worker,
+    30_000,
+    () =>
+      new Promise((resolve) => {
+        release = resolve;
+      }),
+  );
+  const pending = runner.run(verify);
+  const cancelled = assert.rejects(pending, { name: "AbortError" });
+  runner.cancel();
+  release(new ArrayBuffer(0));
+  await cancelled;
+  await Promise.resolve();
+  assert.equal(worker.sent, null);
+  assert.equal(worker.stopped, true);
+});
+test("comparison checks both report run IDs", async () => {
+  const { workers, runner } = setup();
+  const pending = runner.run({
+    kind: "compare",
+    baseline: new Uint8Array(),
+    derived: new Uint8Array(),
+    checkpoint: null,
+    selection: null,
+    requiredCheckpoint: null,
+  });
+  const id = workers[0].sent!.id;
+  workers[0].onmessage?.({
+    data: {
+      id,
+      ok: true,
+      value: {
+        baseline: { run_id: `${id}-baseline` },
+        derived: { run_id: "stale" },
+      },
+    },
+  } as MessageEvent<WorkerResponse>);
+  await assert.rejects(pending, /did not match/);
+});

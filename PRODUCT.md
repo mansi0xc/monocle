@@ -24,4 +24,4 @@ Inputs and trust selection are deliberate actions. Display the original-byte dig
 
 ## Delivery
 
-C5 provides the browser inspector backed by the existing Rust verifier. Tamper controls and portable replay belong to C6; real capture integration belongs to C7. Follow the owner-controlled commit checkpoints in AGENTS.md.
+C5 provides the browser inspector backed by the existing Rust verifier. C6 adds a single immutable-baseline experiment, fresh comparison, and portable replay with explicit trust reselection. Offline use is supported only in a loaded production session. Real capture integration belongs to C7. Follow the owner-controlled commit checkpoints in AGENTS.md.

@@ -7,6 +7,7 @@ use std::fmt;
 struct Seed<'a> {
     depth: usize,
     nodes: &'a mut usize,
+    string_limit: usize,
 }
 impl<'de> DeserializeSeed<'de> for Seed<'_> {
     type Value = Value;
@@ -46,7 +47,7 @@ impl<'de> Visitor<'de> for Seed<'_> {
         self.visit_string(v.to_owned())
     }
     fn visit_string<E: de::Error>(self, v: String) -> Result<Value, E> {
-        if v.len() > crate::MAX_BUNDLE_BYTES {
+        if v.len() > self.string_limit {
             return Err(E::custom("MONOCLE_STRUCTURE: string too large"));
         }
         Ok(Value::String(v))
@@ -56,6 +57,7 @@ impl<'de> Visitor<'de> for Seed<'_> {
         while let Some(value) = seq.next_element_seed(Seed {
             depth: self.depth + 1,
             nodes: self.nodes,
+            string_limit: self.string_limit,
         })? {
             if values.len() == 4096 {
                 return Err(de::Error::custom("MONOCLE_STRUCTURE: array too large"));
@@ -78,6 +80,7 @@ impl<'de> Visitor<'de> for Seed<'_> {
             let value = map.next_value_seed(Seed {
                 depth: self.depth + 1,
                 nodes: self.nodes,
+                string_limit: self.string_limit,
             })?;
             values.insert(key, value);
         }
@@ -86,6 +89,14 @@ impl<'de> Visitor<'de> for Seed<'_> {
 }
 
 pub(crate) fn strict_value(bytes: &[u8], max: usize) -> Result<Value, Diagnostic> {
+    strict_value_with_string_limit(bytes, max, crate::MAX_BUNDLE_BYTES)
+}
+
+pub(crate) fn strict_value_with_string_limit(
+    bytes: &[u8],
+    max: usize,
+    string_limit: usize,
+) -> Result<Value, Diagnostic> {
     if bytes.len() > max {
         return Err(Diagnostic::new(
             Code::InputTooLarge,
@@ -97,6 +108,7 @@ pub(crate) fn strict_value(bytes: &[u8], max: usize) -> Result<Value, Diagnostic
     let value = Seed {
         depth: 0,
         nodes: &mut 0,
+        string_limit,
     }
     .deserialize(&mut de)
     .map_err(|e| Diagnostic::from_serde(&e.to_string(), "$", Code::MalformedJson))?;

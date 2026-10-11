@@ -6,7 +6,7 @@ use monocle_core::{
 use serde::Serialize;
 use serde_json::{Value, json};
 
-pub const MAX_INPUT_BYTES: usize = monocle_core::MAX_REQUEST_BYTES;
+pub const MAX_INPUT_BYTES: usize = monocle_core::experiment::MAX_REPLAY_BYTES;
 
 #[derive(Default)]
 pub struct Session {
@@ -30,8 +30,8 @@ fn value<T: Serialize>(result: Result<T, Diagnostic>) -> Value {
 }
 
 impl Session {
-    /// ABI v1 operations: inspect bundle, inspect checkpoint, select synthetic,
-    /// select operator (UTF-8 reason), verify request, clear trust.
+    /// ABI v2 operations: inspect bundle, inspect checkpoint, select synthetic,
+    /// select operator (UTF-8 reason), verify request, clear trust, mutate, inspect replay.
     pub fn execute(&mut self, operation: u32, input: &[u8]) -> Value {
         // Failed replacement/selection also revokes earlier trust, including
         // inputs rejected by the bridge-wide size check.
@@ -96,6 +96,8 @@ impl Session {
                 self.trust = TrustStore::new();
                 value::<()>(Ok(()))
             }
+            7 => value(monocle_core::experiment::apply_mutation(input)),
+            8 => value(monocle_core::experiment::parse_replay(input)),
             _ => value::<()>(Err(diagnostic(
                 Code::InvalidSchema,
                 "operation",
@@ -125,7 +127,7 @@ mod abi {
 
     #[unsafe(no_mangle)]
     pub extern "C" fn monocle_abi_version() -> u32 {
-        1
+        2
     }
 
     #[unsafe(no_mangle)]

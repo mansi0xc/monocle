@@ -194,3 +194,21 @@ export interface EvidenceVerificationReport {
   certificates: CertificateReport[];
   assumptions: string[];
 }
+
+/** C6 keeps original bytes and one independently derived replacement. */
+export type MutationAction = { kind: 'signature_bit' } | { kind: 'replace_bytes'; offset: DecimalU64; after_hex: Hex };
+export interface MutationRequest { schema_version: 1; baseline_json: string; certificate_id: string; action: MutationAction }
+export interface DerivedEvidence { bundle_json: string; digest: ContentDigest; document: ProofBundle }
+/** Saved reports are deliberately unknown/untrusted on import. They never enter verification. */
+export interface ReplayArchive {
+  schema_version: 1;
+  format: 'monocle-replay';
+  profile_id: string;
+  policy_id: string;
+  baseline_json: string;
+  derived_json: string | null;
+  checkpoint_json: string | null;
+  checkpoint_digest: ContentDigest | null;
+  saved_reports: { baseline: unknown | null; derived: unknown | null } | null;
+}
+export const MAX_REPLAY_BYTES = 16 * 1024 * 1024;

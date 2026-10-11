@@ -863,3 +863,174 @@ footer {
   overflow: hidden;
   white-space: nowrap;
 }
+
+.tamper-lab {
+  border-block: 1px solid var(--line);
+  margin: 0.5rem 0 1.5rem;
+}
+.tamper-lab > summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 0;
+  font-weight: 600;
+}
+.tamper-lab > summary::before {
+  content: "+";
+}
+.tamper-lab[open] > summary::before {
+  content: "−";
+}
+.tamper-lab > summary > span {
+  font-weight: 400;
+  margin-left: auto;
+}
+.lab-body {
+  padding-bottom: 1.25rem;
+}
+.lab-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+  gap: 1rem;
+  margin: 1rem 0;
+}
+.lab-fields label {
+  font-size: 0.8125rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.lab-fields select,
+.lab-fields input {
+  width: 100%;
+  min-width: 0;
+  border: 1px solid oklch(65% 0 0);
+  background: white;
+  border-radius: 4px;
+  padding: 0.6rem;
+  font-size: 0.8125rem;
+}
+.lab-body form > button {
+  margin-top: 1rem;
+}
+.lab-identity {
+  margin: 1rem 0;
+}
+.mutation-summary {
+  margin: 1rem 0;
+  padding: 1rem 0;
+  border-block: 1px solid var(--line);
+  font-size: 0.875rem;
+}
+.patch-values {
+  display: grid;
+  grid-template-columns: 4rem minmax(0, 1fr);
+  gap: 0.5rem;
+  font-size: 0.8125rem;
+}
+.patch-values dd {
+  max-height: 6rem;
+  overflow: auto;
+  overflow-wrap: anywhere;
+}
+.replay-controls > label {
+  margin-top: 1rem;
+}
+.input-section .inline-label,
+.inline-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+}
+.replay-controls > button {
+  margin-top: 0.5rem;
+}
+.replay-controls details {
+  margin-top: 1rem;
+}
+.comparison {
+  margin: 1.5rem 0;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--line);
+}
+.comparison > p {
+  margin: 0.6rem 0;
+}
+.comparison-outcomes {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin: 1.25rem 0;
+}
+.comparison-outcomes > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.75rem;
+}
+.comparison-outcomes strong {
+  font-size: 1rem;
+  font-weight: 600;
+}
+.comparison-outcomes > div > span:last-child {
+  color: var(--muted);
+}
+.comparison-table {
+  table-layout: fixed;
+  min-width: 480px;
+}
+.comparison-table th:first-child {
+  width: 24%;
+  white-space: normal;
+}
+.comparison-table td > * {
+  display: block;
+  margin: 0.3rem 0;
+  overflow-wrap: anywhere;
+}
+.comparison-table code {
+  font-size: 0.6875rem;
+}
+.comparison-table td > span {
+  color: var(--muted);
+}
+.report-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+.report-tabs button[aria-pressed="true"] {
+  background: var(--ink);
+  color: white;
+  border-color: var(--ink);
+}
+@media (max-width: 1000px) {
+  .lab-fields {
+    grid-template-columns: 1fr;
+  }
+  .tamper-lab > summary {
+    flex-wrap: wrap;
+  }
+  .tamper-lab > summary > span {
+    margin-left: 0;
+  }
+  .comparison-outcomes {
+    gap: 1rem;
+  }
+}
+@media (max-width: 740px) {
+  .lab-fields {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr);
+  }
+}
+@media (max-width: 420px) {
+  .lab-fields {
+    grid-template-columns: 1fr;
+  }
+  .local-label {
+    white-space: normal;
+    max-width: 8rem;
+    text-align: right;
+  }
+}

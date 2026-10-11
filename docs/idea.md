@@ -6,7 +6,7 @@ Status: proposed MVP; foundation prepared on 2026-10-09.
 
 Monocle is an open-source finality debugger for Solana's Alpenglow consensus, designed to make cryptographic verification understandable and reproducible. It checks certificate signatures and validator stake thresholds against a trusted checkpoint, explaining why verification succeeds, fails, or remains inconclusive. Its tamper lab and portable evidence bundles let developers experiment with altered certificates, compare results, and replay verification offline.
 
-These sentences describe the intended product. The repository now contains native/browser BLS compatibility checks plus bounded evidence contracts and explicit local checkpoint selection; C3/C4 now add individual certificate checks and direct evidence composition. C5 adds the working browser inspector, file import, explicit checkpoint selection, and worker-backed reports. The tamper application and portable replay remain planned.
+These sentences describe the intended product. The repository now contains native/browser BLS compatibility checks plus bounded evidence contracts and explicit local checkpoint selection; C3/C4 now add individual certificate checks and direct evidence composition. C5 adds the working browser inspector, file import, explicit checkpoint selection, and worker-backed reports. C6 implements the tamper application and portable replay, limited to one equal-length byte replacement from an unmodified baseline. Both comparison reports are freshly verified; imported reports are ignored.
 
 ## The problem
 
@@ -45,7 +45,7 @@ Changing a bitmap usually also changes the public-key aggregate and breaks the s
 
 Export the source evidence, profile identity, checkpoint reference, mutation history, and diagnostic reports. On import, recompute verification. A saved report is evidence about a previous run; it is not authorization to skip checks.
 
-Offline replay means the application assets and required evidence/context are already available locally. It does not promise that visiting a never-cached website without a connection will work.
+C6 offline replay means keeping the production page open after its readiness indicator appears, with evidence/context loaded or available as local files. The loaded page retains the inline worker and WASM bytes in memory. A first visit or refresh while disconnected is not supported; the development server is not an offline deployment.
 
 ### 4. Explicit trust and evidence scope
 

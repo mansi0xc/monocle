@@ -2,9 +2,9 @@
 
 An open-source finality debugger for Solana's Alpenglow consensus.
 
-Monocle is designed to inspect certificate evidence, check signatures and stake thresholds against an explicitly trusted validator checkpoint, and explain the result. Its planned tamper lab preserves the original evidence, applies a controlled change, and shows which verification checks change. Portable bundles make experiments reproducible offline.
+Monocle is designed to inspect certificate evidence, check signatures and stake thresholds against an explicitly trusted validator checkpoint, and explain the result. Its tamper lab preserves the original evidence, applies one controlled byte replacement, and compares freshly computed checks. Portable replay files preserve exact evidence and optional checkpoint bytes for verification in a loaded production app, including after disconnecting from the network.
 
-**Project status:** C5 adds a working black-and-white browser inspector. Import a Monocle proof bundle, explicitly select a checkpoint, and inspect real Rust/WASM signature, stake, and fast/slow finality checks. Genesis results retain their separate migration-anchor scope. Built-in examples are synthetic; tamper/replay and real-network verification remain future work.
+**Project status:** C6 adds the tamper lab, diagnostic comparison, and portable replay to the black-and-white Rust/WASM inspector. Importing a replay never selects trust or restores saved verdicts. Fast/slow finality and genesis-anchor evidence retain their distinct scopes. Built-in examples are synthetic; real-network verification remains unestablished.
 
 ## What the MVP will do
 
@@ -27,6 +27,7 @@ The MVP uses a fixed checkpoint. Authenticating validator-set changes across epo
 | [Cryptography](docs/cryptography.md) | BLS aggregation, stake arithmetic, payloads, and checkpoint trust |
 | [Research](docs/research.md) | Primary sources, observations, and unresolved implementation questions |
 | [Testing](docs/testing.md) | Required positive, negative, interoperability, and browser checks |
+| [C6 tamper lab and replay](docs/tamper-replay.md) | Controlled mutations, reproducible comparisons, archive format, and offline limits |
 | [C5 browser inspector](docs/browser-inspector.md) | Run the app, import evidence, select trust, and understand the worker boundary |
 | [C4 finality composition](docs/finality.md) | Fast/slow paths, migration-anchor scope, diagnostics, and assumptions |
 | [C3 certificate verification](docs/certificate-verification.md) | Supported wire profile, BLS/PoP checks, exact thresholds, and limits |
@@ -53,7 +54,13 @@ bash scripts/check-web.sh
 
 The gate requires Chrome/Chromium (`CHROME_BIN` can select its executable) and includes native crypto, previous browser corpora, arbitrary-input WASM parity, and inspector interactions/accessibility. See [browser-inspector.md](docs/browser-inspector.md) for setup, trust semantics, limits, and unverified environments.
 
-The Rust library owns verification and composition. `crates/monocle-wasm` exposes a bounded byte interface; `apps/web` manages original inputs, explicit trust, worker lifecycle, and report presentation. The native fixture generator stays separate from the verification path. Mutation comparison, portable replay, and the real-capture adapter remain later checkpoints.
+The Rust library owns verification and composition. `crates/monocle-wasm` exposes a bounded byte interface; `apps/web` manages original inputs, explicit trust, worker lifecycle, and report presentation. The native fixture generator stays separate from the verification path. C6 adds mutation application and replay validation in that same core. The real-capture adapter remains C7 work.
+
+## Try a reproducible experiment
+
+Load **Fast finality**, select its synthetic checkpoint, and verify. Open **Tamper lab**, create the signature-bit experiment, then verify the comparison. The original remains unchanged. Export a replay, import it again, explicitly select the checkpoint, and recompute. A saved `VERIFIED` label cannot authorize a result.
+
+For offline use, build and preview the production app, wait for **Ready for offline verification**, and keep that page open. Local imports, experiments, and verification then need no network requests. Offline first visits and page refreshes are not supported; see [tamper-replay.md](docs/tamper-replay.md).
 
 ## Development ownership
 

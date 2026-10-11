@@ -16,9 +16,15 @@ export class Runner {
   } | null = null;
   private factory: () => WorkerPort;
   private timeout: number;
-  constructor(factory: () => WorkerPort, timeout = 30_000) {
+  private prepare?: () => Promise<ArrayBuffer>;
+  constructor(
+    factory: () => WorkerPort,
+    timeout = 30_000,
+    prepare?: () => Promise<ArrayBuffer>,
+  ) {
     this.factory = factory;
     this.timeout = timeout;
+    this.prepare = prepare;
   }
   cancel() {
     const active = this.active;
@@ -74,6 +80,20 @@ export class Runner {
           finish(new Error("Verifier response did not match this run."));
           return;
         }
+        if (
+          job.kind === "compare" &&
+          (!("baseline" in data.value) ||
+            !("derived" in data.value) ||
+            data.value.baseline === null ||
+            !("run_id" in data.value.baseline) ||
+            data.value.baseline.run_id !== `${id}-baseline` ||
+            data.value.derived === null ||
+            !("run_id" in data.value.derived) ||
+            data.value.derived.run_id !== `${id}-derived`)
+        ) {
+          finish(new Error("Comparison reports did not match this run."));
+          return;
+        }
         finish(undefined, data.value as T);
       };
       worker.onerror = (event) => {
@@ -82,11 +102,23 @@ export class Runner {
       };
       worker.onmessageerror = () =>
         finish(new Error("Could not read the verifier worker response."));
-      try {
-        worker.postMessage({ id, job });
-      } catch {
-        finish(new Error("Could not send evidence to the verifier worker."));
-      }
+      const send = (wasmBytes?: ArrayBuffer) => {
+        if (this.active?.id !== id) return;
+        try {
+          worker.postMessage({ id, job, wasmBytes });
+        } catch {
+          finish(new Error("Could not send evidence to the verifier worker."));
+        }
+      };
+      if (this.prepare)
+        this.prepare().then(send, (error) =>
+          finish(
+            error instanceof Error
+              ? error
+              : new Error("Verifier assets unavailable."),
+          ),
+        );
+      else send();
     });
   }
 }

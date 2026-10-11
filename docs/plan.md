@@ -104,9 +104,9 @@ Acceptance:
 - Unsupported kinds and missing counterparts are explained without being mistaken for invalid signatures.
 - `REJECTED` means the supplied claim failed, not that the chain proves the block can never finalize.
 
-## C5 - Browser inspector backed by the actual core (current handoff)
+## C5 - Browser inspector backed by the actual core (committed)
 
-Implemented behavior, run instructions, and limitations are in [browser-inspector.md](browser-inspector.md). C6 waits for Mansi to commit C5.
+Implemented behavior, run instructions, and limitations are in [browser-inspector.md](browser-inspector.md). Mansi committed C5 as `2ab8e72`.
 
 Build a restrained React/TypeScript interface after the crypto path has been established. Run WASM in a worker, give each request a run ID, and prevent stale results from overwriting newer selections.
 
@@ -120,7 +120,9 @@ Acceptance:
 - Exact values survive the JavaScript/WASM boundary.
 - Keyboard use, focus, loading, error, and empty states work.
 
-## C6 - Tamper lab and portable replay
+## C6 - Tamper lab and portable replay (current handoff)
+
+Implemented behavior and limits are in [tamper-replay.md](tamper-replay.md). One equal-length replacement is derived from an immutable baseline, both reports are recomputed under the same selection, and archives carry exact inputs without granting trust. C7 waits for Mansi to commit C6.
 
 Add immutable baseline state, derived experiments, explicit mutation records, comparable diagnostics, and export/import of evidence. Preserve report provenance and recompute imported results. Make checkpoint availability and profile version requirements explicit during replay.
 

@@ -159,10 +159,12 @@ test("import preserves exact integers and identity while rendering hostile strin
   expect(await page.evaluate(() => "pwned" in window)).toBe(false);
   await page.getByText("Input identity", { exact: true }).click();
   await expect(
-    page.getByText(
-      `sha256:${createHash("sha256").update(source).digest("hex")}`,
-      { exact: true },
-    ),
+    page
+      .getByRole("complementary")
+      .getByText(
+        `sha256:${createHash("sha256").update(source).digest("hex")}`,
+        { exact: true },
+      ),
   ).toBeVisible();
 });
 test("checkpoint import grants nothing and replacement revokes selection", async ({
@@ -206,6 +208,7 @@ test("cancellation and replacement discard delayed worker responses", async ({
     });
     await route.continue().catch(() => {});
   });
+  await page.reload();
   await page.getByRole("button", { name: "Load", exact: true }).click();
   await expect(
     page.getByRole("button", { name: "Cancel operation" }),
@@ -228,6 +231,7 @@ test("missing WASM is an actionable failure and a retry works", async ({
   await page.route("**/*.wasm", (route) =>
     route.fulfill({ status: 404, body: "" }),
   );
+  await page.reload();
   await page.getByRole("button", { name: "Load", exact: true }).click();
   await expect(page.getByRole("alert")).toContainText(
     "Verifier asset unavailable",

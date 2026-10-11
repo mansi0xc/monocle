@@ -1,6 +1,7 @@
 //! Bounded evidence contracts, explicit checkpoint trust, and scoped Base2 certificate checks.
 pub mod certificate;
 mod error;
+pub mod experiment;
 pub mod finality;
 mod json;
 mod model;

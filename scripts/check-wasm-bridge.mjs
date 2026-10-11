@@ -43,7 +43,7 @@ const { instance } = await WebAssembly.instantiate(bytes, {});
 const api = instance.exports;
 assert.equal(api.monocle_execute(1), 0, "execute without allocation fails");
 assert.equal(
-  api.monocle_input_alloc(6 * 1024 * 1024 + 4097),
+  api.monocle_input_alloc(16 * 1024 * 1024 + 1),
   0,
   "oversized allocation fails",
 );
@@ -75,4 +75,35 @@ assert.equal(
 );
 console.log(
   `Bridge: ${corpus.cases.length} full WASM/native report comparisons; ABI bounds, UTF-8, duplicates, u64, and memory growth passed.`,
+);
+
+const replayCases = JSON.parse(
+  execFileSync(
+    "cargo",
+    [
+      "run",
+      "--locked",
+      "--quiet",
+      "-p",
+      "monocle-wasm",
+      "--example",
+      "replay_probe",
+    ],
+    { encoding: "utf8", maxBuffer: 4 * 1024 * 1024 },
+  ),
+);
+for (const c of replayCases) {
+  const bridge = await loadVerifier(bytes);
+  if (c.response.ok)
+    assert.deepEqual(
+      bridge(c.operation, encoder.encode(c.input_json)),
+      c.response.value,
+    );
+  else
+    assert.throws(() => bridge(c.operation, encoder.encode(c.input_json)), {
+      message: `${c.response.error.code} · ${c.response.error.path}: ${c.response.error.message}`,
+    });
+}
+console.log(
+  `Replay bridge: ${replayCases.length} native/WASM mutation, archive, lineage and boundary comparisons passed.`,
 );

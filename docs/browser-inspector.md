@@ -1,6 +1,6 @@
-# C5 browser inspector
+# Browser inspector (C5, extended in C6)
 
-Monocle now has a React/TypeScript inspector at `apps/web`, backed by the same Rust core used by the native tests. It accepts arbitrary Monocle v1 proof bundles and checkpoint files within the existing limits. All built-in examples are signed synthetic evidence. C5 adds no new cryptographic primitive or consensus rule.
+Monocle now has a React/TypeScript inspector at `apps/web`, backed by the same Rust core used by the native tests. It accepts arbitrary Monocle v1 proof bundles and checkpoint files within the existing limits. All built-in examples are signed synthetic evidence. C5 adds no new cryptographic primitive or consensus rule. C6 adds [tamper experiments and replay](tamper-replay.md); the shared runtime details below reflect that extension.
 
 ## Run it
 
@@ -18,7 +18,7 @@ npm run build:web
 npm run preview
 ```
 
-Build output is `apps/web/dist/`. Serve it over HTTP(S); opening its HTML with `file://` does not provide a supported worker environment. Assets use relative URLs for static hosting, including a nested base path. Refresh clears session inputs, selected trust, and results. C5 adds no deployment, persistence, service worker, export, or offline replay guarantee.
+Build output is `apps/web/dist/`. Serve it over HTTP(S); opening its HTML with `file://` does not provide a supported worker environment. Assets use relative URLs for static hosting, including a nested base path. Refresh clears session inputs, selected trust, and results. C6 adds explicit file export and offline replay within a loaded production session. It adds no deployment, persistent storage, service worker, or offline first-visit/refresh support.
 
 ## First inspection
 
@@ -41,7 +41,7 @@ Replacing the checkpoint revokes its selection immediately, including when repla
 
 ## Worker and byte boundary
 
-`crates/monocle-wasm` contains a small ABI v1 around `monocle-core`. A Rust-owned input vector accepts at most `MAX_REQUEST_BYTES` (6 MiB + 4096 bytes). `monocle_input_alloc`, `monocle_execute`, and output pointer/length exports transfer bounded data. Rust accepts no caller-supplied pointer to dereference. JavaScript reads fresh memory views after execution because memory growth can detach earlier views. The JavaScript host is trusted application code and has access to linear memory; this ABI is not a sandbox against malicious application scripts.
+`crates/monocle-wasm` contains a small ABI v2 around `monocle-core`. A Rust-owned input vector accepts at most 16 MiB for replay packaging. Each operation retains its own stricter core bounds, including `MAX_REQUEST_BYTES` (6 MiB + 4096 bytes) for verification. `monocle_input_alloc`, `monocle_execute`, and output pointer/length exports transfer bounded data. Rust accepts no caller-supplied pointer to dereference. JavaScript reads fresh memory views after execution because memory growth can detach earlier views. The JavaScript host is trusted application code and has access to linear memory; this ABI is not a sandbox against malicious application scripts.
 
 | Operation | Input | Result |
 | --- | --- | --- |
@@ -51,8 +51,12 @@ Replacing the checkpoint revokes its selection immediately, including when repla
 | 4 | UTF-8 local reason | Explicit operator pin of the candidate |
 | 5 | C2/C4 request bytes | Fresh C4 evidence report |
 | 6 | Empty bytes | Clear candidate and trust |
+| 7 | Mutation request with original source | Derived bundle with exact patch metadata |
+| 8 | Replay archive bytes | Validated archive; no trust selection or current verdict |
 
-Responses are `{ok:true,value:...}` or `{ok:false,error:Diagnostic}`. An execution failure has no usable old output. Request run IDs must match the worker envelope and returned report. The app never accepts imported reports as results.
+Responses are `{ok:true,value:...}` or `{ok:false,error:Diagnostic}`. An execution failure has no usable old output. Request run IDs must match the worker envelope and returned report; C6 comparison reports use distinct baseline/derived IDs checked together. The app never accepts imported reports as results.
+
+In production, the worker is bundled inline and WASM bytes are loaded once into page memory. Fresh workers receive a copy of those bytes; their startup does not require another fetch. Development mode may still request Vite modules. See [offline behavior](tamper-replay.md#offline-behavior).
 
 Every job creates a dedicated worker. Completion, error, cancellation, and the 30-second deadline terminate it and release its verifier state. Starting another job cancels the previous one. The controller also tracks input revisions so a late file read cannot overwrite newer input. A cancelled worker cannot publish a report into a newer run. File reads are size-bounded; cancellation invalidates their completion even if the browser finishes the read internally.
 
@@ -71,7 +75,7 @@ The monochrome interface uses text, check/cross symbols, visible keyboard focus,
 bash scripts/check-web.sh
 ```
 
-This runs the C1–C4 regression gate, C5 Rust tests, the production web build/typecheck, frontend formatting, 35 full native-versus-arbitrary-input-WASM report comparisons, worker lifecycle unit tests, and Chrome product tests. Chrome/Chromium is required; `CHROME_BIN` overrides the default macOS/Linux executable.
+This runs the C1–C4 regression gate, C5/C6 Rust tests, the production web build/typecheck, frontend formatting, 35 full native-versus-arbitrary-input-WASM report comparisons plus six experiment/replay comparisons, eight worker lifecycle unit tests, and 20 Chrome product tests. Chrome/Chromium is required; `CHROME_BIN` overrides the default macOS/Linux executable.
 
 Browser coverage includes empty/keyboard entry, explicit trust, fast/slow/genesis results, invalid signatures, under-quorum evidence, missing counterparts, malformed/oversized/non-UTF-8/saved-report inputs, exact u64/digest transport, hostile text, trust revocation/operator reasons, cancellation, missing WASM, delayed file reads, incompatible context/profile, narrow screens, reduced motion, and automated WCAG A/AA scans. Screenshots and failure traces are generated only under ignored `test-results/`. Automated accessibility checks do not replace assistive-technology testing.
 

@@ -70,3 +70,9 @@ Use `bash scripts/check-finality.sh` for the C4 gate. `cargo run --locked --quie
 ## C5 product tooling
 
 Use `npm run dev` to build WASM and launch the local inspector. Use `bash scripts/check-web.sh` for the complete implemented gate. Node.js 24.10 or later is required by the current local test tooling; React, Vite, browser tests, formatting, and accessibility tools are pinned in the npm lockfile. Generated WASM/example inputs, production output, dependencies, screenshots, and test traces are ignored. See [browser-inspector.md](browser-inspector.md). No deploy or publication is part of this checkpoint.
+
+## C6 experiment/replay tooling
+
+The full gate remains `bash scripts/check-web.sh`; no dependency or global-tool change is needed for C6. `crates/monocle-wasm/examples/replay_probe.rs` supplies native operation results to the actual WASM parity check. Production offline testing uses `npm run build:web` and `npm run preview`; wait for **Ready for offline verification** before disconnecting, and keep the page open. Development-server operation is not covered by that offline promise.
+
+The byte ABI is now version 2, with operations 7 (mutation) and 8 (replay validation). Rebuild the web assets after Rust changes; old JavaScript/WASM ABI combinations fail explicitly. Bundle/checkpoint/core request caps remain unchanged even though the outer replay/bridge cap is 16 MiB. C6 changes remain one owner-controlled checkpoint; real capture work must wait for the owner's commit confirmation.

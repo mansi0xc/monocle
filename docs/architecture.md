@@ -1,10 +1,10 @@
 # Architecture
 
-Status: proposed product architecture with C1 leaf cryptography, C2 input/context preparation, C3 individual certificate verification, C4 direct evidence composition, and C5 browser inspection implemented. Capture adaptation, mutations, and export remain proposed. The [architecture PDF](architecture.pdf) provides five diagram sheets; this document defines the responsibilities and important details behind them.
+Status: proposed product architecture with C1 leaf cryptography, C2 input/context preparation, C3 individual certificate verification, C4 direct evidence composition, C5 browser inspection, and C6 mutation/comparison/replay implemented. Capture adaptation remains proposed. The [architecture PDF](architecture.pdf) provides five diagram sheets; this document defines the responsibilities and important details behind them.
 
 ## System boundary
 
-Monocle's primary workflow is local verification. A static web host serves application assets. The browser imports evidence and a separately selected checkpoint, invokes a Rust/WASM worker, and displays the resulting report. A native read-only tool prepares fixtures and capture bundles. The MVP requires neither a Solana program nor a wallet connection.
+Monocle's primary workflow is local verification. A static web host serves application assets. The browser imports evidence and a separately selected checkpoint, invokes a Rust/WASM worker, and displays the resulting report. Native tools currently generate synthetic fixtures; the capture adapter remains planned. The MVP requires neither a Solana program nor a wallet connection.
 
 ```mermaid
 flowchart LR
@@ -35,7 +35,7 @@ Transport sources are untrusted inputs to the verifier. TLS, a familiar endpoint
 | Report inspector | Trace, stake participation, evidence scope, assumptions | Hide unperformed checks behind a success badge |
 | Exporter | Evidence, mutation log, profile/checkpoint identities, prior reports | Treat a stored result as proof when re-imported |
 
-The native tool and worker should call the same core for the same profile. C3/C4 demonstrate the shared individual-certificate and direct evidence-composition paths in native Rust and browser WASM. C5 implements the arbitrary-input worker interface and inspector; see [browser-inspector.md](browser-inspector.md). See [certificate-verification.md](certificate-verification.md).
+The native tool and worker should call the same core for the same profile. C3/C4 demonstrate the shared individual-certificate and direct evidence-composition paths in native Rust and browser WASM. C5 implements the arbitrary-input worker interface and inspector; C6 adds experiment/replay validation in the Rust core and fresh two-report comparison in the worker. See [tamper-replay.md](tamper-replay.md); see [browser-inspector.md](browser-inspector.md). See [certificate-verification.md](certificate-verification.md).
 
 ## Proposed source layout
 
@@ -76,7 +76,8 @@ Network transport, timestamps, human-readable labels, and source claims are prov
 | `CertificateEnvelope` | Kind, source format, raw bytes, signature and signer encoding as defined by the profile; source and normalized representations must agree |
 | `EpochCheckpoint` | Epoch/context, canonical ordered ranks, BLS keys, stake, protocol denominator, qualification provenance; separately trusted |
 | `ProtocolProfile` | Immutable upstream revision, allowed formats, payload rules, cryptographic encodings/ciphersuite, supported certificate rules |
-| `MutationRecord` | Original identity, changed field/bytes, operation, before/after values, derived identity |
+| `MutationRecord` | Certificate ID, exact byte offset, equal-length before/after bytes, parent/result certificate digests |
+| `ReplayArchive` | Exact baseline/derived JSON strings, profile/policy IDs, optional checkpoint bytes and digest, untrusted saved reports |
 | `VerificationReport` | Per-check outcomes, per-certificate results, evidence scope, conclusion, assumptions |
 
 The JSON-facing representation must not lose `u64` precision. C2 uses canonical decimal strings for slots, epochs, and stake, validated as u64. SHA-256 digests identify exact preserved bytes rather than an unspecified JSON key order. Semantic canonicalization, if introduced, needs a separate documented rule.
@@ -97,7 +98,9 @@ Invalid input can fail early. Missing prerequisites leave dependent checks unper
 
 Use a worker so cryptographic computation does not block input and rendering. Give runs stable identifiers and ignore stale replies. Replacing an input invalidates the corresponding displayed report until a fresh run completes. A worker crash should produce a clear execution error, not a cached verification success.
 
-Start with in-memory session state and explicit local file export. IndexedDB caching can follow if it provides a concrete user benefit. Imported reports are informational until recomputed. No server-side database or user account is required for the MVP.
+C6 keeps evidence, experiments, selected trust, and verifier assets in page memory. Explicit replay export preserves original source strings; import checks lineage and discards saved reports before presenting results. A fresh comparison reruns both inputs in one worker with separate run IDs and the same checkpoint selection. No server-side database or user account is required.
+
+The production worker is inlined into the application script. WASM bytes are fetched once and copied into each new worker, so local workflows need no network after the readiness indicator appears. Closing or refreshing the page loses this session; there is no service worker or offline cold-start guarantee.
 
 ## Trust and operational boundaries
 

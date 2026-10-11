@@ -3,8 +3,13 @@ import type {
   EpochCheckpoint,
   EvidenceVerificationReport,
   ProofBundle,
+  ContentDigest,
+  MutationAction,
 } from "../../../packages/contracts/src/index";
-import { MAX_BUNDLE_BYTES } from "../../../packages/contracts/src/index";
+import {
+  MAX_BUNDLE_BYTES,
+  MAX_REPLAY_BYTES,
+} from "../../../packages/contracts/src/index";
 import examples from "../generated/examples.json";
 import {
   MAX_CHECKPOINT_BYTES,
@@ -12,19 +17,29 @@ import {
   type Checkpoint,
   type Inspected,
   type Selection,
+  type ReplayImport,
+  type Comparison,
+  type ExportedReplay,
 } from "./protocol";
+import VerifierWorker from "./verifier.worker.ts?worker&inline";
+import { loadVerifierAssets } from "./assets";
+import { TamperLab, ComparisonView } from "./TamperLab";
 import { Runner } from "./runner";
 import { Report, reportTitle, words } from "./Report";
 
 const encoder = new TextEncoder();
 export default function App() {
+  const [assetsReady, setAssetsReady] = useState(false);
   const runner = useRef<Runner | null>(null);
   if (!runner.current)
     runner.current = new Runner(
-      () =>
-        new Worker(new URL("./verifier.worker.ts", import.meta.url), {
-          type: "module",
-        }),
+      () => new VerifierWorker(),
+      30_000,
+      async () => {
+        const bytes = await loadVerifierAssets();
+        setAssetsReady(true);
+        return bytes;
+      },
     );
   const revision = useRef(0);
   const [bundle, setBundle] = useState<Bundle | null>(null);
@@ -34,6 +49,16 @@ export default function App() {
   const [reason, setReason] = useState("");
   const [example, setExample] = useState(examples[0].id);
   const [report, setReport] = useState<EvidenceVerificationReport | null>(null);
+  const [derived, setDerived] = useState<Bundle | null>(null);
+  const [derivedReport, setDerivedReport] =
+    useState<EvidenceVerificationReport | null>(null);
+  const [activeReport, setActiveReport] = useState<"baseline" | "derived">(
+    "baseline",
+  );
+  const [requiredCheckpoint, setRequiredCheckpoint] =
+    useState<ContentDigest | null>(null);
+  const [replayInfo, setReplayInfo] = useState("");
+  const [includeCheckpoint, setIncludeCheckpoint] = useState(true);
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("Ready to inspect local evidence.");
@@ -45,10 +70,25 @@ export default function App() {
     },
     [],
   );
-  function invalidate(message = "") {
+  useEffect(() => {
+    let mounted = true;
+    loadVerifierAssets().then(
+      () => {
+        if (mounted) setAssetsReady(true);
+      },
+      () => {},
+    );
+    return () => {
+      mounted = false;
+    };
+  }, []);
+  function invalidate(message = "", preserveReports = false) {
     revision.current++;
     runner.current!.cancel();
-    setReport(null);
+    if (!preserveReports) {
+      setReport(null);
+      setDerivedReport(null);
+    }
     setError("");
     setBusy(message);
     setNotice(message);
@@ -76,6 +116,10 @@ export default function App() {
   async function loadExample() {
     const ticket = invalidate("Inspecting the synthetic example…");
     setBundle(null);
+    setDerived(null);
+    setRequiredCheckpoint(null);
+    setReplayInfo("");
+    setActiveReport("baseline");
     setCheckpoint(null);
     setSelection(null);
     const b = encoder.encode(selectedExample.bundle_json);
@@ -104,8 +148,13 @@ export default function App() {
   }
   async function importFile(kind: "bundle" | "checkpoint", file: File) {
     const ticket = invalidate(`Inspecting ${kind}…`);
-    if (kind === "bundle") setBundle(null);
-    else {
+    if (kind === "bundle") {
+      setBundle(null);
+      setDerived(null);
+      setRequiredCheckpoint(null);
+      setReplayInfo("");
+      setActiveReport("baseline");
+    } else {
       setCheckpoint(null);
       setSelection(null);
     }
@@ -163,21 +212,139 @@ export default function App() {
     if (!bundle) return;
     const ticket = invalidate("Verifying evidence in the local worker…");
     try {
+      if (derived) {
+        const result = await runner.current!.run<Comparison>({
+          kind: "compare",
+          baseline: bundle.bytes,
+          derived: derived.bytes,
+          checkpoint: checkpoint?.bytes ?? null,
+          selection,
+          requiredCheckpoint,
+        });
+        if (ticket !== revision.current) return;
+        setReport(result.baseline);
+        setDerivedReport(result.derived);
+        setActiveReport("derived");
+        setBusy("");
+        setNotice("Comparison complete. Both results were freshly verified.");
+        return;
+      }
       const result = await runner.current!.run<EvidenceVerificationReport>({
         kind: "verify",
         bundle: bundle.bytes,
+        requiredCheckpoint,
         checkpoint: checkpoint?.bytes ?? null,
         selection,
       });
       if (ticket !== revision.current) return;
       setReport(result);
+      setActiveReport("baseline");
       setBusy("");
       setNotice(reportTitle(result));
     } catch (error) {
       failed(error, ticket);
     }
   }
+  async function createExperiment(
+    certificateId: string,
+    action: MutationAction,
+  ) {
+    if (!bundle) return;
+    const ticket = invalidate(
+      "Creating experiment from the immutable original…",
+    );
+    // A failed replacement must not leave a different older experiment visible.
+    setDerived(null);
+    try {
+      const result = await runner.current!.run<Bundle>({
+        kind: "mutate",
+        baseline: bundle.bytes,
+        certificateId,
+        action,
+      });
+      if (ticket !== revision.current) return;
+      setDerived(result);
+      setBusy("");
+      setNotice(
+        "Experiment created. Verify the comparison to see which checks change.",
+      );
+    } catch (error) {
+      failed(error, ticket);
+    }
+  }
+  async function importReplay(file: File) {
+    const ticket = invalidate(
+      "Inspecting replay and checking its mutation history…",
+    );
+    setBundle(null);
+    setDerived(null);
+    setCheckpoint(null);
+    setSelection(null);
+    setRequiredCheckpoint(null);
+    setReplayInfo("");
+    try {
+      if (file.size > MAX_REPLAY_BYTES)
+        throw new Error("Replay exceeds the 16 MiB file limit.");
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      if (ticket !== revision.current) return;
+      const result = await runner.current!.run<ReplayImport>({
+        kind: "replay",
+        bytes,
+      });
+      if (ticket !== revision.current) return;
+      setBundle(result.baseline);
+      setDerived(result.derived);
+      if (result.checkpoint) acceptCheckpoint(result.checkpoint);
+      setRequiredCheckpoint(result.requiredCheckpoint);
+      setActiveReport("baseline");
+      setBusy("");
+      setReplayInfo(
+        `Requires ${result.profileId} · ${result.policyId}. ${result.derived ? "Mutation history checked against the original. " : ""}${result.hasSavedReports ? "Saved reports were ignored. " : ""}Select a checkpoint and recompute.`,
+      );
+      setNotice(
+        "Replay imported without trust or saved verdicts. Select a checkpoint and recompute.",
+      );
+    } catch (error) {
+      failed(error, ticket);
+    }
+  }
+  async function exportReplay() {
+    if (!bundle) return;
+    const ticket = invalidate("Preparing replay download…", true);
+    try {
+      const result = await runner.current!.run<ExportedReplay>({
+        kind: "export",
+        baseline: bundle.bytes,
+        derived: derived?.bytes ?? null,
+        checkpoint: includeCheckpoint ? (checkpoint?.bytes ?? null) : null,
+        checkpointDigest:
+          requiredCheckpoint ?? checkpoint?.parsed.digest ?? null,
+        reports: { baseline: report, derived: derivedReport },
+      });
+      if (ticket !== revision.current) return;
+      const url = URL.createObjectURL(
+        new Blob([new Uint8Array(result.bytes)], { type: "application/json" }),
+      );
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = result.filename;
+      document.body.append(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      setBusy("");
+      setNotice(
+        "Replay downloaded. The recipient must select trust and recompute all results.",
+      );
+    } catch (error) {
+      failed(error, ticket);
+    }
+  }
   const cp = checkpoint?.parsed.document;
+  const shownReport =
+    activeReport === "derived" && derivedReport ? derivedReport : report;
+  const shownBundle =
+    activeReport === "derived" && derivedReport && derived ? derived : bundle;
   return (
     <>
       <a className="skip-link" href="#inspector">
@@ -205,7 +372,12 @@ export default function App() {
         </a>
         <span className="header-label">Alpenglow evidence inspector</span>
         <span className="local-label">
-          <span aria-hidden="true">◉</span> Local verification
+          <span aria-hidden="true">◉</span>{" "}
+          {assetsReady
+            ? import.meta.env.PROD
+              ? "Ready for offline verification"
+              : "Local verifier ready (dev)"
+            : "Loading local verifier…"}
         </span>
       </header>
       <main id="inspector">
@@ -269,6 +441,9 @@ export default function App() {
                       onClick={() => {
                         invalidate();
                         setBundle(null);
+                        setDerived(null);
+                        setRequiredCheckpoint(null);
+                        setReplayInfo("");
                         setNotice("Evidence cleared.");
                       }}
                     >
@@ -466,7 +641,8 @@ export default function App() {
                 disabled={!bundle || Boolean(busy)}
                 onClick={verify}
               >
-                Verify evidence <span aria-hidden="true">↗</span>
+                {derived ? "Verify comparison" : "Verify evidence"}{" "}
+                <span aria-hidden="true">↗</span>
               </button>
               {busy && (
                 <button
@@ -484,6 +660,53 @@ export default function App() {
                   ? "Without a selected checkpoint, verification remains inconclusive."
                   : "Verification uses the selected checkpoint and the pinned protocol profile."}
               </p>
+            </section>
+            <section className="input-section replay-controls">
+              <h2>Portable replay</h2>
+              <p className="small muted">
+                Share original bytes, the experiment, and recorded reports.
+                Trust must be selected again on import.
+              </p>
+              <label className="inline-label">
+                <input
+                  type="checkbox"
+                  checked={includeCheckpoint}
+                  disabled={!checkpoint}
+                  onChange={(e) => setIncludeCheckpoint(e.target.checked)}
+                />{" "}
+                Include checkpoint bytes
+              </label>
+              <button
+                className="full-width"
+                disabled={!bundle || Boolean(busy)}
+                onClick={exportReplay}
+              >
+                Export replay
+              </button>
+              <label htmlFor="replay-file">Import replay file</label>
+              <input
+                id="replay-file"
+                type="file"
+                accept=".json,application/json"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  e.target.value = "";
+                  if (file) void importReplay(file);
+                }}
+              />
+              <p className="small muted">Monocle replay v1 · up to 16 MiB</p>
+              {replayInfo && <p className="small break">{replayInfo}</p>}
+              {requiredCheckpoint && (
+                <details>
+                  <summary>Required checkpoint digest</summary>
+                  <p className="mono small break">{requiredCheckpoint}</p>
+                  <p className="small muted">
+                    {checkpoint
+                      ? "Select this exact checkpoint to reproduce the recorded context."
+                      : "Checkpoint bytes are not included. Import the referenced checkpoint separately."}
+                  </p>
+                </details>
+              )}
             </section>
           </aside>
           <div className="evidence-panel" aria-label="Evidence report">
@@ -505,9 +728,50 @@ export default function App() {
                 <strong>Could not complete the operation</strong>
                 <p>{error}</p>
                 <p className="small">
-                  Correct the input or retry the operation. No verification
-                  result was retained.
+                  Correct the input or retry the operation.
                 </p>
+              </div>
+            )}
+            {bundle && (
+              <TamperLab
+                key={bundle.parsed.digest}
+                baseline={bundle}
+                derived={derived}
+                busy={Boolean(busy)}
+                create={createExperiment}
+                reset={() => {
+                  invalidate();
+                  setDerived(null);
+                  setActiveReport("baseline");
+                  setNotice(
+                    "Experiment discarded. Original bytes are unchanged.",
+                  );
+                }}
+              />
+            )}
+            {report && derivedReport && (
+              <ComparisonView
+                reports={{ baseline: report, derived: derivedReport }}
+              />
+            )}
+            {report && derivedReport && (
+              <div
+                className="report-tabs"
+                role="group"
+                aria-label="Choose full report"
+              >
+                <button
+                  aria-pressed={activeReport === "baseline"}
+                  onClick={() => setActiveReport("baseline")}
+                >
+                  Original report
+                </button>
+                <button
+                  aria-pressed={activeReport === "derived"}
+                  onClick={() => setActiveReport("derived")}
+                >
+                  Experiment report
+                </button>
               </div>
             )}
             {busy && (
@@ -519,11 +783,11 @@ export default function App() {
                 </span>
               </div>
             )}
-            {report && bundle ? (
+            {shownReport && shownBundle ? (
               <Report
-                key={report.run_id}
-                report={report}
-                bundle={bundle.parsed.document}
+                key={shownReport.run_id}
+                report={shownReport}
+                bundle={shownBundle.parsed.document}
                 checkpoint={selection ? (cp ?? null) : null}
               />
             ) : (

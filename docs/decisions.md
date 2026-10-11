@@ -60,7 +60,7 @@ C2 uses a contracts-only profile and `preflight_only` report scope. Unknown vers
 
 ## D015 - Bound the initial container and mutation policy
 
-Use explicit file, nesting, entry, and byte limits; require every certificate to be selected exactly once. C2 mutation metadata describes one bounded equal-length replacement per affected certificate. Parent history validation and mutation application wait for C6. These are MVP container decisions, not Solana consensus limits.
+Use explicit file, nesting, entry, and byte limits; require every certificate to be selected exactly once. C2 mutation metadata describes one bounded equal-length replacement per affected certificate. C6 adds stricter archive lineage validation and one replacement per experiment (D025). These are MVP container decisions, not Solana consensus limits.
 
 ## D016 - Explicit Base2 certificate profile and separate result scope
 
@@ -96,7 +96,19 @@ Each import inspection or verification gets a fresh worker and unique request ID
 
 ## D024 - Monochrome inspection before experiment controls
 
-C5 exposes source identity, provenance, explicit checkpoint selection, check traces, certificate bytes, signer weights, and assumptions. Native controls and a stacked narrow layout support keyboard and small-screen use. No decorative confidence scores or saved verdicts substitute for the core result. Mutation/export/replay controls wait for C6.
+C5 exposes source identity, provenance, explicit checkpoint selection, check traces, certificate bytes, signer weights, and assumptions. Native controls and a stacked narrow layout support keyboard and small-screen use. No decorative confidence scores or saved verdicts substitute for the core result. C6 extends this surface with restrained mutation/comparison/replay controls after implementing their core checks.
+
+## D025 - One reproducible mutation from the original
+
+C6 permits one nonempty equal-length replacement of at most 4096 bytes in one certificate. Replacing an experiment always starts from the original, and a no-op or chained mutation fails. The core rebuilds the entire derived document from the original during replay validation; a plausible after-slice alone cannot authorize forged before-bytes or unrelated metadata changes. The guided signature-bit preset uses the pinned decoder's certificate kind to locate the signature.
+
+## D026 - Preserve source strings, discard imported verdicts
+
+Replay v1 stores original JSON as strings instead of parsed objects, preserving exact byte identity. It records profile/policy IDs and an optional checkpoint digest/bytes; recipients select trust independently. Saved reports are bounded untrusted values and never become current UI results. Compare/export/import validates lineage, and the comparison reruns both inputs under the same checkpoint selection with distinct run IDs.
+
+## D027 - Offline capability belongs to the loaded production session
+
+Inline the production worker with Vite and retain one immutable fetched WASM buffer in page memory. Each new worker receives a copy, preserving cancellation/isolation while avoiding later network dependencies. The readiness label follows successful asset loading. This deliberately avoids a service-worker update/cache lifecycle; refresh, cold load, and development-server offline operation are outside the guarantee. Browser tests disconnect networking and assert zero new HTTP requests throughout replay.
 
 ## Open decisions
 
