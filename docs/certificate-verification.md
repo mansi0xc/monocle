@@ -4,7 +4,7 @@ Implemented: 2026-10-11. Profile: `agave-98535e50-base2-v1`.
 
 `monocle_core::certificate::verify_certificates` accepts a bounded `VerifyRequest` and a separate local `TrustStore`. It checks supported individual certificates against the selected checkpoint. It performs real BLS verification; the verifier never signs, fetches context, or trusts a result imported with a bundle.
 
-`VERIFIED` here means **individual certificate checks passed under the selected checkpoint**. The report has `evidence_scope: individual_certificates`. Block-finality and genesis-migration claims remain `INCONCLUSIVE`, even when every individual certificate passes. C4 will compose those claims. C2's `preflight` API retains its separate `preflight_only` scope and never returns `VERIFIED`.
+`VERIFIED` here means **individual certificate checks passed under the selected checkpoint**. The report has `evidence_scope: individual_certificates`. In this certificate-only API, block-finality and genesis-migration claims remain `INCONCLUSIVE`, even when every individual certificate passes. C4's separate `finality::verify_evidence` API now composes those claims; see [finality.md](finality.md). C2's `preflight` API retains its separate `preflight_only` scope and never returns `VERIFIED`.
 
 ## Supported representation
 
@@ -76,7 +76,7 @@ The script runs the prior checkpoints' checks, 15 new native integration tests, 
 
 The [fixture generator](../tools/certificate-fixtures/src/main.rs) does not depend on `monocle-core`. It uses a reduced [wincode reference schema](../tools/certificate-fixtures/src/reference.rs) adapted from pinned Agave source, while the runtime decoder is a separate bounded byte adapter. Tests compare all four wire layouts and signed payloads against that schema and explicit fixed-byte expectations at slots 0, 42, and u64::MAX. Signer decoding uses the actual upstream crate, with tests comparing canonical bitmaps and the documented padding difference. The BLS backend is the actual Solana SDK leaf crate.
 
-This is source-reviewed adapter compatibility with independently encoded fixtures, **not execution of the full Agave certificate verifier**. Both paths share the reviewed protocol assumptions and crypto backend. Full upstream differential execution, real captures, fallback/multi-message certificates, cross-epoch authentication, finality composition, arbitrary-input browser APIs, and production security auditing remain outside this checkpoint.
+This is source-reviewed adapter compatibility with independently encoded fixtures, **not execution of the full Agave certificate verifier**. Both paths share the reviewed protocol assumptions and crypto backend. Full upstream differential execution, real captures, fallback/multi-message certificates, cross-epoch authentication, broader composition paths, arbitrary-input browser APIs, and production security auditing remain outside this checkpoint.
 
 ## Pinned sources
 

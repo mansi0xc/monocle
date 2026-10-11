@@ -62,3 +62,9 @@ The pinned wire schema distinguishes containing certificate tags from source-vot
 C3 directly reuses signer-store 0.1.0 Base2 decoding. Inspection found that it truncates unused padding bits; Monocle intentionally requires zero padding. Checked SDK point conversions and real PoP checks qualify selected keys. Synthetic on-curve points outside the prime-order subgroups test both G1 and G2 rejection, alongside identity/malformed points and wrong-key PoPs.
 
 The reduced schema/reference and bounded runtime adapter agree on four wire kinds and exact source payloads. This is not a differential run of the full Agave verifier. Exact sources, file hashes, policy differences, and remaining qualification/context limits are in [the C3 specification](certificate-verification.md) and [profile record](../experiments/certificate-compat/protocol-profile.json). The historical genesis capture remains unverified.
+
+## C4 composition findings (2026-10-11)
+
+Pinned `runtime/src/validated_block_finalization.rs` distinguishes fast certificates from paired Notar/Finalize evidence for the same slot and verifies each aggregate independently. `votor/src/consensus_pool.rs` pairs certificates in either arrival order by slot, takes the block identity from notarization, and handles Genesis through migration status. Migration state includes activation/phase/ancestry conditions beyond the presence of a valid genesis certificate.
+
+C4 follows those direct evidence paths under the existing fixed checkpoint. It does not port the full runtime, authenticate migration state, or claim a differential Agave execution. The complete-bundle acceptance rule, explicit target requirement, stricter supported-kind scope, and deterministic witness selection are Monocle policies. Source hashes and distinctions are recorded in [the policy record](../experiments/finality-compat/policy.json) and [C4 specification](finality.md).

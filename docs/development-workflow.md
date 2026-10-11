@@ -62,3 +62,7 @@ C2 adds the `monocle-core` workspace crate and a private npm package used only t
 ## C3 verification tooling
 
 Use `bash scripts/check-certificates.sh` for the complete current gate. It includes earlier checkpoint checks, the signed fixture regeneration comparison, and the C3 native/browser comparison. `cargo run --locked --quiet -p monocle-certificate-compat` prints the fixed corpus reports. Arbitrary-input native consumers can call `monocle_core::certificate::verify_certificates`; there is no general-purpose CLI or product browser input interface yet. Fixture generation is a separate development tool and has no dependency on the verification core.
+
+## C4 evidence tooling
+
+Use `bash scripts/check-finality.sh` for the complete current gate. `cargo run --locked --quiet -p monocle-finality-compat` prints the fixed end-to-end corpus reports. The core entry point is `monocle_core::finality::verify_evidence`; product browser import and worker control still belong to C5. `generate_finality` is a second binary in the existing fixture package; its default run remains the original C3 generator for compatibility.

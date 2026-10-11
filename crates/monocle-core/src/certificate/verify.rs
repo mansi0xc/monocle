@@ -295,7 +295,7 @@ fn verify_one(
 }
 
 /// Verify each supplied certificate, preserving C2's explicit trust boundary.
-/// Block-finality and migration conclusions always wait for C4 composition.
+/// Block-finality and migration conclusions are deferred to finality::verify_evidence.
 pub fn verify_certificates(
     request_bytes: &[u8],
     trust: &TrustStore,
@@ -313,7 +313,7 @@ pub fn verify_certificates(
         certificates: Vec::new(),
         assumptions: prepared.assumptions,
     };
-    report.checks.push(check(Stage::Finality, CheckStatus::NotChecked, Code::FinalityNotEvaluated, "Individual certificate checks do not establish block finality or genesis handover; composition is not implemented"));
+    report.checks.push(check(Stage::Finality, CheckStatus::NotChecked, Code::FinalityNotEvaluated, "This certificate-only API does not evaluate block finality or genesis handover; use finality::verify_evidence"));
     if report
         .checks
         .iter()

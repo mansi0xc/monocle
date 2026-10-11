@@ -1,0 +1,13 @@
+[package]
+name = "monocle-finality-compat"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+[lib]
+crate-type = ["rlib", "cdylib"]
+
+[dependencies]
+monocle-core = { path = "../../crates/monocle-core" }
+serde_json = "=1.0.145"

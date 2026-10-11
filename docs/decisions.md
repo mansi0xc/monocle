@@ -74,6 +74,18 @@ The C3 generator does not depend on the runtime core. It uses reduced pinned win
 
 C3 verifies public-key-bound proofs with no extra application payload and never creates a qualified key from an imported Boolean. Trust in the checkpoint and its stake/rank data is still supplied separately. Application-specific registration proofs and historical provenance require additional evidence before real captures can be verified.
 
+## D019 - Separate direct composition from certificate inspection
+
+C4 introduces `finality::verify_evidence` and a pinned composition policy ID while preserving C2/C3 entry-point semantics. It always rechecks original request bytes using the local trust store; no public function composes caller-constructed reports. Established scope is `unestablished` until a supported claim succeeds. The requested target remains a distinct field.
+
+## D020 - Require every selected certificate to pass
+
+A valid fast path does not hide a bad or unsupported extra. Mixed migration/ordinary claims reject as incompatible evidence. Within a fully checked compatible bundle, prefer a fast path and choose redundant same-kind witnesses by lexical ID, with slow witnesses in Notar/Finalize order. No certificate weights are added across aggregates. These are deterministic Monocle bundle policies, narrower than a full node's evolving evidence pool.
+
+## D021 - Genesis success means anchor evidence
+
+A valid 82% genesis certificate establishes migration-anchor evidence under the chosen context, not completion of the transition or ordinary block finality. Activation, ancestry, TowerBFT, and local migration phase checks require evidence outside the current contract. Preserve this distinction in the future inspector.
+
 ## Open decisions
 
 Authentic historical checkpoint acquisition and key qualification; supported fallback variants; historical capture source; general product WASM API; project publication license. Resolve these at their corresponding checkpoint with evidence and tradeoffs.

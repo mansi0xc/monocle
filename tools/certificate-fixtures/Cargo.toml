@@ -1,5 +1,6 @@
 [package]
 name = "monocle-certificate-fixtures"
+default-run = "monocle-certificate-fixtures"
 version = "0.1.0"
 edition.workspace = true
 rust-version.workspace = true

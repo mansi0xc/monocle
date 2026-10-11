@@ -1,0 +1,36 @@
+{
+  "policy_id": "agave-98535e50-direct-finality-v1",
+  "certificate_profile_id": "agave-98535e50-base2-v1",
+  "agave_revision": "98535e50e9bb38574e6b0c31ff284cd864d3ca88",
+  "scope": "Direct block finality or genesis migration-anchor evidence under a separately trusted checkpoint; no activation or ancestry proof",
+  "rules": {
+    "fast": "Verified FastFinalize at >=80%",
+    "slow": "Verified Notar and Finalize for one slot/context; each >=60%, block bound by Notar",
+    "genesis": "Verified Genesis at >=82%; anchor scope only"
+  },
+  "monocle_restrictions": [
+    "Every selected certificate must pass",
+    "Explicit target block ID for block/migration claims",
+    "Genesis and ordinary scopes cannot be mixed",
+    "No fallback, Base3, indirect ancestry, or certificate-kind promotion",
+    "Prefer fast; lexical same-kind witness ID; slow witnesses Notar then Finalize"
+  ],
+  "validation": "Source review and synthetic native/WASM corpus; full Agave runtime not executed",
+  "sources": [
+    {
+      "path": "runtime/src/validated_block_finalization.rs",
+      "url": "https://github.com/anza-xyz/agave/blob/98535e50e9bb38574e6b0c31ff284cd864d3ca88/runtime/src/validated_block_finalization.rs",
+      "sha256": "9b8b1d2dc579b73648839880a600b4791d8ba27f95ec0690646f72fceb3fb7bf"
+    },
+    {
+      "path": "votor/src/consensus_pool.rs",
+      "url": "https://github.com/anza-xyz/agave/blob/98535e50e9bb38574e6b0c31ff284cd864d3ca88/votor/src/consensus_pool.rs",
+      "sha256": "0561e28ed314c9f3a773751627e6be543f0929f6e816ffbdc8ef46eee91bb96b"
+    },
+    {
+      "path": "votor-messages/src/migration.rs",
+      "url": "https://github.com/anza-xyz/agave/blob/98535e50e9bb38574e6b0c31ff284cd864d3ca88/votor-messages/src/migration.rs",
+      "sha256": "1dfffa3ab486e37495e633cd00dcdf156f77be1ef6bf022ff740917fa920dd48"
+    }
+  ]
+}

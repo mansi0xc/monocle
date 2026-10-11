@@ -6,7 +6,7 @@ Status: proposed MVP; foundation prepared on 2026-10-09.
 
 Monocle is an open-source finality debugger for Solana's Alpenglow consensus, designed to make cryptographic verification understandable and reproducible. It checks certificate signatures and validator stake thresholds against a trusted checkpoint, explaining why verification succeeds, fails, or remains inconclusive. Its tamper lab and portable evidence bundles let developers experiment with altered certificates, compare results, and replay verification offline.
 
-These sentences describe the intended product. The repository now contains native/browser BLS compatibility checks plus bounded evidence contracts and explicit local checkpoint selection; the full inspector, certificate evaluator, and tamper application remain unimplemented.
+These sentences describe the intended product. The repository now contains native/browser BLS compatibility checks plus bounded evidence contracts and explicit local checkpoint selection; C3/C4 now add individual certificate checks and direct evidence composition. The product inspector and tamper application remain unimplemented.
 
 ## The problem
 
@@ -94,6 +94,6 @@ Success means that another developer can reproduce the fixture results, inspect 
 
 ## Dependencies and unresolved feasibility
 
-C1 has demonstrated the Solana BLS primitive path in native Rust and browser WASM using fixed synthetic evidence. Complete certificate-format compatibility and authenticated historical validator context remain open. Neither follows merely from the architecture diagram, a successful primitive test, or the RPC request already observed.
+C1 has demonstrated the Solana BLS primitive path in native Rust and browser WASM using fixed synthetic evidence. C3/C4 establish a narrow four-kind Base2 profile and direct composition policy. Full upstream equivalence, broader format support, and authenticated historical validator context remain open. Neither follows merely from the architecture diagram, a successful primitive test, or the RPC request already observed.
 
 See [research.md](research.md), [cryptography.md](cryptography.md), and [plan.md](plan.md) for the evidence and implementation gates.

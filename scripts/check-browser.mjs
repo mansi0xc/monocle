@@ -10,11 +10,15 @@ import { spawn, execFileSync } from 'node:child_process';
 import assert from 'node:assert/strict';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
-const contracts = process.argv[2] === 'contracts';
-const certificates = process.argv[2] === 'certificates';
-if (process.argv[2] && !contracts && !certificates) throw new Error('Expected no argument, contracts, or certificates');
-const browserAssets = certificates ? 'experiments/certificate-browser' : contracts ? 'experiments/contracts-browser' : 'experiments/browser';
-const wasmName = certificates ? 'monocle_certificate_compat' : contracts ? 'monocle_contracts_compat' : 'monocle_bls_compat';
+const mode = process.argv[2] ?? 'bls';
+const modes = {
+  bls: ['experiments/browser', 'monocle_bls_compat', ['--bin', 'probe'], 'C1 BLS'],
+  contracts: ['experiments/contracts-browser', 'monocle_contracts_compat', ['-p', 'monocle-contracts-compat'], 'C2 contracts'],
+  certificates: ['experiments/certificate-browser', 'monocle_certificate_compat', ['-p', 'monocle-certificate-compat'], 'C3 certificates'],
+  finality: ['experiments/finality-browser', 'monocle_finality_compat', ['-p', 'monocle-finality-compat'], 'C4 finality'],
+};
+if (!Object.hasOwn(modes, mode)) throw new Error('Expected no argument, contracts, certificates, or finality');
+const [browserAssets, wasmName, nativeArgs, experiment] = modes[mode];
 const candidates = [process.env.CHROME_BIN, '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', '/usr/bin/chromium', '/usr/bin/chromium-browser', '/usr/bin/google-chrome'].filter(Boolean);
 const chrome = candidates.find(existsSync);
 if (!chrome) throw new Error('Chromium/Chrome not found. Set CHROME_BIN to the browser executable.');
@@ -23,7 +27,7 @@ const routes = new Map([
   ['/probe.mjs', [`${browserAssets}/probe.mjs`, 'text/javascript']],
   ['/probe.wasm', [`target/wasm32-unknown-unknown/release/${wasmName}.wasm`, 'application/wasm']],
 ]);
-if (contracts) {
+if (mode === 'contracts') {
   routes.set('/bundle.json', ['fixtures/contracts/bundle.json', 'application/json']);
   routes.set('/contracts.js', ['target/contracts-js/index.js', 'text/javascript']);
 }
@@ -61,7 +65,7 @@ let child; let timer; let closed;
 try {
   await new Promise((done, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', done); });
   const url = `http://127.0.0.1:${server.address().port}/`;
-  const native = JSON.parse(execFileSync('cargo', ['run', '--locked', '--quiet', ...(certificates ? ['-p', 'monocle-certificate-compat'] : contracts ? ['-p', 'monocle-contracts-compat'] : ['--bin', 'probe'])], { cwd: root, encoding: 'utf8', timeout: 60_000 }));
+  const native = JSON.parse(execFileSync('cargo', ['run', '--locked', '--quiet', ...nativeArgs], { cwd: root, encoding: 'utf8', timeout: 60_000 }));
   let stderr = '';
   child = spawn(chrome, [
     '--headless', '--disable-gpu', '--no-first-run', '--no-default-browser-check',
@@ -78,9 +82,9 @@ try {
   clearTimeout(timer);
   if (delivered.state !== 'passed') throw new Error(`Browser did not pass: ${delivered.report}`);
   const browser = JSON.parse(delivered.report);
-  if (contracts || certificates) {
+  if (mode !== 'bls') {
     assert.deepEqual(browser.result, native);
-    console.log(JSON.stringify({ experiment: certificates ? 'C3 certificates' : 'C2 contracts', native_browser_match: true, browser_checks: browser.checks, cases: native.cases.map(item => ({ name: item.name, conclusion: item.report.conclusion })), runtime: browser.runtime }, null, 2));
+    console.log(JSON.stringify({ experiment, native_browser_match: true, browser_checks: browser.checks, cases: native.cases.map(item => ({ name: item.name, conclusion: item.report.conclusion })), runtime: browser.runtime }, null, 2));
   } else {
     assert.deepEqual(browser.cases, native.cases);
     console.log(JSON.stringify({ profile_id: native.profile_id, agave_revision: native.agave_revision, native_browser_match: true, ...browser }, null, 2));

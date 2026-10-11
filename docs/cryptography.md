@@ -1,6 +1,6 @@
 # Cryptographic model and implementation obligations
 
-Status: C1 proves fixed native/browser BLS execution; C2 supplies input and checkpoint boundaries; C3 implements individual certificate verification with checked points, actual selected-key PoPs, and exact stake thresholds. See [certificate-verification.md](certificate-verification.md) for the supported profile and compatibility evidence. No real-network finality is verified.
+Status: C1 proves fixed native/browser BLS execution; C2 supplies input and checkpoint boundaries; C3 implements individual certificate verification with checked points, actual selected-key PoPs, and exact stake thresholds. See [certificate-verification.md](certificate-verification.md) for the supported profile and compatibility evidence. C4 adds direct finality/migration composition, described in [finality.md](finality.md). No real-network finality is verified.
 
 ## Three questions that must remain separate
 
@@ -92,7 +92,7 @@ Certificates in this scope do not verify transaction execution results, account 
 
 ## What remains to establish in code
 
-C1 pins the BLS dependency and upstream reference, checks one Notar payload layout, verifies uncompressed fixture points and public-key PoPs, and demonstrates browser execution. See [compatibility.md](compatibility.md). C3 adds Base2 decoding, actual standard PoP checks, malformed/identity/subgroup tests, and exact stake thresholds. Authentic historical checkpoint acquisition, application-specific registration qualification, additional malformed-point/fuzz coverage, certificate composition, and full upstream differential execution remain open.
+C1 pins the BLS dependency and upstream reference, checks one Notar payload layout, verifies uncompressed fixture points and public-key PoPs, and demonstrates browser execution. See [compatibility.md](compatibility.md). C3 adds Base2 decoding, actual standard PoP checks, malformed/identity/subgroup tests, and exact stake thresholds. Authentic historical checkpoint acquisition, application-specific registration qualification, additional malformed-point/fuzz coverage, broader composition paths, and full upstream differential execution remain open.
 
 ## C2 input and trust implementation
 
@@ -102,6 +102,12 @@ Only an explicit local `TrustStore.pin` decision makes a parsed checkpoint selec
 
 ## C3 implemented scope
 
-The four-kind Base2 profile reconstructs source vote payloads separately from containing wire messages, verifies BLS aggregates using qualified selected keys, and retains the original trusted denominator. Fast-finalization uses a Notar vote payload; finalization signs a slot only. `selected_stake` is a decoded fact and must be read alongside the signature check. All finality composition remains unperformed.
+The four-kind Base2 profile reconstructs source vote payloads separately from containing wire messages, verifies BLS aggregates using qualified selected keys, and retains the original trusted denominator. Fast-finalization uses a Notar vote payload; finalization signs a slot only. `selected_stake` is a decoded fact and must be read alongside the signature check. This certificate-only API leaves composition unperformed; C4's separate evidence API performs the supported direct paths.
 
 Standard PoPs bind the compressed public key and no additional application payload. They do not authenticate checkpoint membership or prove vote-account registration. Nonzero unused bitmap padding is deliberately rejected, even though upstream truncates it. These restrictions and independently encoded fixture tests are documented in [certificate-verification.md](certificate-verification.md).
+
+## C4 composition and scope
+
+The new evidence API verifies the original bytes through C3 before combining any results. A fast certificate establishes the direct 80% path; the slow path requires separately valid 60% Notar and Finalize evidence for the same slot/context. The notarization binds the block ID. Signer sets may differ, and their stakes are never added across certificates.
+
+Genesis success is migration-anchor evidence only, not proof of network activation or ordinary block finality. Reports leave established scope empty of any finality claim (`unestablished`) on rejection or incomplete evidence. Every selected certificate must pass, including extras. See [finality.md](finality.md) for the deliberate bundle policy, diagnostics, and consensus/checkpoint assumptions.

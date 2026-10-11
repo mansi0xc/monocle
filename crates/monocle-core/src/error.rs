@@ -41,6 +41,18 @@ pub enum Code {
     InsufficientStake,
     StakeOverflow,
     FinalityNotEvaluated,
+    UnsupportedClaim,
+    CertificateChecksFailed,
+    CertificateChecksIncomplete,
+    FinalityNotRequested,
+    MissingBlockId,
+    MissingNotarization,
+    MissingFinalization,
+    MissingGenesis,
+    IncompatibleEvidence,
+    FastFinalityEstablished,
+    SlowFinalityEstablished,
+    GenesisAnchorEstablished,
     Ok,
 }
 

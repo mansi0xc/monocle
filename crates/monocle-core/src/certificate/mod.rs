@@ -80,7 +80,7 @@ pub struct CertificateReport {
 }
 
 /// Separate versioned output from C2's preflight contract. VERIFIED is scoped to
-/// individual certificate checks; C4 will implement block-finality composition.
+/// individual certificate checks; use finality::verify_evidence for composition.
 #[derive(Debug, Serialize)]
 pub struct CertificateVerificationReport {
     pub schema_version: u16,

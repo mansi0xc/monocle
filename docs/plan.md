@@ -74,9 +74,9 @@ Acceptance:
 - Missing context produces an inconclusive report with dependent checks not performed.
 - Schema/profile compatibility has deterministic behavior across native and browser boundaries.
 
-## C3 - Native verifier and cryptographic fixtures (current handoff)
+## C3 - Native verifier and cryptographic fixtures (committed)
 
-Implemented scope and compatibility evidence are in [certificate-verification.md](certificate-verification.md). Four certificate kinds with Base2 signers are covered. C4 waits for Mansi to commit C3.
+Implemented scope and compatibility evidence are in [certificate-verification.md](certificate-verification.md). Four certificate kinds with Base2 signers are covered. Mansi committed C3 as `06b6a8a`.
 
 Implement profile-specific message construction, signer decoding, rank lookup, public-key/PoP qualification, aggregate signature verification, and checked stake accumulation. Prefer upstream verification behavior or a differential reference harness to independently establish compatibility.
 
@@ -90,7 +90,9 @@ Acceptance:
 - Fixture provenance, selected ranks, signed payload bytes, and expected results are reproducible.
 - Tests do not rely solely on a generator and verifier sharing the same unexamined serialization logic.
 
-## C4 - Finality composition and diagnostics
+## C4 - Finality composition and diagnostics (current handoff)
+
+Implemented policy, API, and validation are in [finality.md](finality.md). C5 waits for Mansi to commit C4.
 
 Implement the semantic evaluator above individually checked certificates. Separate fast finality, the paired slow path, and migration/genesis evidence. Preserve per-certificate outcomes and a typed overall evidence scope.
 

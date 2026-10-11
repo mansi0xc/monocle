@@ -87,6 +87,10 @@ export type DiagnosticCode =
   | 'CLAIM_MISMATCH' | 'UNSUPPORTED_SIGNER_ENCODING' | 'MALFORMED_BITMAP'
   | 'UNKNOWN_SIGNER_RANK' | 'EMPTY_SIGNER_SET' | 'INVALID_PUBLIC_KEY'
   | 'MISSING_POP' | 'INVALID_POP' | 'INVALID_SIGNATURE' | 'INSUFFICIENT_STAKE'
+  | 'UNSUPPORTED_CLAIM' | 'CERTIFICATE_CHECKS_FAILED' | 'CERTIFICATE_CHECKS_INCOMPLETE'
+  | 'FINALITY_NOT_REQUESTED' | 'MISSING_BLOCK_ID' | 'MISSING_NOTARIZATION'
+  | 'MISSING_FINALIZATION' | 'MISSING_GENESIS' | 'INCOMPATIBLE_EVIDENCE'
+  | 'FAST_FINALITY_ESTABLISHED' | 'SLOW_FINALITY_ESTABLISHED' | 'GENESIS_ANCHOR_ESTABLISHED'
   | 'STAKE_OVERFLOW' | 'FINALITY_NOT_EVALUATED' | 'PREREQUISITE_MISSING' | 'OK';
 export interface Diagnostic { code: DiagnosticCode; path: string; message: string }
 export type Stage = 'input' | 'profile' | 'context' | 'certificate_decoding' | 'signers'
@@ -160,6 +164,32 @@ export interface CertificateVerificationReport {
   checkpoint_digest: ContentDigest | null;
   conclusion: 'VERIFIED' | 'REJECTED' | 'INCONCLUSIVE';
   evidence_scope: 'individual_certificates';
+  checks: CheckResult[];
+  certificates: CertificateReport[];
+  assumptions: string[];
+}
+
+export type ClaimKind = 'certificate_inspection' | 'block_finality' | 'genesis_migration';
+export type EvidenceScope = 'unestablished' | 'individual_certificates' | 'block_finality' | 'genesis_migration';
+export type FinalityPath = 'fast' | 'slow';
+export interface EvaluatedClaim {
+  kind: ClaimKind;
+  slot: DecimalU64;
+  block_id_hex: Hex | null;
+}
+/** C4: scope/path/witnesses describe established evidence only. The claim is the requested target. */
+export interface EvidenceVerificationReport {
+  schema_version: 1;
+  policy_id: string;
+  run_id: string | null;
+  bundle_digest: ContentDigest | null;
+  profile_id: string | null;
+  checkpoint_digest: ContentDigest | null;
+  conclusion: 'VERIFIED' | 'REJECTED' | 'INCONCLUSIVE';
+  evidence_scope: EvidenceScope;
+  claim: EvaluatedClaim | null;
+  finality_path: FinalityPath | null;
+  supporting_certificate_ids: string[];
   checks: CheckResult[];
   certificates: CertificateReport[];
   assumptions: string[];
