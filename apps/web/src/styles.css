@@ -20,25 +20,50 @@
     "Segoe UI",
     sans-serif;
   font-synthesis: none;
-  color: oklch(26% 0.038 224);
-  background: oklch(98% 0.004 210);
+  color: var(--ink);
+  background: var(--canvas);
   --font-body:
     "Public Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-display: "Sora", "Public Sans", sans-serif;
-  --ink: oklch(26% 0.038 224);
-  --brand: oklch(32% 0.059 224);
-  --accent: oklch(74% 0.154 43);
-  --muted: oklch(46% 0.028 224);
-  --line: oklch(88% 0.013 215);
-  --wash: oklch(96% 0.009 210);
-  --canvas: oklch(98% 0.004 210);
-  --surface: oklch(100% 0 0);
-  --success: oklch(39% 0.068 175);
-  --success-bg: oklch(95% 0.024 175);
-  --warning: oklch(44% 0.089 59);
-  --warning-bg: oklch(96% 0.033 70);
-  --danger: oklch(43% 0.133 29);
-  --danger-bg: oklch(97% 0.017 30);
+  /* User-selected palette: navy #28324F, burgundy #AA2D3C, cream #F2E6D8. */
+  --brand-navy: oklch(32.232539% 0.05368026 268.7929709);
+  --brand-burgundy: oklch(49.5414198% 0.160502102 18.8738316);
+  --brand-cream: oklch(93.0663778% 0.02282682 71.7793915);
+  --ink: var(--brand-navy);
+  --brand: var(--brand-navy);
+  --accent: var(--brand-burgundy);
+  --accent-hover: color-mix(
+    in oklab,
+    var(--brand-burgundy) 82%,
+    var(--brand-navy)
+  );
+  --muted: color-mix(in oklab, var(--brand-navy) 78%, var(--brand-cream));
+  --line: color-mix(in oklab, var(--brand-navy) 23%, var(--brand-cream));
+  --control-line: color-mix(
+    in oklab,
+    var(--brand-navy) 55%,
+    var(--brand-cream)
+  );
+  --wash: color-mix(in oklab, var(--brand-navy) 3%, var(--brand-cream));
+  --canvas: var(--brand-cream);
+  --surface: color-mix(in oklab, var(--brand-cream) 40%, white);
+  --success: var(--brand-navy);
+  --success-bg: color-mix(in oklab, var(--brand-navy) 8%, var(--brand-cream));
+  --warning: var(--brand-navy);
+  --warning-bg: var(--brand-cream);
+  --danger: var(--brand-burgundy);
+  --danger-bg: color-mix(
+    in oklab,
+    var(--brand-burgundy) 8%,
+    var(--brand-cream)
+  );
+  --optic-glass: color-mix(in oklab, var(--brand-navy) 83%, var(--brand-cream));
+  --optic-rim-muted: color-mix(
+    in oklab,
+    var(--brand-navy) 50%,
+    var(--brand-cream)
+  );
+  --optic-shadow: color-mix(in oklab, var(--brand-navy) 85%, black);
   font-size: 16px;
   line-height: 1.5;
 }
@@ -71,7 +96,7 @@ body {
   select,
   textarea,
   input:not([type="file"], [type="checkbox"]) {
-    border: 1px solid oklch(74% 0.025 219);
+    border: 1px solid var(--control-line);
     border-radius: 6px;
     background: var(--surface);
   }
@@ -91,12 +116,12 @@ body {
     border-color: var(--brand);
   }
   button:active:not(:disabled) {
-    background: oklch(91% 0.019 213);
+    background: var(--success-bg);
   }
   button:disabled,
   input:disabled {
-    color: oklch(54% 0.019 220);
-    background-color: oklch(94% 0.008 215);
+    color: var(--muted);
+    background-color: var(--wash);
     border-color: var(--line);
     cursor: not-allowed;
   }
@@ -106,25 +131,25 @@ body {
     justify-content: space-between;
     min-height: 46px;
     padding: 0.7rem 1rem;
-    color: white;
-    background: var(--brand);
-    border-color: var(--brand);
+    color: var(--brand-cream);
+    background: var(--accent);
+    border-color: var(--accent);
   }
   button.primary span {
     font-size: 1.125rem;
     line-height: 1;
   }
   button.primary:hover:not(:disabled) {
-    background: oklch(39% 0.069 224);
-    border-color: oklch(39% 0.069 224);
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
   }
   button.primary:active:not(:disabled) {
     background: var(--ink);
   }
   button.primary:disabled {
-    color: oklch(46% 0.025 221);
-    background: oklch(88% 0.016 215);
-    border-color: oklch(88% 0.016 215);
+    color: var(--muted);
+    background: var(--line);
+    border-color: var(--line);
   }
   a {
     color: inherit;
@@ -137,7 +162,7 @@ body {
   textarea:focus-visible,
   summary:focus-visible,
   [tabindex]:focus-visible {
-    outline: 3px solid oklch(53% 0.103 218);
+    outline: 3px solid var(--accent);
     outline-offset: 4px;
   }
   #inspector:focus {
@@ -296,7 +321,7 @@ body {
     background: var(--warning);
   }
   .local-label[data-ready="true"] .connection-dot {
-    background: oklch(47% 0.101 174);
+    background: var(--brand-navy);
     box-shadow: 0 0 0 3px var(--success-bg);
   }
   #inspector {
@@ -390,13 +415,13 @@ body {
   }
   .workflow-rail li[data-state="current"] .workflow-number {
     background: var(--brand);
-    color: white;
+    color: var(--brand-cream);
     border-color: var(--brand);
   }
   .workflow-rail li[data-state="complete"] .workflow-number {
     color: var(--success);
     background: var(--success-bg);
-    border-color: oklch(84% 0.046 174);
+    border-color: var(--line);
   }
   .workflow-rail li > div {
     display: flex;
@@ -423,7 +448,7 @@ body {
   .inputs {
     min-width: 0;
     border-right: 1px solid var(--line);
-    background: oklch(97% 0.008 211);
+    background: var(--surface);
   }
   .input-section {
     padding: 1.4rem;
@@ -444,7 +469,7 @@ body {
     width: 1.4rem;
     height: 1.4rem;
     background: var(--surface);
-    border: 1px solid oklch(77% 0.028 220);
+    border: 1px solid var(--control-line);
     border-radius: 4px;
     font:
       0.6875rem/1 ui-monospace,
@@ -483,10 +508,10 @@ body {
     flex-shrink: 0;
     background: var(--brand);
     border-color: var(--brand);
-    color: white;
+    color: var(--brand-cream);
   }
   .example-control button:hover:not(:disabled) {
-    background: oklch(39% 0.069 224);
+    background: var(--accent-hover);
   }
   .example-description {
     min-height: 2.6em;
@@ -496,7 +521,7 @@ body {
     width: 100%;
     max-width: 100%;
     min-height: 40px;
-    border: 1px dashed oklch(73% 0.028 216);
+    border: 1px dashed var(--control-line);
     border-radius: 6px;
     padding: 4px;
     background: var(--surface);
@@ -515,7 +540,7 @@ body {
     transition: background 160ms ease;
   }
   input[type="file"]::file-selector-button:hover {
-    background: oklch(91% 0.021 215);
+    background: var(--success-bg);
   }
   input[type="file"]:disabled {
     color: var(--muted);
@@ -542,7 +567,7 @@ body {
     align-items: center;
     margin-top: 0.6rem;
     padding: 0.15rem 0.45rem;
-    border: 1px solid oklch(80% 0.048 69);
+    border: 1px solid var(--line);
     border-radius: 4px;
     color: var(--warning);
     background: var(--warning-bg);
@@ -613,7 +638,7 @@ body {
   }
   .trust-selected {
     padding: 0.8rem 0.9rem;
-    border: 1px solid oklch(75% 0.04 174);
+    border: 1px solid var(--line);
     background: var(--success-bg);
   }
   .trust-selected strong {
@@ -630,7 +655,7 @@ body {
     line-height: 1.6;
   }
   .run-section {
-    background: oklch(94.5% 0.014 213);
+    background: var(--wash);
   }
   .run-section button + button {
     margin-top: 0.7rem;
@@ -681,11 +706,11 @@ body {
     height: 100%;
   }
   .instrument-guides {
-    stroke: oklch(86% 0.016 215);
+    stroke: var(--line);
     stroke-width: 1;
   }
   .instrument-ring {
-    stroke: oklch(66% 0.047 220);
+    stroke: var(--control-line);
     stroke-width: 1;
   }
   .instrument-ring.inner {
@@ -693,7 +718,7 @@ body {
     stroke-width: 1.25;
   }
   .instrument-core {
-    fill: oklch(96% 0.012 214);
+    fill: var(--wash);
     stroke: var(--brand);
     stroke-width: 1.5;
   }
@@ -759,7 +784,8 @@ body {
   .error {
     margin: 1rem 0;
     padding: 1rem 1.2rem;
-    border: 1px solid oklch(80% 0.06 29);
+    border: 1px solid
+      color-mix(in oklab, var(--brand-burgundy) 38%, var(--brand-cream));
     background: var(--danger-bg);
     overflow-wrap: anywhere;
   }
@@ -792,7 +818,7 @@ body {
   .loading-lines span {
     display: block;
     height: 12px;
-    background: oklch(92% 0.012 213);
+    background: var(--success-bg);
     border-radius: 3px;
   }
   .loading-lines span:nth-child(1) {
@@ -812,15 +838,19 @@ body {
     background: var(--wash);
   }
   .result-header[data-status="VERIFIED"] {
-    border-color: oklch(82% 0.04 175);
+    border-color: var(--line);
     background: var(--success-bg);
   }
   .result-header[data-status="REJECTED"] {
-    border-color: oklch(80% 0.06 29);
+    border-color: color-mix(
+      in oklab,
+      var(--brand-burgundy) 38%,
+      var(--brand-cream)
+    );
     background: var(--danger-bg);
   }
   .result-header[data-status="INCONCLUSIVE"] {
-    border-color: oklch(82% 0.06 59);
+    border-color: var(--line);
     background: var(--warning-bg);
   }
   .result-label {
@@ -843,7 +873,7 @@ body {
     flex-shrink: 0;
     padding: 0.15rem 0.4rem;
     border-radius: 4px;
-    background: oklch(91% 0.015 215);
+    background: var(--success-bg);
     color: var(--brand);
     font-size: 0.625rem;
     font-weight: 650;
@@ -854,17 +884,17 @@ body {
   .outcome-badge[data-status="VERIFIED"],
   .certificate-outcome[data-status="VERIFIED"] {
     color: var(--success);
-    background: oklch(88.5% 0.045 176);
+    background: color-mix(in oklab, var(--brand-navy) 15%, var(--brand-cream));
   }
   .outcome-badge[data-status="REJECTED"],
   .certificate-outcome[data-status="REJECTED"] {
     color: var(--danger);
-    background: oklch(92% 0.041 30);
+    background: var(--danger-bg);
   }
   .outcome-badge[data-status="INCONCLUSIVE"],
   .certificate-outcome[data-status="INCONCLUSIVE"] {
     color: var(--warning);
-    background: oklch(91% 0.056 72);
+    background: var(--warning-bg);
   }
   .result-header h2 {
     margin: 0.7rem 0 0.55rem;
@@ -907,7 +937,7 @@ body {
     padding: 1rem 0;
   }
   .trace > li + li {
-    border-top: 1px solid oklch(92% 0.01 215);
+    border-top: 1px solid var(--wash);
   }
   .check-symbol {
     display: grid;
@@ -1075,7 +1105,7 @@ body {
     border-bottom: 0;
   }
   tbody tr:hover {
-    background: oklch(98% 0.005 212);
+    background: var(--surface);
   }
   td .mono,
   td summary {
@@ -1193,11 +1223,11 @@ body {
   .lab-body form > button {
     margin-top: 1rem;
     background: var(--brand);
-    color: white;
+    color: var(--brand-cream);
     border-color: var(--brand);
   }
   .lab-body form > button:hover:not(:disabled) {
-    background: oklch(39% 0.069 224);
+    background: var(--accent-hover);
   }
   .lab-body form > button:disabled {
     color: var(--muted);
@@ -1212,7 +1242,7 @@ body {
   .mutation-summary {
     margin: 1rem 0;
     padding: 1rem;
-    border: 1px solid oklch(80% 0.06 43);
+    border: 1px solid var(--line);
     border-radius: 0 4px 4px 0;
     background: var(--surface);
     font-size: 0.8125rem;
@@ -1311,7 +1341,7 @@ body {
     color: var(--muted);
   }
   .report-tabs button[aria-pressed="true"] {
-    color: white;
+    color: var(--brand-cream);
     background: var(--brand);
     border-color: var(--brand);
   }
@@ -1428,7 +1458,7 @@ body {
   }
   .capture-note {
     padding: 0.9rem 1rem;
-    border: 1px solid oklch(82% 0.06 59);
+    border: 1px solid var(--line);
     background: var(--warning-bg);
     font-size: 0.8125rem;
     overflow-wrap: anywhere;

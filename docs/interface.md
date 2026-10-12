@@ -22,7 +22,7 @@ The inspector is loaded lazily. Visiting only the landing page does not mean the
 
 ## Design and assets
 
-The owner's complementary-color request replaces the earlier black-and-white product brief. Ocean blue carries the brand, persimmon highlights the experiments and primary landing accents, and cool light surfaces keep dense evidence readable. Fonts are bundled locally with licenses, as are the logo/favicon; the optical illustration is vector code. No new runtime dependency, remote image, analytics endpoint, or external font request is introduced.
+The owner's complementary-color request replaces the earlier black-and-white product brief. The selected cream canvas, navy text/structure, and burgundy actions follow the owner-supplied 2026-10-13 palette. The supplied feather/lens reference defines the shared mark. All three colours are used consistently across the landing and inspector; explicit labels and symbols distinguish report states. Fonts are bundled locally with licenses, as are the logo/favicon; the optical illustration is vector code. No new runtime dependency, remote image, analytics endpoint, or external font request is introduced.
 
 The implementation details and token values live in [../DESIGN.md](../DESIGN.md). Cryptographic scope remains in [cryptography.md](cryptography.md), [finality.md](finality.md), and [capture-import.md](capture-import.md).
 

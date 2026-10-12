@@ -158,9 +158,9 @@ Protect the cryptographic baseline, diagnostic trace, one controlled mutation, a
 No day estimate overrides the owner's commit gate. Progress is measured by the acceptance evidence above, not by filling folders or screens.
 
 
-## C8 - Landing page and product UI (owner-requested, ready for review)
+## C8 - Landing page and product UI (committed)
 
-Requested 2026-10-12. The Colosseum feature exploration is paused. This checkpoint is isolated on `codex/monocle-ui`, from the same C7 base as `colosseum`.
+Requested 2026-10-12; committed by Mansi as `75cbd85` and merged into main, as confirmed by the owner. The Colosseum feature exploration is paused. This checkpoint is isolated on `codex/monocle-ui`, from the same C7 base as `colosseum`.
 
 Deliver a distinctive complementary-color landing page and coherent redesign of the existing product. Add static-host-compatible navigation with in-session state preservation, a clearly illustrative workflow preview, local licensed typography, and responsive/accessible controls. Preserve all crypto, trust, tamper/replay, recorded-capture and offline boundaries.
 
@@ -172,3 +172,16 @@ Acceptance:
 - Desktop and narrow layouts are inspected; keyboard, reduced-motion, contrast and automated accessibility are checked.
 - Update product/design/interface docs and prepare ignored handoff 009.
 - Leave all changes unstaged and stop for the owner's commit. No Colosseum implementation is included.
+
+## C9 - Reference logo and palette (ready for owner review)
+
+Requested and revised 2026-10-13. The owner rejected the exploratory marks and supplied the preferred feather-and-lens symbol plus exact burgundy/navy/cream colour references. Adapt that symbol, excluding the surrounding badge and text, retain the Monocle wordmark, and apply the selected palette across the whole product. This revises the existing pending checkpoint; it does not begin another feature phase.
+
+Acceptance:
+
+- The shared logo and favicon follow the supplied reference and colour set.
+- Transparent mark/outlined horizontal logo SVG and PNG exports are supplied.
+- Landing, inspector, report, capture and comparison colours are coherent, readable and responsive.
+- Trust/result labels and check symbols remain explicit; verification and offline flows are unchanged.
+- TypeScript, formatting, production compilation, and relevant complete browser regressions pass.
+- Update ignored handoff 010, leave changes unstaged, and pause for the owner commit.
