@@ -29,7 +29,7 @@ async function select(page: Page) {
   await page.getByRole("button", { name: "Use this checkpoint" }).click();
 }
 test.beforeEach(async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/#/inspect");
 });
 
 test("empty state and keyboard entry", async ({ page }, info) => {
@@ -43,6 +43,15 @@ test("empty state and keyboard entry", async ({ page }, info) => {
   await expect(
     page.getByRole("link", { name: "Skip to inspector" }),
   ).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page).toHaveURL(/#inspector$/);
+  await expect(page.getByRole("main")).toBeInViewport();
+  await expect(
+    page.getByRole("heading", { name: "Every conclusion needs a trace." }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("button", { name: "Verify evidence" }),
+  ).toBeDisabled();
   await page.screenshot({ path: info.outputPath("empty-desktop.png") });
 });
 test("explicit selection gates genuine fast finality and signer inspection", async ({

@@ -1,12 +1,12 @@
 # Monocle: project idea
 
-Status: MVP workflows implemented through C7; owner review/commit pending. Real-network verification remains unestablished.
+Status: MVP workflows committed through C7. C8 adds the landing page and product UI redesign, awaiting owner review/commit. Real-network verification remains unestablished.
 
 ## Description
 
 Monocle is an open-source finality debugger for Solana's Alpenglow consensus, designed to make cryptographic verification understandable and reproducible. It checks certificate signatures and validator stake thresholds against a trusted checkpoint, explaining why verification succeeds, fails, or remains inconclusive. Its tamper lab and portable evidence bundles let developers experiment with altered certificates, compare results, and replay verification offline.
 
-These sentences describe the intended product. The repository now contains native/browser BLS compatibility checks plus bounded evidence contracts and explicit local checkpoint selection; C3/C4 now add individual certificate checks and direct evidence composition. C5 adds the working browser inspector, file import, explicit checkpoint selection, and worker-backed reports. C6 implements the tamper application and portable replay, limited to one equal-length byte replacement from an unmodified baseline. Both comparison reports are freshly verified; imported reports are ignored. C7 adds separately labeled recorded RPC inspection and the graduation demo guide. A capture missing historical context remains inconclusive.
+These sentences describe the intended product. The repository now contains native/browser BLS compatibility checks plus bounded evidence contracts and explicit local checkpoint selection; C3/C4 now add individual certificate checks and direct evidence composition. C5 adds the working browser inspector, file import, explicit checkpoint selection, and worker-backed reports. C6 implements the tamper application and portable replay, limited to one equal-length byte replacement from an unmodified baseline. Both comparison reports are freshly verified; imported reports are ignored. C7 adds separately labeled recorded RPC inspection and the recorded evidence workflow. A capture missing historical context remains inconclusive.
 
 ## The problem
 

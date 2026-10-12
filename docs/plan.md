@@ -134,9 +134,9 @@ Acceptance:
 - Tampering with a saved report cannot create a verified outcome.
 - Verification completes with network requests disabled once the app assets and necessary local inputs are loaded.
 
-## C7 - Capture adapter, documentation, and demonstration (current handoff)
+## C7 - Capture adapter, documentation, and demonstration (committed)
 
-Implemented: [recorded RPC import and native inspection](capture-import.md), [fixture catalog](fixture-catalog.md), and [graduation demo](demo.md). C7 follows the documented missing-context branch: the supplied recording is inspectable and portable offline, but historical checkpoint authenticity, signing context, and compatible qualification have not been established. No real-network verification is claimed. Await Mansi's review/commit before further implementation.
+Implemented: [recorded RPC import and native inspection](capture-import.md), [fixture catalog](fixture-catalog.md), and the original demonstration preparation. C7 follows the documented missing-context branch: the supplied recording is inspectable and portable offline, but historical checkpoint authenticity, signing context, and compatible qualification have not been established. No real-network verification is claimed. C7 was committed by Mansi as `e396ade`.
 
 
 Add a read-only adapter for a supported real capture format. Start with genesis RPC capture ingestion; verify only if the correct trusted historical checkpoint and signed context can be obtained. A custom node/footer exporter is a stretch dependency, not an assumed public API.
@@ -156,3 +156,19 @@ Acceptance:
 Protect the cryptographic baseline, diagnostic trace, one controlled mutation, and reproducible export first. Cut live streaming, custom exporter work, decorative visualization, and broad format coverage before weakening verification. If an ordinary finality path cannot be implemented reliably within the available time, narrow the displayed supported scope and document that decision; never present a synthetic format as a network-compatible certificate.
 
 No day estimate overrides the owner's commit gate. Progress is measured by the acceptance evidence above, not by filling folders or screens.
+
+
+## C8 - Landing page and product UI (owner-requested, ready for review)
+
+Requested 2026-10-12. The Colosseum feature exploration is paused. This checkpoint is isolated on `codex/monocle-ui`, from the same C7 base as `colosseum`.
+
+Deliver a distinctive complementary-color landing page and coherent redesign of the existing product. Add static-host-compatible navigation with in-session state preservation, a clearly illustrative workflow preview, local licensed typography, and responsive/accessible controls. Preserve all crypto, trust, tamper/replay, recorded-capture and offline boundaries.
+
+Acceptance:
+
+- Landing actions lead to the actual inspector; preview modes never grant trust.
+- Returning home and back preserves in-memory evidence and explicit checkpoint decisions.
+- Existing verification/capture/replay security regressions pass.
+- Desktop and narrow layouts are inspected; keyboard, reduced-motion, contrast and automated accessibility are checked.
+- Update product/design/interface docs and prepare ignored handoff 009.
+- Leave all changes unstaged and stop for the owner's commit. No Colosseum implementation is included.

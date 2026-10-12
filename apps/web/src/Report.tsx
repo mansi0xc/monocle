@@ -12,7 +12,7 @@ export function Trace({ checks }: { checks: CheckResult[] }) {
   return (
     <ol className="trace">
       {checks.map((check, i) => (
-        <li key={i}>
+        <li key={i} data-status={check.status}>
           <span className="check-symbol" aria-hidden="true">
             {check.status === "PASS"
               ? "✓"
@@ -23,7 +23,9 @@ export function Trace({ checks }: { checks: CheckResult[] }) {
           <div>
             <div className="check-title">
               <strong>{words(check.stage)}</strong>
-              <span>{words(check.status.toLowerCase())}</span>
+              <span className="check-status">
+                {words(check.status.toLowerCase())}
+              </span>
             </div>
             <p>{check.diagnostic.message}</p>
             <details className="diagnostic">
@@ -149,7 +151,7 @@ function Certificate({
     (c) => c.id === cert.certificate_id,
   );
   return (
-    <details className="certificate" open={first}>
+    <details className="certificate" data-status={cert.conclusion} open={first}>
       <summary>
         <span>
           <strong>{cert.certificate_id}</strong>
@@ -157,7 +159,9 @@ function Certificate({
             {cert.kind ? words(cert.kind) : "Kind not established"}
           </span>
         </span>
-        <span className="certificate-outcome">{cert.conclusion}</span>
+        <span className="certificate-outcome" data-status={cert.conclusion}>
+          {cert.conclusion}
+        </span>
       </summary>
       <div className="certificate-body">
         <dl className="facts">
@@ -225,9 +229,11 @@ export function Report({
 }) {
   return (
     <>
-      <div className="result-header">
+      <div className="result-header" data-status={report.conclusion}>
         <p className="result-label">
-          {report.conclusion}{" "}
+          <strong className="outcome-badge" data-status={report.conclusion}>
+            {report.conclusion}
+          </strong>{" "}
           <span>
             {report.checkpoint_digest
               ? "under the selected checkpoint"

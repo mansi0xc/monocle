@@ -68,7 +68,7 @@ Every job creates a dedicated worker. Completion, error, cancellation, and the 3
 - **INCONCLUSIVE** covers missing context/counterparts and unsupported evidence. Unperformed checks stay visible.
 - **Genesis anchor verified** is migration evidence, not ordinary block finality or completed network migration.
 
-The monochrome interface uses text, check/cross symbols, visible keyboard focus, native controls/disclosures, a polite result announcement, and error alerts. Controls stack on narrow screens; wide signer tables scroll within their region. Validator tables paginate at 50 rows. Untrusted names, descriptions, and diagnostics use React text rendering. No imported markup is injected. CSS motion respects reduced-motion preferences.
+The C8 complementary-color interface uses text, check/cross symbols, visible keyboard focus, native controls/disclosures, a polite result announcement, and error alerts. Controls stack on narrow screens; wide signer tables scroll within their region. Validator tables paginate at 50 rows. Untrusted names, descriptions, and diagnostics use React text rendering. No imported markup is injected. CSS motion respects reduced-motion preferences.
 
 ## Validation
 
@@ -88,3 +88,8 @@ Firefox, Safari, real mobile devices, production hosting, authenticated real che
 - [Worker termination](https://developer.mozilla.org/en-US/docs/Web/API/Worker/terminate): cancellation stops the worker instead of waiting for synchronous cryptography to cooperate.
 - [WebAssembly memory growth](https://developer.mozilla.org/en-US/docs/WebAssembly/Reference/JavaScript_interface/Memory/grow): recreate views after execution.
 - Existing [contracts](contracts.md), [certificate verification](certificate-verification.md), and [finality policy](finality.md) remain authoritative for cryptographic behavior and trust limits.
+
+
+## C8 presentation and navigation
+
+The default page is now the landing page. Use **Open inspector** or `/#/inspect` for the evidence workspace. The redesigned reports, controls, traces and capture/replay tools preserve the verifier interface described above. The inspector stays mounted during same-session visits home, preserving explicit decisions; refreshes reset it. See [interface.md](interface.md) and [../DESIGN.md](../DESIGN.md).

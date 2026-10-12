@@ -1,25 +1,33 @@
 # Monocle interface
 
-Implemented C5/C6/C7 product surface: `apps/web/src/styles.css`. Product direction is in [PRODUCT.md](PRODUCT.md).
+C8 design system and implementation. Product context is in [PRODUCT.md](PRODUCT.md); navigation and scope are documented in [docs/interface.md](docs/interface.md).
 
-## Visual system
+## Direction
 
-Black and white with achromatic OKLCH values: ink L19%, muted text L44%, rules L86%, input surface L97%, white L100%. Form borders use L65%; focus outlines use ink. No color carries status meaning. A single system sans-serif family handles interface text, with system monospace for byte strings and exact numeric values. No external font or image requests.
+Precision optics, ocean blue, persimmon, and cool white. The landing page uses a larger optical scene and a warm experiment section; the working inspector keeps saturation restrained. This explicitly follows the owner's 2026-10-12 request for complementary colors, superseding the earlier monochrome product brief. The architecture PDF remains black and white.
 
-A quiet wordmark/header leads into the inspection workspace. The left column holds the actual three-step workflow; the right column holds the report. Thin rules group sections without nested cards. The input column is 320px (340px on wide screens, 290px at intermediate widths), with a flexible report. Below 740px they stack. Body measures stay within 72 characters where practical; long hashes wrap within their containers.
+## Typography and assets
 
-Main heading 1.75rem, result heading 2rem, section heading 1.125rem, interface body .875–1rem, dense metadata .8125rem. Small status codes supplement readable text. Buttons/fields use 3–4px radii. Check/cross/dash symbols and explicit PASS/FAIL/NOT CHECKED text expose check state.
+Sora variable (`100–800`) is the wordmark/display family; Public Sans variable (`100–900`) is the body/control family. Their Latin-subset WOFF2 files total about 60 kB and are local Vite assets. Both SIL Open Font Licenses and source URLs live in `apps/web/src/fonts/`. No external image/font services are contacted at runtime. Missing glyphs use system fallbacks; bytes and exact amounts use system monospace.
 
-## Interaction
+Landing headings use fluid sizing capped below 6rem, balanced wrapping, and letter spacing no tighter than -0.04em. The inspector uses a restrained rem scale and tabular numeric rendering. Readable explanation text and exact diagnostic metadata remain distinct.
 
-Changing evidence, the active experiment, or checkpoint context clears the previous results. Editing an unsubmitted experiment form does not alter the active evidence; export preserves current reports. Loading never implies verification or checkpoint authenticity. Native selects, file inputs, checkboxes, details, and table semantics provide familiar keyboard behavior. Focus outlines are 2px with an offset; a skip link and live status region support navigation. The spinner indicates active work and becomes static with reduced motion. Hover transitions are limited to 160ms; there are no decorative entrance animations.
+## Tokens and components
 
-Errors include a recoverable next action. The result exposes scope before the detailed trace, then certificates, exact weights, signed bytes, and assumptions. Signer tables paginate at 50 entries and retain an internal horizontal scroll region at narrow widths.
+`apps/web/src/styles.css` owns shared font faces and tokens. Principal OKLCH values: ink `26% .038 224`, brand `32% .059 224`, accent `74% .154 43`, muted `46% .028 224`, canvas `98% .004 210`. Semantic success, warning, and rejection colors supplement visible text and symbols. Focus uses a visible outline.
 
-## Validation and boundaries
+The product has an overview/inspector navigation shell, an ordered workflow rail, a three-step evidence/checkpoint/verify column, a report surface, and a separate recorded-capture/replay area. Traces, signer tables, native disclosures, comparison reports, source labels, file inputs, status banners, loading placeholders, and errors share consistent visual treatment. No automatic trust selection or crypto logic is added by this design system.
 
-Chrome screenshots were inspected at 1440px and 375px. Automated accessibility checks exercise empty, verified, and narrow layouts. These checks do not establish conformance across all assistive technologies or browsers. C6 adds a native disclosure for mutation controls, a before/after trace table, original/experiment report selection, and local replay controls. The table shows changed checks by default and supports inspecting all checks; on narrow screens it scrolls inside its own labeled region. Profile/checkpoint requirements and the difference between loaded assets and offline cold start remain explicit.
+`landing.css` is scoped to the landing surface. It defines the split hero, geometric optical illustration, keyboard-operable workflow preview, byte-change illustration, trust explanation, and closing action. Its preview is declared illustrative and synthetic; it is not a substitute for the working inspector.
 
-## Recorded evidence
+## Routing and state
 
-C7 keeps recorded RPC inputs in a separate labeled section beside synthetic examples. Capture output leads with inconclusive scope and extracted identity, followed by missing prerequisites, an explicit unperformed-check trace, preserved bytes, and exact download. It uses the existing monochrome typography, borders, native controls, and responsive facts layout. No network status or trust is inferred from the sample's filename.
+`Root.tsx` routes with URL hashes, compatible with static hosting. `/` and `#/` show the landing page, `#/inspect` shows the inspector, and the inspector's `#inspector` skip target remains an inspector route. `#workflow` is a landing anchor. The inspector loads lazily and stays mounted, hidden from layout/accessibility while on the landing page. Returning restores the same evidence, trust decision, and reports. Nothing is persisted across refreshes.
+
+## Responsive and motion behavior
+
+The hero and product columns stack on narrow screens. Long digests wrap, wide data tables scroll within labeled regions, and signer pagination stays available. Native controls retain keyboard behavior. Skip links are revealed on focus. All animations/transitions have reduced-motion alternatives. The landing lens settles once on entry; workflow preview transitions are brief. Product motion conveys loading/state rather than introducing a page entrance sequence.
+
+## Validation boundaries
+
+Chrome product coverage includes desktop, 375px and 768px landing layouts, narrow verified/capture/comparison states, navigation/history, explicit checkpoint trust, hostile input, replay, reduced motion, and automated accessibility scans. Screenshots are visually inspected in addition to automated checks. This is not a claim of complete assistive-technology or cross-browser conformance; Safari/Firefox and real devices remain untested.

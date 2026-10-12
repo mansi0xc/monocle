@@ -19,14 +19,19 @@ export function CaptureView({
   };
   return (
     <section className="capture-report" aria-label="RPC capture inspection">
-      <div className="result-kicker">
-        <strong>INCONCLUSIVE</strong> · capture inspection
+      <div className="result-header" data-status="INCONCLUSIVE">
+        <p className="result-label">
+          <strong className="outcome-badge" data-status="INCONCLUSIVE">
+            INCONCLUSIVE
+          </strong>
+          <span>capture inspection</span>
+        </p>
+        <h2>{titles[report.observation]}</h2>
+        <p>
+          Recorded RPC data · source unverified. This inspection does not verify
+          a signature, validator stake, or network finality.
+        </p>
       </div>
-      <h2>{titles[report.observation]}</h2>
-      <p>
-        Recorded RPC data · source unverified. This inspection does not verify a
-        signature, validator stake, or network finality.
-      </p>
       <dl className="facts">
         <dt>File</dt>
         <dd>{name}</dd>
@@ -76,10 +81,10 @@ export function CaptureView({
         <h3>Inspection trace</h3>
         <ol className="capture-checks">
           {report.checks.map((c) => (
-            <li key={c.stage}>
+            <li key={c.stage} data-status={c.status}>
               <div>
                 <strong>{words(c.stage)}</strong>
-                <span className="small">{words(c.status)}</span>
+                <span className="check-status">{words(c.status)}</span>
               </div>
               <p>{c.diagnostic.message}</p>
               <code>{c.diagnostic.code}</code>
@@ -88,7 +93,7 @@ export function CaptureView({
         </ol>
       </section>
       {report.certificate && (
-        <details>
+        <details className="bytes">
           <summary>Preserved signature and bitmap bytes</summary>
           <p className="small muted">
             Byte extraction only. Array length does not establish point
@@ -102,7 +107,7 @@ export function CaptureView({
           </dl>
         </details>
       )}
-      <details>
+      <details className="assumptions">
         <summary>Scope and assumptions</summary>
         <ul>
           {report.assumptions.map((a) => (

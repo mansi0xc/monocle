@@ -4,7 +4,7 @@ An open-source finality debugger for Solana's Alpenglow consensus.
 
 Monocle is designed to inspect certificate evidence, check signatures and stake thresholds against an explicitly trusted validator checkpoint, and explain the result. Its tamper lab preserves the original evidence, applies one controlled byte replacement, and compares freshly computed checks. Portable replay files preserve exact evidence and optional checkpoint bytes for verification in a loaded production app, including after disconnecting from the network.
 
-**Project status:** C7 adds recorded genesis RPC inspection and a reproducible graduation demo to the Rust/WASM verifier, tamper lab, and replay workflow. Signed examples remain synthetic; the separate recorded testnet response is displayed as inconclusive because historical context is missing. Real-network verification remains unestablished.
+**Project status:** C8 adds a landing page and a redesigned browser inspector to the Rust/WASM verifier, tamper lab, replay workflow, and recorded RPC inspection. Signed examples remain synthetic; the separate recorded testnet response is displayed as inconclusive because historical context is missing. Real-network verification remains unestablished.
 
 ## What the MVP does
 
@@ -28,7 +28,7 @@ The MVP uses a fixed checkpoint. Authenticating validator-set changes across epo
 | [Cryptography](docs/cryptography.md) | BLS aggregation, stake arithmetic, payloads, and checkpoint trust |
 | [Research](docs/research.md) | Primary sources, observations, and unresolved implementation questions |
 | [Testing](docs/testing.md) | Required positive, negative, interoperability, and browser checks |
-| [Graduation demo](docs/demo.md) | Setup, a five-minute sequence, explanations, and recovery |
+| [Interface](docs/interface.md) | Landing page, navigation, visual system, session state, and UI review |
 | [Fixture catalog](docs/fixture-catalog.md) | Synthetic cases, recorded evidence, and expected scopes |
 | [C7 capture import](docs/capture-import.md) | Raw RPC inspection, local-file command, and missing verification prerequisites |
 | [C6 tamper lab and replay](docs/tamper-replay.md) | Controlled mutations, reproducible comparisons, archive format, and offline limits |
@@ -48,7 +48,7 @@ npm ci --ignore-scripts --no-audit --no-fund
 npm run dev
 ```
 
-Use Node.js 24.10 or later, the pinned Rust toolchain with WASM/LLVM components, and a WASM-capable Clang. Open the local address Vite prints, load an example, select its checkpoint, and verify. `npm run build:web` builds static assets; `npm run preview` serves them locally. No wallet or RPC connection is required.
+Use Node.js 24.10 or later, the pinned Rust toolchain with WASM/LLVM components, and a WASM-capable Clang. Open the local address Vite prints, choose **Open inspector**, load an example, select its checkpoint, and verify. The inspector is also available directly at `/#/inspect`. `npm run build:web` builds static assets; `npm run preview` serves them locally. No wallet or RPC connection is required.
 
 For the full implemented gate:
 
@@ -76,7 +76,7 @@ For local-file inspection:
 npm run inspect:capture -- fixtures/captures/testnet-genesis-rpc.json
 ```
 
-The [demo guide](docs/demo.md) combines the genuine synthetic verification workflow with this separately labeled recording. No live endpoint is needed.
+The [interface guide](docs/interface.md) describes the synthetic verification workflow and the separately labeled recording. No live endpoint is needed.
 
 ## Development ownership
 

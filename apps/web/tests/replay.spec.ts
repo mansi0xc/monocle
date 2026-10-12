@@ -40,7 +40,7 @@ async function exported(page: Page) {
   return JSON.parse(await readFile(path!, "utf8"));
 }
 test.beforeEach(async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/#/inspect");
 });
 test("immutable original, meaningful diagnostic comparison, export and fresh replay", async ({
   page,

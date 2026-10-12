@@ -16,7 +16,7 @@ const upload = (s: string | Buffer) => ({
   buffer: Buffer.isBuffer(s) ? s : Buffer.from(s),
 });
 test.beforeEach(async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/#/inspect");
 });
 test("recorded capture replaces verified evidence without inheriting trust and downloads exactly", async ({
   page,
