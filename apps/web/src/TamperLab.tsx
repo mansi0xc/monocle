@@ -198,7 +198,9 @@ export function ComparisonView({ reports }: { reports: Comparison }) {
     <>
       {check ? (
         <>
-          <strong>{words(check.status)}</strong>
+          <strong className="comparison-status" data-status={check.status}>
+            {words(check.status)}
+          </strong>
           <code>{check.diagnostic.code}</code>
           <span>{check.diagnostic.message}</span>
         </>
@@ -227,13 +229,23 @@ export function ComparisonView({ reports }: { reports: Comparison }) {
       <div className="comparison-outcomes">
         <div>
           <span>Original</span>
-          <strong>{reports.baseline.conclusion}</strong>
+          <strong
+            className="outcome-badge"
+            data-status={reports.baseline.conclusion}
+          >
+            {reports.baseline.conclusion}
+          </strong>
           <span>{words(reports.baseline.evidence_scope)}</span>
         </div>
         <span aria-hidden="true">→</span>
         <div>
           <span>Experiment</span>
-          <strong>{reports.derived.conclusion}</strong>
+          <strong
+            className="outcome-badge"
+            data-status={reports.derived.conclusion}
+          >
+            {reports.derived.conclusion}
+          </strong>
           <span>{words(reports.derived.evidence_scope)}</span>
         </div>
       </div>

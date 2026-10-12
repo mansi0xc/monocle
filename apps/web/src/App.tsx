@@ -15,6 +15,7 @@ import {
 import examples from "../generated/examples.json";
 import recordedCapture from "../generated/capture.json";
 import { CaptureView } from "./CaptureView";
+import { Brand } from "./Brand";
 import {
   MAX_CHECKPOINT_BYTES,
   type Bundle,
@@ -407,33 +408,30 @@ export default function App() {
   const shownBundle =
     activeReport === "derived" && derivedReport && derived ? derived : bundle;
   return (
-    <>
+    <div className="inspector-app">
       <a className="skip-link" href="#inspector">
         Skip to inspector
       </a>
       <header className="app-header">
-        <a className="brand" href="./" aria-label="Monocle home">
-          <svg width="29" height="29" viewBox="0 0 32 32" aria-hidden="true">
-            <circle
-              cx="14"
-              cy="14"
-              r="10"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            />
-            <path
-              d="M21 21v6h7"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-            />
-          </svg>
-          monocle<span className="brand-period">.</span>
+        <a className="app-brand" href="#/" aria-label="Monocle home">
+          <Brand />
         </a>
-        <span className="header-label">Alpenglow evidence inspector</span>
-        <span className="local-label">
-          <span aria-hidden="true">◉</span>{" "}
+        <nav className="app-nav" aria-label="Main navigation">
+          <a href="#/">Overview</a>
+          <a href="#/inspect" aria-current="page">
+            Inspector
+          </a>
+        </nav>
+        <a
+          className="app-source"
+          href="https://github.com/mansi0xc/monocle"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Source <span aria-hidden="true">↗</span>
+        </a>
+        <span className="local-label" data-ready={assetsReady}>
+          <span className="connection-dot" aria-hidden="true" />{" "}
           {assetsReady
             ? import.meta.env.PROD
               ? "Ready for offline verification"
@@ -441,9 +439,10 @@ export default function App() {
             : "Loading local verifier…"}
         </span>
       </header>
-      <main id="inspector">
+      <main id="inspector" tabIndex={-1}>
         <div className="page-heading">
           <div>
+            <p className="eyebrow">Alpenglow evidence inspector</p>
             <h1>Follow the evidence.</h1>
             <p>
               Inspect the certificates, signers, and assumptions behind
@@ -451,9 +450,57 @@ export default function App() {
             </p>
           </div>
           <span className="profile-label">
-            Base2 profile <span className="mono">98535e50</span>
+            <span className="profile-mark" aria-hidden="true">
+              B2
+            </span>
+            <span>
+              Base2 profile <span className="mono">98535e50</span>
+            </span>
           </span>
         </div>
+        <ol className="workflow-rail" aria-label="Verification workflow">
+          <li data-state={bundle ? "complete" : "current"}>
+            <span className="workflow-number" aria-hidden="true">
+              {bundle ? "✓" : "01"}
+            </span>
+            <div>
+              <strong>Load evidence</strong>
+              <span>
+                {bundle ? "Input inspected" : "A signed example or local file"}
+              </span>
+            </div>
+          </li>
+          <li
+            data-state={selection ? "complete" : bundle ? "current" : "pending"}
+          >
+            <span className="workflow-number" aria-hidden="true">
+              {selection ? "✓" : "02"}
+            </span>
+            <div>
+              <strong>Select your checkpoint</strong>
+              <span>
+                {selection
+                  ? "Trust basis recorded"
+                  : "An explicit trust decision"}
+              </span>
+            </div>
+          </li>
+          <li
+            data-state={report ? "complete" : selection ? "current" : "pending"}
+          >
+            <span className="workflow-number" aria-hidden="true">
+              {report ? "✓" : "03"}
+            </span>
+            <div>
+              <strong>Read the trace</strong>
+              <span>
+                {report
+                  ? "Verification complete"
+                  : "Every check, with its scope"}
+              </span>
+            </div>
+          </li>
+        </ol>
         <div className="workspace">
           <aside
             className="inputs"
@@ -570,42 +617,6 @@ export default function App() {
                   </details>
                 </div>
               )}
-            </section>
-            <section className="input-section capture-controls">
-              <h2>Recorded RPC evidence</h2>
-              <p className="small muted">
-                Inspect a saved getAgGenesisCert response. Historical context is
-                required before it can become verification input.
-              </p>
-              <button
-                className="full-width"
-                onClick={() =>
-                  void importCapture({
-                    bytes: encoder.encode(recordedCapture.source_json),
-                    name: "Recorded testnet response",
-                  })
-                }
-              >
-                Load recorded testnet response
-              </button>
-              <p className="small muted">
-                Supplied by the project owner; retrieval time and endpoint
-                origin have not been independently established.
-              </p>
-              <label htmlFor="capture-file">Import genesis RPC response</label>
-              <input
-                id="capture-file"
-                type="file"
-                accept=".json,application/json"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  e.target.value = "";
-                  if (file) void importCapture(file);
-                }}
-              />
-              <p className="small muted">
-                Raw JSON-RPC response · up to 64 KiB
-              </p>
             </section>
             <section className="input-section">
               <h2>
@@ -764,57 +775,15 @@ export default function App() {
                     : "Verification uses the selected checkpoint and the pinned protocol profile."}
               </p>
             </section>
-            <section className="input-section replay-controls">
-              <h2>Portable replay</h2>
-              <p className="small muted">
-                Share original bytes, the experiment, and recorded reports.
-                Trust must be selected again on import.
-              </p>
-              <label className="inline-label">
-                <input
-                  type="checkbox"
-                  checked={includeCheckpoint}
-                  disabled={!checkpoint}
-                  onChange={(e) => setIncludeCheckpoint(e.target.checked)}
-                />{" "}
-                Include checkpoint bytes
-              </label>
-              <button
-                className="full-width"
-                disabled={!bundle || Boolean(busy)}
-                onClick={exportReplay}
-              >
-                Export replay
-              </button>
-              <label htmlFor="replay-file">Import replay file</label>
-              <input
-                id="replay-file"
-                type="file"
-                accept=".json,application/json"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  e.target.value = "";
-                  if (file) void importReplay(file);
-                }}
-              />
-              <p className="small muted">Monocle replay v1 · up to 16 MiB</p>
-              {replayInfo && <p className="small break">{replayInfo}</p>}
-              {requiredCheckpoint && (
-                <details>
-                  <summary>Required checkpoint digest</summary>
-                  <p className="mono small break">{requiredCheckpoint}</p>
-                  <p className="small muted">
-                    {checkpoint
-                      ? "Select this exact checkpoint to reproduce the recorded context."
-                      : "Checkpoint bytes are not included. Import the referenced checkpoint separately."}
-                  </p>
-                </details>
-              )}
-            </section>
           </aside>
           <div className="evidence-panel" aria-label="Evidence report">
             <div className="panel-top">
-              <span>Inspection</span>
+              <span className="panel-title">
+                <span className="panel-glyph" aria-hidden="true">
+                  ⌕
+                </span>{" "}
+                Inspection
+              </span>
               <span className="small muted">
                 {busy
                   ? "Working…"
@@ -893,7 +862,11 @@ export default function App() {
             )}
             {busy && (
               <div className="working">
-                <span className="spinner" aria-hidden="true" />
+                <div className="loading-lines" aria-hidden="true">
+                  <span />
+                  <span />
+                  <span />
+                </div>
                 <p>{busy}</p>
                 <span className="small muted">
                   You can cancel or load different evidence at any time.
@@ -912,8 +885,44 @@ export default function App() {
               !capture && (
                 <div className="empty-report">
                   <div className="empty-symbol" aria-hidden="true">
-                    ⊙
+                    <svg viewBox="0 0 156 128" fill="none">
+                      <path
+                        className="instrument-guides"
+                        d="M0 64h156M78 0v128M16 12h12M16 12v12M140 12h-12M140 12v12M16 116h12M16 116v-12M140 116h-12M140 116v-12"
+                      />
+                      <circle
+                        className="instrument-ring"
+                        cx="78"
+                        cy="64"
+                        r="47"
+                      />
+                      <circle
+                        className="instrument-ring inner"
+                        cx="78"
+                        cy="64"
+                        r="32"
+                      />
+                      <circle
+                        className="instrument-core"
+                        cx="78"
+                        cy="64"
+                        r="12"
+                      />
+                      <path
+                        className="instrument-focus"
+                        d="M78 8v11M78 109v11M22 64h11M123 64h11M109 97l15 15"
+                      />
+                      <circle
+                        className="instrument-dot"
+                        cx="109"
+                        cy="29"
+                        r="4"
+                      />
+                    </svg>
                   </div>
+                  <p className="eyebrow">
+                    {bundle ? "Input prepared" : "Your local workspace"}
+                  </p>
                   <h2>
                     {bundle
                       ? "Ready for inspection."
@@ -926,14 +935,23 @@ export default function App() {
                   </p>
                   <ol className="pipeline">
                     <li>
+                      <span className="pipeline-number" aria-hidden="true">
+                        01
+                      </span>
                       <strong>Decode</strong>
                       <span>Certificate bytes & signer ranks</span>
                     </li>
                     <li>
+                      <span className="pipeline-number" aria-hidden="true">
+                        02
+                      </span>
                       <strong>Authenticate</strong>
                       <span>BLS signatures & key qualification</span>
                     </li>
                     <li>
+                      <span className="pipeline-number" aria-hidden="true">
+                        03
+                      </span>
                       <strong>Evaluate</strong>
                       <span>Stake thresholds & finality scope</span>
                     </li>
@@ -947,11 +965,99 @@ export default function App() {
             )}
           </div>
         </div>
+        <section
+          className="session-tools"
+          aria-label="Capture and replay tools"
+        >
+          <section className="input-section capture-controls">
+            <p className="eyebrow">Recorded source</p>
+            <h2>Recorded RPC evidence</h2>
+            <p className="small muted">
+              Inspect a saved getAgGenesisCert response. Historical context is
+              required before it can become verification input.
+            </p>
+            <button
+              className="full-width"
+              onClick={() =>
+                void importCapture({
+                  bytes: encoder.encode(recordedCapture.source_json),
+                  name: "Recorded testnet response",
+                })
+              }
+            >
+              Load recorded testnet response
+            </button>
+            <p className="small muted">
+              Supplied by the project owner; retrieval time and endpoint origin
+              have not been independently established.
+            </p>
+            <label htmlFor="capture-file">Import genesis RPC response</label>
+            <input
+              id="capture-file"
+              type="file"
+              accept=".json,application/json"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                e.target.value = "";
+                if (file) void importCapture(file);
+              }}
+            />
+            <p className="small muted">Raw JSON-RPC response · up to 64 KiB</p>
+          </section>
+          <section className="input-section replay-controls">
+            <p className="eyebrow">Reproduce a result</p>
+            <h2>Portable replay</h2>
+            <p className="small muted">
+              Share original bytes, the experiment, and recorded reports. Trust
+              must be selected again on import.
+            </p>
+            <label className="inline-label">
+              <input
+                type="checkbox"
+                checked={includeCheckpoint}
+                disabled={!checkpoint}
+                onChange={(e) => setIncludeCheckpoint(e.target.checked)}
+              />{" "}
+              Include checkpoint bytes
+            </label>
+            <button
+              className="full-width"
+              disabled={!bundle || Boolean(busy)}
+              onClick={exportReplay}
+            >
+              Export replay
+            </button>
+            <label htmlFor="replay-file">Import replay file</label>
+            <input
+              id="replay-file"
+              type="file"
+              accept=".json,application/json"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                e.target.value = "";
+                if (file) void importReplay(file);
+              }}
+            />
+            <p className="small muted">Monocle replay v1 · up to 16 MiB</p>
+            {replayInfo && <p className="small break">{replayInfo}</p>}
+            {requiredCheckpoint && (
+              <details>
+                <summary>Required checkpoint digest</summary>
+                <p className="mono small break">{requiredCheckpoint}</p>
+                <p className="small muted">
+                  {checkpoint
+                    ? "Select this exact checkpoint to reproduce the recorded context."
+                    : "Checkpoint bytes are not included. Import the referenced checkpoint separately."}
+                </p>
+              </details>
+            )}
+          </section>
+        </section>
       </main>
-      <footer>
+      <footer className="app-footer">
         <span>Monocle · Fixed-checkpoint research tool</span>
         <span>Authenticity of the checkpoint is an external assumption.</span>
       </footer>
-    </>
+    </div>
   );
 }

@@ -12,16 +12,22 @@ Evidence provenance, structural validation, checkpoint trust, certificate validi
 
 ## Voice
 
-Precise, calm, and direct. Explain trust assumptions beside the result. Use readable labels with exact diagnostic codes available for debugging. Avoid promotional language, invented confidence scores, and unexplained cryptography terminology.
+Precise, calm, and direct. Explain trust assumptions beside the result. Use readable labels with exact diagnostic codes available for debugging. Avoid invented confidence scores, unverifiable network claims, and unexplained cryptography terminology. Landing copy introduces the workflow; the product reports exact evidence and limitations.
 
 ## Visual direction
 
-The owner requested black and white. A developer reads a certificate and compares signer weights during a daytime workshop on a laptop: a white work surface with dark text keeps dense evidence legible beside the reference material. Use a restrained monochrome palette, system typography, thin rules, and a clear distinction between input controls and the evidence report. No gradients, colored status badges, decorative dashboards, or repeated metric cards.
+On 2026-10-12, the owner requested a distinctive landing page, a redesign of the whole product, and complementary colors. This supersedes the earlier monochrome product preference. The architecture PDF remains unchanged.
+
+A developer studies dense verification evidence during a daytime workshop, often beside source code: use bright, cool work surfaces, dark ocean-blue text, and restrained persimmon accents. The brand evokes an optical instrument: precise, lucid, and inquisitive. A custom geometric lens gives the landing page its visual identity; the product uses that vocabulary sparingly so controls and evidence remain primary.
+
+Sora carries the brand and selected headings; Public Sans carries readable interface text. Both are bundled locally with their licenses. Typography, purposeful whitespace, a complementary blue/orange palette, and clear state labels establish hierarchy. Color never carries a conclusion by itself.
 
 ## Interaction and accessibility
 
-Inputs and trust selection are deliberate actions. Display the original-byte digest and session trust basis. Verification runs in an interruptible worker; changes invalidate old results. Support keyboard use, visible focus, explicit loading/error/empty states, reduced motion, readable contrast, and narrow screens. Status must be expressed in text, independently of color. Untrusted strings are rendered as text. Preserve large integers as decimal strings.
+The landing page at `/` or `#/` leads to the inspector at `#/inspect`. Its Verify/Tamper/Replay preview is explicitly illustrative and never runs or grants trust. The real inspector is loaded on first entry and stays mounted when visiting the landing page within the same session, preserving inputs and explicit decisions. Refreshing still starts a new in-memory session.
+
+Inputs and trust selection are deliberate actions. Display the original-byte digest and session trust basis. Verification runs in an interruptible worker; changes invalidate old results. Support keyboard use, visible focus, explicit loading/error/empty states, reduced motion, readable contrast, and narrow screens. Untrusted strings are rendered as text. Preserve large integers as decimal strings.
 
 ## Delivery
 
-C5 provides the browser inspector backed by the existing Rust verifier. C6 adds a single immutable-baseline experiment, fresh comparison, and portable replay with explicit trust reselection. Offline use is supported only in a loaded production session. C7 adds a separate recorded RPC inspection path and a graduation demo guide. Capture import cannot inherit a verified result or checkpoint trust; absent historical context stays visible. Follow the owner-controlled commit checkpoints in AGENTS.md.
+C8 delivers the landing page, shared identity, responsive product redesign, and in-session navigation on a separate `codex/monocle-ui` branch. C5–C7 verification, tampering, replay, and recorded-capture boundaries remain unchanged. Offline use is supported only in an already-loaded production inspector session. Captures cannot inherit verified results or checkpoint trust. The Colosseum feature exploration is paused. Follow the owner-controlled commit checkpoints in AGENTS.md.

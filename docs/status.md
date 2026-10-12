@@ -1,14 +1,16 @@
 # Project status
 
-Updated: 2026-10-11.
+Updated: 2026-10-12.
 
 ## Current state
 
-Mansi committed C6 as `95a990a` (`added immutable tamper experiments and offline evidence replay`). C7 adds a read-only genesis RPC adapter, a native local-file/stdin inspection command, a separately labeled browser capture workflow, the preserved owner-supplied recording, and the graduation demonstration guide.
+Mansi committed C7 as `e396ade`. C8 adds the landing page and redesigns the existing inspector on `codex/monocle-ui`. The complementary ocean-blue/persimmon palette, local typography, responsive evidence workspace, and home/inspector navigation are ready for owner review. Colosseum feature exploration is paused; no new consensus or cryptographic functionality is included.
 
-The response at slot `444625255` can now be inspected and downloaded without altering its source. Its historical checkpoint, signing context, producer compatibility, and qualifying proofs have not been established. Capture inspection therefore remains **INCONCLUSIVE**, and signature, quorum, and finality checks do not run. No placeholder context or unrelated checkpoint is used to manufacture verification input.
+The landing page's Verify/Tamper/Replay preview is explicitly illustrative and synthetic. It cannot load evidence or grant trust. The actual inspector preserves its in-memory evidence and checkpoint choices when navigating home and back; refreshing still discards the session.
 
-The existing genuine Rust/WASM verification paths, immutable tamper experiments, fresh diagnostic comparison, and portable replay remain available for supported Monocle bundles. Fast/slow block finality and genesis-anchor evidence retain their distinct scopes. All successful demonstrations use synthetic public test keys and invented context. No real testnet certificate is cryptographically verified.
+The recorded response at slot `444625255` remains **INCONCLUSIVE**. Its historical checkpoint, signing context, producer compatibility, and qualifying proofs have not been established. Capture inspection does not run signature, quorum, or finality checks and never substitutes an unrelated checkpoint.
+
+The genuine Rust/WASM verification paths, immutable tamper experiments, fresh diagnostic comparison, and portable replay remain available for supported Monocle bundles. Fast/slow block finality and genesis-anchor evidence retain their distinct scopes. Successful demonstrations use synthetic public test keys and invented context. No real testnet certificate is cryptographically verified.
 
 ## Checkpoint progress
 
@@ -21,18 +23,21 @@ The existing genuine Rust/WASM verification paths, immutable tamper experiments,
 | C4 - Finality composition | Committed by Mansi: `8fe23fa` |
 | C5 - Browser inspector | Committed by Mansi: `2ab8e72` |
 | C6 - Tamper lab and replay | Committed by Mansi: `95a990a` |
-| C7 - Capture integration and demo | Implemented with the documented missing-context outcome; awaiting Mansi's review/commit |
+| C7 - Capture integration | Committed by Mansi: `e396ade` |
+| C8 - Landing page and product UI | Implemented; awaiting Mansi's review/commit |
 
 ## Run and validate
 
-Use `npm run dev` for development, or `npm run build:web` and `npm run preview` for production-session offline use. Wait for **Ready for offline verification** and keep that page open. Local verification, replay, and recorded capture inspection need no further network requests. Offline first visits/refreshes and offline development-server use are unsupported.
+Use `npm run dev` for development, or `npm run build:web` and `npm run preview` for production-session offline use. Open the inspector and wait for **Ready for offline verification**. Local verification, replay, and recorded capture inspection need no further network requests while that session stays open. Visiting only the landing page does not load the verifier. Offline first visits/refreshes and offline development-server use are unsupported.
 
-Use `npm run inspect:capture -- fixtures/captures/testnet-genesis-rpc.json` for native capture inspection. Exit 0 means parsed input, not cryptographic success. See [capture-import.md](capture-import.md), [demo.md](demo.md), and [fixture-catalog.md](fixture-catalog.md).
+Use `npm run inspect:capture -- fixtures/captures/testnet-genesis-rpc.json` for native capture inspection. Exit 0 means parsed input, not cryptographic success. See [capture-import.md](capture-import.md), [interface.md](interface.md), and [fixture-catalog.md](fixture-catalog.md).
 
-`bash scripts/check-web.sh` passes 74 native Rust tests, the prior 6/13/32/35 native/browser comparisons, 35 complete arbitrary-input report comparisons, six experiment/replay comparisons, eight capture comparisons, eight worker lifecycle tests, and 26 Chrome product tests. The gate also includes deterministic fixture regeneration, zero-unresolved-import WASM builds, TypeScript checks, formatting, Clippy, offline zero-HTTP-request tests, and automated accessibility checks. Desktop/narrow capture and comparison screenshots are inspected.
+C8 validation passes TypeScript checking, production Vite compilation, formatting, eight worker lifecycle tests, and 33 Chrome browser tests. Browser coverage includes landing navigation/history, checkpoint selection, real WASM verification, tampering, replay, captures, offline zero-HTTP behavior, and automated accessibility checks. Desktop/mobile landing and product screenshots were visually inspected.
+
+The full C7 gate previously passed 74 native Rust tests and the native/browser comparison corpora described in [testing.md](testing.md). Native code, contracts, fixtures, and cryptographic inputs are unchanged in C8; those native suites were not rerun for this presentation checkpoint.
 
 ## Boundaries and remaining work
 
-The planned MVP workflows are implemented. Historical checkpoint authentication/qualification and context-backed conversion of raw RPC captures into verification input remain unresolved. Base3/fallback, full Agave differential execution, ancestry/execution proofs, authenticated epoch transitions, node footer export, and production hosting remain outside scope. One equal-length mutation per experiment is supported. Firefox/Safari, real mobile devices, and manual assistive-technology use remain untested.
+Historical checkpoint authentication/qualification and context-backed conversion of raw RPC captures remain unresolved. Base3/fallback, full Agave differential execution, ancestry/execution proofs, authenticated epoch transitions, node footer export, and production hosting remain outside scope. One equal-length mutation per experiment is supported. Firefox/Safari, real mobile devices, and manual assistive-technology use remain untested.
 
-C7 does not automatically open another implementation phase. The detailed handoff and validation evidence remain local under ignored `commits/`. No assistant staging, commit, push, publication, or deployment occurred. Further work waits for owner review/commit and an agreed next scope.
+C8 is one reviewable checkpoint. The detailed handoff and validation evidence remain local under ignored `commits/`. No assistant staging, commit, push, merge, publication, or deployment occurred. Further implementation waits for owner review and commit confirmation.
