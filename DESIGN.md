@@ -1,10 +1,12 @@
 # Monocle interface
 
-C8 design system and implementation. Product context is in [PRODUCT.md](PRODUCT.md); navigation and scope are documented in [docs/interface.md](docs/interface.md).
+C8 design system and C9 logo refinement. Product context is in [PRODUCT.md](PRODUCT.md); navigation and scope are documented in [docs/interface.md](docs/interface.md).
 
 ## Direction
 
-Precision optics, ocean blue, persimmon, and cool white. The landing page uses a larger optical scene and a warm experiment section; the working inspector keeps saturation restrained. This explicitly follows the owner's 2026-10-12 request for complementary colors, superseding the earlier monochrome product brief. The architecture PDF remains black and white.
+The reference supplied by the owner on 2026-10-13 defines this revision: a feather curling around a monocle lens, and burgundy `#AA2D3C`, navy `#28324F`, cream `#F2E6D8`. It replaces the previous palette and rejected exploratory marks. The architecture PDF remains black and white.
+
+Cream is the page canvas; navy carries text, the lens, and dark structural sections; burgundy carries primary actions, the feather, and deliberate landing highlights. Existing product layout and interactions are preserved. The shared mark is derived from the owner-supplied reference and retains its short handle and inner reflection arc. The surrounding reference text/badge is excluded.
 
 ## Typography and assets
 
@@ -14,7 +16,7 @@ Landing headings use fluid sizing capped below 6rem, balanced wrapping, and lett
 
 ## Tokens and components
 
-`apps/web/src/styles.css` owns shared font faces and tokens. Principal OKLCH values: ink `26% .038 224`, brand `32% .059 224`, accent `74% .154 43`, muted `46% .028 224`, canvas `98% .004 210`. Semantic success, warning, and rejection colors supplement visible text and symbols. Focus uses a visible outline.
+`apps/web/src/styles.css` owns shared font faces and tokens. The three supplied sRGB colours are encoded as precise OKLCH primitive tokens (`--brand-navy`, `--brand-burgundy`, `--brand-cream`). Surface, muted, border, hover and report tokens derive from these colours with OKLab mixing. Navy on cream measures 10.30:1 and burgundy on cream 5.42:1. White is used only to lift local product surfaces. Verified checks use navy with an explicit checkmark; failed checks use burgundy with an explicit failure symbol; missing context retains its label and a cream surface. Focus uses a visible palette outline.
 
 The product has an overview/inspector navigation shell, an ordered workflow rail, a three-step evidence/checkpoint/verify column, a report surface, and a separate recorded-capture/replay area. Traces, signer tables, native disclosures, comparison reports, source labels, file inputs, status banners, loading placeholders, and errors share consistent visual treatment. No automatic trust selection or crypto logic is added by this design system.
 
@@ -31,3 +33,11 @@ The hero and product columns stack on narrow screens. Long digests wrap, wide da
 ## Validation boundaries
 
 Chrome product coverage includes desktop, 375px and 768px landing layouts, narrow verified/capture/comparison states, navigation/history, explicit checkpoint trust, hostile input, replay, reduced motion, and automated accessibility scans. Screenshots are visually inspected in addition to automated checks. This is not a claim of complete assistive-technology or cross-browser conformance; Safari/Firefox and real devices remain untested.
+
+## Reference feather and lens mark
+
+C9 follows the supplied feather/lens reference rather than drawing another original mark. The cleaned/recoloured raster was converted into native SVG outline paths, so the live mark uses exact CSS palette colours and requires no image request. Feather is burgundy; rim, short handle and inner reflection are navy. Transparent counters show the cream page. `Brand.tsx` is decorative (`aria-hidden`, `focusable=false`) beside the existing accessible brand/link text.
+
+The favicon uses the same outlines on cream. Transparent PNG, standalone native SVG, outlined horizontal wordmark, and cream inverse SVG exports live in `apps/web/public/brand/`. The existing Sora wordmark is retained; its SIL Open Font License remains in `apps/web/src/fonts/Sora-OFL.txt`. Asset notes identify the owner-supplied online reference rather than claiming the original symbol was authored by Monocle.
+
+The logo and palette are a revision of the same pending C9 checkpoint. No cryptography, additional remote dependency, or deployment is included. Validate keyboard states, contrast, and complete report/capture/comparison layouts at desktop and narrow widths.

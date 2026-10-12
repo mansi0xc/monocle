@@ -16,11 +16,11 @@ Precise, calm, and direct. Explain trust assumptions beside the result. Use read
 
 ## Visual direction
 
-On 2026-10-12, the owner requested a distinctive landing page, a redesign of the whole product, and complementary colors. This supersedes the earlier monochrome product preference. The architecture PDF remains unchanged.
+The owner's 2026-10-13 reference supersedes the earlier ocean-blue/persimmon palette and exploratory logos. The architecture PDF remains unchanged. Use the supplied feather-and-lens symbol, with the reference's surrounding badge and “Feathered Lens” text removed; the product name remains Monocle.
 
-A developer studies dense verification evidence during a daytime workshop, often beside source code: use bright, cool work surfaces, dark ocean-blue text, and restrained persimmon accents. The brand evokes an optical instrument: precise, lucid, and inquisitive. A custom geometric lens gives the landing page its visual identity; the product uses that vocabulary sparingly so controls and evidence remain primary.
+The selected colours are burgundy `#AA2D3C`, deep navy `#28324F`, and cream `#F2E6D8`. Cream carries the main canvas, navy carries readable text and structural areas, and burgundy carries primary actions, selected emphasis, and the feather. The lens and wordmark are navy. The landing has a navy optical scene and a burgundy experiment section; product report surfaces remain restrained and readable.
 
-Sora carries the brand and selected headings; Public Sans carries readable interface text. Both are bundled locally with their licenses. Typography, purposeful whitespace, a complementary blue/orange palette, and clear state labels establish hierarchy. Color never carries a conclusion by itself.
+Sora carries the wordmark/headings; Public Sans carries interface text. Both stay bundled locally. All input, trust, result, and offline boundaries remain unchanged. Status words and check symbols retain meaning independently of their colour.
 
 ## Interaction and accessibility
 

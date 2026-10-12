@@ -52,8 +52,8 @@ function OpticalView() {
       <svg viewBox="0 0 620 570" className="optical-drawing" fill="none">
         <defs>
           <radialGradient id="optic-surface" cx=".36" cy=".3" r=".8">
-            <stop stopColor="#315f6a" />
-            <stop offset="1" stopColor="#153e4a" />
+            <stop stopColor="var(--optic-glass)" />
+            <stop offset="1" stopColor="var(--brand-navy)" />
           </radialGradient>
           <linearGradient
             id="optic-rim"
@@ -63,10 +63,10 @@ function OpticalView() {
             y2="460"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stopColor="#c0dedb" />
-            <stop offset=".37" stopColor="#638f97" />
-            <stop offset=".72" stopColor="#204d59" />
-            <stop offset="1" stopColor="#dcece5" />
+            <stop stopColor="var(--brand-cream)" />
+            <stop offset=".37" stopColor="var(--optic-rim-muted)" />
+            <stop offset=".72" stopColor="var(--optic-glass)" />
+            <stop offset="1" stopColor="var(--brand-cream)" />
           </linearGradient>
           <linearGradient
             id="optic-beam"
@@ -76,16 +76,24 @@ function OpticalView() {
             y2="50"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stopColor="#f18d62" stopOpacity="0" />
-            <stop offset=".54" stopColor="#f18d62" stopOpacity=".16" />
-            <stop offset="1" stopColor="#f18d62" stopOpacity="0" />
+            <stop stopColor="var(--brand-burgundy)" stopOpacity="0" />
+            <stop
+              offset=".54"
+              stopColor="var(--brand-burgundy)"
+              stopOpacity=".16"
+            />
+            <stop
+              offset="1"
+              stopColor="var(--brand-burgundy)"
+              stopOpacity="0"
+            />
           </linearGradient>
         </defs>
         <circle
           cx="332"
           cy="269"
           r="214"
-          stroke="#8bb4ba"
+          stroke="var(--brand-cream)"
           strokeOpacity=".14"
           strokeDasharray="2 9"
         />
@@ -93,7 +101,7 @@ function OpticalView() {
           cx="332"
           cy="269"
           r="245"
-          stroke="#8bb4ba"
+          stroke="var(--brand-cream)"
           strokeOpacity=".12"
         />
         <path d="M64 425 425 28l100 109L159 502Z" fill="url(#optic-beam)" />
@@ -104,7 +112,7 @@ function OpticalView() {
             rx="177"
             ry="188"
             transform="rotate(31 318 296)"
-            fill="#0b2f3b"
+            fill="var(--optic-shadow)"
           />
           <ellipse
             cx="328"
@@ -122,7 +130,7 @@ function OpticalView() {
             rx="164"
             ry="175"
             transform="rotate(31 328 277)"
-            stroke="#96bcc2"
+            stroke="var(--brand-cream)"
             strokeOpacity=".32"
           />
           <ellipse
@@ -131,15 +139,15 @@ function OpticalView() {
             rx="138"
             ry="150"
             transform="rotate(31 328 277)"
-            stroke="#96bcc2"
+            stroke="var(--brand-cream)"
             strokeOpacity=".19"
           />
           <path
             d="m202 374 252-227M211 180l218 186"
-            stroke="#a6c9ca"
+            stroke="var(--brand-cream)"
             strokeOpacity=".16"
           />
-          <g stroke="#aecbd0" strokeOpacity=".3">
+          <g stroke="var(--brand-cream)" strokeOpacity=".3">
             <path d="M245 153v12m22-23v12m24-18v12m25-14v12m25-9v12m25-5v12m23-1v12m23 4v12m20 9v12" />
             <path d="M202 230h12m-17 25h12m-16 25h12m-10 25h12m-6 25h12m1 25h12" />
           </g>
@@ -148,31 +156,35 @@ function OpticalView() {
               cx="328"
               cy="277"
               r="63"
-              stroke="#f09572"
+              stroke="var(--brand-cream)"
               strokeWidth="1.5"
             />
             <circle
               cx="328"
               cy="277"
               r="48"
-              stroke="#f09572"
+              stroke="var(--brand-cream)"
               strokeOpacity=".32"
             />
             <path
               d="M307 277h42m-21-21v42"
-              stroke="#f8b798"
+              stroke="var(--brand-cream)"
               strokeWidth="1.5"
             />
-            <circle cx="328" cy="277" r="5" fill="#f09572" />
+            <circle cx="328" cy="277" r="5" fill="var(--brand-cream)" />
           </g>
         </g>
-        <g stroke="#98c1c6" strokeOpacity=".65">
+        <g stroke="var(--brand-cream)" strokeOpacity=".65">
           <path d="M393 196h74l32-32h48" />
-          <circle cx="393" cy="196" r="3" fill="#b8d6d6" />
+          <circle cx="393" cy="196" r="3" fill="var(--brand-cream)" />
           <path d="M266 361h-73l-45 45H65" />
-          <circle cx="266" cy="361" r="3" fill="#b8d6d6" />
+          <circle cx="266" cy="361" r="3" fill="var(--brand-cream)" />
         </g>
-        <g fill="#c0d6da" fontFamily="'Public Sans', sans-serif" fontSize="12">
+        <g
+          fill="var(--brand-cream)"
+          fontFamily="'Public Sans', sans-serif"
+          fontSize="12"
+        >
           <text x="459" y="150">
             The signed bytes
           </text>
@@ -182,11 +194,11 @@ function OpticalView() {
         </g>
         <path
           d="M94 113h20m-10-10v20M505 427h20m-10-10v20"
-          stroke="#779da6"
+          stroke="var(--brand-cream)"
           strokeWidth="1"
         />
-        <circle cx="536" cy="311" r="4" fill="#f09572" />
-        <circle cx="167" cy="119" r="3" fill="#96c2c5" />
+        <circle cx="536" cy="311" r="4" fill="var(--brand-cream)" />
+        <circle cx="167" cy="119" r="3" fill="var(--brand-cream)" />
       </svg>
       <div className="optic-caption">
         <span className="optic-caption-dot" />A closer look at consensus.

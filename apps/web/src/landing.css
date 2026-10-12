@@ -1,3 +1,6 @@
+.monocle-mark {
+  color: var(--brand-navy);
+}
 .monocle-brand {
   display: inline-flex;
   align-items: center;
@@ -23,12 +26,12 @@
   display: none !important;
 }
 .landing {
-  --land-ink: oklch(29% 0.048 224);
-  --land-muted: oklch(47% 0.028 224);
-  --land-line: oklch(88% 0.016 224);
-  --land-blue: oklch(31% 0.053 224);
-  --land-orange: oklch(77% 0.135 43);
-  background: oklch(99% 0.002 224);
+  --land-ink: var(--brand-navy);
+  --land-muted: var(--muted);
+  --land-line: var(--line);
+  --land-blue: var(--brand-navy);
+  --land-orange: var(--brand-burgundy);
+  background: var(--brand-cream);
   color: var(--land-ink);
   font-family: var(--font-body, "Public Sans", sans-serif);
   line-height: 1.65;
@@ -84,7 +87,7 @@
   height: 13px;
 }
 .landing-header a:not(.landing-brand):hover {
-  color: oklch(45% 0.07 224);
+  color: var(--brand-burgundy);
 }
 .landing-nav-cta {
   display: inline-flex;
@@ -101,7 +104,7 @@
 }
 .landing-header .landing-nav-cta:hover {
   border-color: var(--land-ink);
-  background: oklch(96% 0.009 224);
+  background: var(--wash);
 }
 .landing-hero {
   display: grid;
@@ -127,7 +130,7 @@
 .hero-intro > span {
   height: 7px;
   width: 7px;
-  background: oklch(60% 0.16 40);
+  background: var(--brand-burgundy);
   border-radius: 50%;
 }
 .landing .hero-copy h1 {
@@ -140,7 +143,7 @@
   display: block;
 }
 .hero-copy h1 > span:last-child {
-  color: oklch(49% 0.065 224);
+  color: var(--brand-burgundy);
 }
 .landing .hero-description {
   font-size: 1.0625rem;
@@ -159,8 +162,8 @@
 }
 .landing a.landing-button {
   padding: 0.95rem 1.3rem;
-  background: var(--land-blue);
-  color: white;
+  background: var(--brand-burgundy);
+  color: var(--brand-cream);
   border-radius: 6px;
   font-size: 0.875rem;
   font-weight: 550;
@@ -172,7 +175,7 @@
     transform 0.2s ease;
 }
 .landing a.landing-button:hover {
-  background: oklch(40% 0.065 224);
+  background: var(--accent-hover);
   transform: translateY(-2px);
 }
 .landing-button svg {
@@ -218,7 +221,7 @@
   position: absolute;
   bottom: 30px;
   left: 32px;
-  color: oklch(83% 0.025 224);
+  color: var(--brand-cream);
   font-size: 0.6875rem;
   display: flex;
   align-items: center;
@@ -228,7 +231,7 @@
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: var(--land-orange);
+  background: var(--brand-cream);
 }
 .optic-lens {
   transform-origin: 328px 277px;
@@ -356,7 +359,7 @@
   font-variant-numeric: tabular-nums;
 }
 .workflow-modes button[aria-pressed="true"] .mode-number {
-  color: oklch(48% 0.13 40);
+  color: var(--brand-burgundy);
 }
 .mode-copy {
   min-height: 155px;
@@ -394,9 +397,9 @@
   text-underline-offset: 0.3em;
 }
 .inspector-preview {
-  border: 1px solid oklch(80% 0.025 224);
+  border: 1px solid var(--line);
   border-radius: 10px;
-  background: white;
+  background: var(--surface);
   overflow: hidden;
   transform: rotate(-1deg);
   transition: transform 0.3s ease;
@@ -410,7 +413,7 @@
   justify-content: space-between;
   align-items: center;
   gap: 0.5rem;
-  background: oklch(95% 0.016 224);
+  background: var(--success-bg);
   border-bottom: 1px solid var(--land-line);
   font-size: 0.6875rem;
 }
@@ -440,7 +443,7 @@
   color: var(--land-muted);
 }
 .preview-context > span:first-child {
-  color: oklch(42% 0.1 43);
+  color: var(--brand-burgundy);
 }
 .preview-verdict {
   display: flex;
@@ -467,15 +470,15 @@
   place-items: center;
   font-size: 1.5rem;
   border-radius: 50%;
-  color: oklch(36% 0.07 190);
-  background: oklch(93% 0.034 190);
+  color: var(--brand-navy);
+  background: var(--success-bg);
 }
 .preview-tamper .preview-verdict-symbol {
-  background: oklch(95% 0.03 43);
-  color: oklch(45% 0.13 35);
+  background: var(--danger-bg);
+  color: var(--brand-burgundy);
 }
 .preview-replay .preview-verdict-symbol {
-  background: oklch(94% 0.015 224);
+  background: var(--success-bg);
   color: var(--land-muted);
 }
 .preview-checks > div {
@@ -491,7 +494,7 @@
   font-weight: 500;
 }
 .preview-fail {
-  color: oklch(46% 0.13 35);
+  color: var(--brand-burgundy);
 }
 .landing .preview-footnote {
   font-size: 0.625rem;
@@ -503,7 +506,7 @@
   padding: 0.7rem 1rem;
   font-size: 0.625rem;
   text-align: center;
-  background: oklch(97% 0.006 224);
+  background: var(--wash);
   border-top: 1px solid var(--land-line);
   color: var(--land-muted);
 }
@@ -512,9 +515,9 @@
   grid-template-columns: 1.15fr 1fr;
   align-items: center;
   gap: clamp(40px, 7vw, 110px);
-  background: oklch(86% 0.078 43);
+  background: var(--brand-burgundy);
   padding: 70px max(24px, calc((100vw - 1248px) / 2));
-  color: oklch(29% 0.055 35);
+  color: var(--brand-cream);
 }
 .experiment-visual {
   min-width: 0;
@@ -526,7 +529,7 @@
   justify-content: space-between;
   gap: 1.5rem;
   font-size: 0.6875rem;
-  color: oklch(43% 0.065 35);
+  color: var(--brand-cream);
 }
 .byte-caption > span,
 .byte-underlines > span {
@@ -546,11 +549,11 @@
   padding: 0.3rem;
 }
 .byte-line .byte-original {
-  border-bottom: 2px solid oklch(47% 0.09 35);
+  border-bottom: 2px solid var(--brand-cream);
 }
 .byte-line .byte-mutated {
-  background: oklch(31% 0.053 224);
-  color: white;
+  background: var(--brand-cream);
+  color: var(--brand-burgundy);
   border-radius: 4px;
   padding: 0.25rem 0.4rem;
 }
@@ -568,7 +571,7 @@
   margin: 1.2rem 0;
   font-size: 0.875rem;
   max-width: 43ch;
-  color: oklch(40% 0.045 35);
+  color: var(--brand-cream);
 }
 .trust-section {
   display: grid;
@@ -621,11 +624,11 @@
   justify-content: space-between;
   align-items: center;
   gap: 2rem;
-  color: oklch(98% 0.006 224);
+  color: var(--brand-cream);
 }
 .landing .landing-closing p {
   font-size: 0.8125rem;
-  color: oklch(82% 0.025 224);
+  color: var(--brand-cream);
   margin-bottom: 0.7rem;
 }
 .landing .landing-closing h2 {
@@ -634,11 +637,11 @@
 }
 .landing a.light-button {
   color: var(--land-ink);
-  background: var(--land-orange);
+  background: var(--brand-cream);
   white-space: nowrap;
 }
 .landing a.light-button:hover {
-  background: oklch(83% 0.11 43);
+  background: var(--brand-cream);
 }
 .landing-footer {
   max-width: 1440px;
@@ -1070,7 +1073,7 @@
   top: 1rem;
   left: 1rem;
   padding: 0.65rem 1rem;
-  background: white;
+  background: var(--surface);
   color: var(--land-ink);
   border: 1px solid var(--land-ink);
   border-radius: 4px;
@@ -1089,5 +1092,12 @@
   outline-offset: 5px;
 }
 .landing-closing a:focus-visible {
-  outline-color: white;
+  outline-color: var(--brand-cream);
+}
+
+.experiment-section a:focus-visible {
+  outline-color: var(--brand-cream);
+}
+.landing a.light-button:hover {
+  background: color-mix(in oklab, var(--brand-cream) 86%, white);
 }

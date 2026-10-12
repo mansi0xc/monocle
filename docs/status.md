@@ -1,10 +1,10 @@
 # Project status
 
-Updated: 2026-10-12.
+Updated: 2026-10-13.
 
 ## Current state
 
-Mansi committed C7 as `e396ade`. C8 adds the landing page and redesigns the existing inspector on `codex/monocle-ui`. The complementary ocean-blue/persimmon palette, local typography, responsive evidence workspace, and home/inspector navigation are ready for owner review. Colosseum feature exploration is paused; no new consensus or cryptographic functionality is included.
+Mansi committed C8 as `75cbd85` and confirmed it was merged into main. C9 adopts the owner-supplied feather/lens symbol and burgundy/navy/cream palette across the landing and inspector, with matching favicon and transparent SVG/PNG exports. It is ready for owner review on the existing `codex/monocle-ui` checkout. The interface workflows and verification model remain unchanged. Colosseum feature exploration is paused.
 
 The landing page's Verify/Tamper/Replay preview is explicitly illustrative and synthetic. It cannot load evidence or grant trust. The actual inspector preserves its in-memory evidence and checkpoint choices when navigating home and back; refreshing still discards the session.
 
@@ -24,7 +24,8 @@ The genuine Rust/WASM verification paths, immutable tamper experiments, fresh di
 | C5 - Browser inspector | Committed by Mansi: `2ab8e72` |
 | C6 - Tamper lab and replay | Committed by Mansi: `95a990a` |
 | C7 - Capture integration | Committed by Mansi: `e396ade` |
-| C8 - Landing page and product UI | Implemented; awaiting Mansi's review/commit |
+| C8 - Landing page and product UI | Committed by Mansi: `75cbd85`; merge confirmed |
+| C9 - Reference logo and palette | Implemented; awaiting owner review/commit |
 
 ## Run and validate
 
@@ -34,10 +35,12 @@ Use `npm run inspect:capture -- fixtures/captures/testnet-genesis-rpc.json` for 
 
 C8 validation passes TypeScript checking, production Vite compilation, formatting, eight worker lifecycle tests, and 33 Chrome browser tests. Browser coverage includes landing navigation/history, checkpoint selection, real WASM verification, tampering, replay, captures, offline zero-HTTP behavior, and automated accessibility checks. Desktop/mobile landing and product screenshots were visually inspected.
 
+C9 reference/palette validation passes TypeScript, formatting, production Vite compilation, eight worker tests and all 33 Chrome browser regressions. Automated accessibility, offline zero-HTTP behaviour, explicit trust, captures, tampering, and replay pass with the new palette. Desktop/mobile landing, verification, capture, and comparison screenshots were inspected. Exact navy/cream and burgundy/cream contrast ratios are 10.30:1 and 5.42:1. Native code remains unchanged.
+
 The full C7 gate previously passed 74 native Rust tests and the native/browser comparison corpora described in [testing.md](testing.md). Native code, contracts, fixtures, and cryptographic inputs are unchanged in C8; those native suites were not rerun for this presentation checkpoint.
 
 ## Boundaries and remaining work
 
 Historical checkpoint authentication/qualification and context-backed conversion of raw RPC captures remain unresolved. Base3/fallback, full Agave differential execution, ancestry/execution proofs, authenticated epoch transitions, node footer export, and production hosting remain outside scope. One equal-length mutation per experiment is supported. Firefox/Safari, real mobile devices, and manual assistive-technology use remain untested.
 
-C8 is one reviewable checkpoint. The detailed handoff and validation evidence remain local under ignored `commits/`. No assistant staging, commit, push, merge, publication, or deployment occurred. Further implementation waits for owner review and commit confirmation.
+C9 is one reviewable checkpoint. The detailed handoff and validation evidence remain local under ignored `commits/`. No assistant staging, commit, push, merge, publication, or deployment occurred. Further implementation waits for owner review and commit confirmation.
