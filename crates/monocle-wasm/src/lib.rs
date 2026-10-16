@@ -7,6 +7,39 @@ use serde::Serialize;
 use serde_json::{Value, json};
 
 pub const MAX_INPUT_BYTES: usize = monocle_core::experiment::MAX_REPLAY_BYTES;
+pub const ABI_VERSION: u32 = 2;
+
+/// Bridge operations. The discriminants are the stable ABI numbers shared with
+/// the browser through generated contracts; never renumber an existing variant.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[repr(u32)]
+pub enum Operation {
+    InspectBundle = 1,
+    InspectCheckpoint = 2,
+    SelectSynthetic = 3,
+    SelectOperator = 4,
+    Verify = 5,
+    ClearTrust = 6,
+    Mutate = 7,
+    InspectReplay = 8,
+    InspectCapture = 9,
+}
+impl Operation {
+    pub const ALL: [Self; 9] = [
+        Self::InspectBundle,
+        Self::InspectCheckpoint,
+        Self::SelectSynthetic,
+        Self::SelectOperator,
+        Self::Verify,
+        Self::ClearTrust,
+        Self::Mutate,
+        Self::InspectReplay,
+        Self::InspectCapture,
+    ];
+    pub fn from_u32(value: u32) -> Option<Self> {
+        Self::ALL.into_iter().find(|op| *op as u32 == value)
+    }
+}
 
 #[derive(Default)]
 pub struct Session {
@@ -30,14 +63,15 @@ fn value<T: Serialize>(result: Result<T, Diagnostic>) -> Value {
 }
 
 impl Session {
-    /// ABI v2 operations: inspect bundle, inspect checkpoint, select synthetic,
-    /// select operator (UTF-8 reason), verify request, clear trust, mutate, inspect replay, inspect genesis RPC.
+    /// Run one ABI operation (see [`Operation`]) against this session.
     pub fn execute(&mut self, operation: u32, input: &[u8]) -> Value {
+        use Operation::*;
+        let operation = Operation::from_u32(operation);
         // Failed replacement/selection also revokes earlier trust, including
         // inputs rejected by the bridge-wide size check.
-        if matches!(operation, 2..=4) {
+        if let Some(op @ (InspectCheckpoint | SelectSynthetic | SelectOperator)) = operation {
             self.trust = TrustStore::new();
-            if operation == 2 {
+            if op == InspectCheckpoint {
                 self.candidate = None;
             }
         }
@@ -48,18 +82,25 @@ impl Session {
                 "Input exceeds the bridge limit",
             )));
         }
+        let Some(operation) = operation else {
+            return value::<()>(Err(diagnostic(
+                Code::InvalidSchema,
+                "operation",
+                "Unknown bridge operation",
+            )));
+        };
         match operation {
-            1 => {
+            InspectBundle => {
                 value(parse_bundle(input).map(
                     |parsed| json!({"digest": parsed.digest(), "document": parsed.document()}),
                 ))
             }
-            2 => value(parse_checkpoint(input).map(|parsed| {
+            InspectCheckpoint => value(parse_checkpoint(input).map(|parsed| {
                 let result = json!({"digest": parsed.digest(), "document": parsed.document()});
                 self.candidate = Some(parsed);
                 result
             })),
-            3 | 4 => value((|| {
+            SelectSynthetic | SelectOperator => value((|| {
                 let checkpoint = self.candidate.clone().ok_or_else(|| {
                     diagnostic(
                         Code::MissingCheckpoint,
@@ -67,7 +108,7 @@ impl Session {
                         "Inspect a checkpoint first",
                     )
                 })?;
-                let basis = if operation == 3 {
+                let basis = if operation == SelectSynthetic {
                     if !input.is_empty() {
                         return Err(diagnostic(
                             Code::InvalidSchema,
@@ -90,20 +131,15 @@ impl Session {
                 };
                 self.trust.pin(checkpoint, basis)
             })()),
-            5 => value::<_>(Ok(verify_evidence(input, &self.trust))),
-            6 => {
+            Verify => value::<_>(Ok(verify_evidence(input, &self.trust))),
+            ClearTrust => {
                 self.candidate = None;
                 self.trust = TrustStore::new();
                 value::<()>(Ok(()))
             }
-            7 => value(monocle_core::experiment::apply_mutation(input)),
-            8 => value(monocle_core::experiment::parse_replay(input)),
-            9 => value(monocle_core::capture::inspect_genesis_rpc(input)),
-            _ => value::<()>(Err(diagnostic(
-                Code::InvalidSchema,
-                "operation",
-                "Unknown bridge operation",
-            ))),
+            Mutate => value(monocle_core::experiment::apply_mutation(input)),
+            InspectReplay => value(monocle_core::experiment::parse_replay(input)),
+            InspectCapture => value(monocle_core::capture::inspect_genesis_rpc(input)),
         }
     }
 }
@@ -128,7 +164,7 @@ mod abi {
 
     #[unsafe(no_mangle)]
     pub extern "C" fn monocle_abi_version() -> u32 {
-        2
+        ABI_VERSION
     }
 
     #[unsafe(no_mangle)]

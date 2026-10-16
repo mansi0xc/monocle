@@ -5,6 +5,7 @@ use serde::Serialize;
 
 pub const POLICY_ID: &str = "agave-98535e50-direct-finality-v1";
 
+listed_enum! {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ClaimKind {
@@ -12,6 +13,8 @@ pub enum ClaimKind {
     BlockFinality,
     GenesisMigration,
 }
+}
+listed_enum! {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum EvidenceScope {
@@ -20,11 +23,14 @@ pub enum EvidenceScope {
     BlockFinality,
     GenesisMigration,
 }
+}
+listed_enum! {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum FinalityPath {
     Fast,
     Slow,
+}
 }
 #[derive(Debug, Serialize)]
 pub struct EvaluatedClaim {

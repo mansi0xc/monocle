@@ -90,7 +90,8 @@ export type WorkerRequest = { id: string; job: Job; wasmBytes: ArrayBuffer };
 export type WorkerResponse = { id: string } & (
   { ok: true; value: JobResult } | { ok: false; error: string }
 );
-export const PROFILE = "agave-98535e50-base2-v1";
-export const MAX_CHECKPOINT_BYTES = 4 * 1024 * 1024;
-
-export const POLICY = "agave-98535e50-direct-finality-v1";
+export {
+  BASE2_PROFILE_ID as PROFILE,
+  FINALITY_POLICY_ID as POLICY,
+  MAX_CHECKPOINT_BYTES,
+} from "../../../packages/contracts/src/index";

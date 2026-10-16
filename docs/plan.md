@@ -261,7 +261,7 @@ Acceptance:
 - The full native, WASM, parity, and browser gate passes.
 - Update the docs and ignored handoff 016; leave changes unstaged and pause for the owner's commit.
 
-## C16 - Continuous integration (ready for owner review)
+## C16 - Continuous integration (committed)
 
 Requested 2026-10-16 after Mansi committed C15 (`323481f`); the second item from the codebase review. Run the existing full gate (`scripts/check-web.sh`) automatically in GitHub Actions on pushes to `main`, pull requests, and on demand.
 
@@ -271,4 +271,19 @@ Acceptance:
 - No commit, push, deploy or publish step.
 - The first GitHub run happens only after Mansi pushes; its result is reported then.
 - Update the docs and ignored handoff 017; leave changes unstaged and pause for the owner's commit.
+
+Result: committed by Mansi as `9531c59`; the first GitHub Actions run (38897922360) passed the full gate on Ubuntu 24.04.
+
+## C17 - Generated contracts (ready for owner review)
+
+Requested 2026-10-16 after Mansi committed C16 (`9531c59`); the third item from the codebase review. The TypeScript contracts repeated Rust's diagnostic codes, stages, conclusions, kinds, limits and profile identifiers by hand, and the browser called the bridge with bare numbers 1–9. Generate those values from Rust and fail the gate if the committed copy drifts.
+
+Acceptance:
+
+- A Rust binary writes `packages/contracts/src/generated.ts` from the Rust enums and constants; no new dependency.
+- Bridge operations become a named `Operation` enum on both sides, keeping the ABI v2 numbers and behaviour unchanged.
+- The browser and contracts package use the generated values instead of literals.
+- `scripts/check-contracts.sh` regenerates the file and fails on any difference.
+- Structural interfaces stay hand-written and remain checked against real Rust output by `check-shapes.mjs`.
+- The full gate passes. Update the docs and ignored handoff 018; leave changes unstaged and pause for the owner's commit.
 

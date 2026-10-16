@@ -7,6 +7,7 @@ Status: implemented as a Rust library and TypeScript transport package. The brow
 - [Rust public API](../crates/monocle-core/src/lib.rs): `parse_bundle`, `parse_checkpoint`, `parse_request`, `preflight`, and `TrustStore`.
 - [Wire types](../crates/monocle-core/src/model.rs): versioned input and output contracts.
 - [TypeScript contracts/helpers](../packages/contracts/src/index.ts): browser transport; the Rust core remains authoritative.
+- [Generated TypeScript values](../packages/contracts/src/generated.ts): written by `cargo run -p monocle-wasm --bin generate-contracts`; do not edit by hand.
 - [Fixture notes](../fixtures/contracts/README.md): synthetic parser examples with opaque, deliberately invalid certificate bytes.
 - [Cross-target harness](../experiments/contracts-compat/src/lib.rs): fixed preflight corpus, not a general product WASM API.
 
@@ -25,6 +26,12 @@ Status: implemented as a Rust library and TypeScript transport package. The brow
 | `MutationRecord` | Version 1, certificate ID, bounded equal-length byte replacement, offset, before/after bytes, parent/result certificate digests |
 
 All input structs reject unknown fields. In particular, `trusted`, `pop_verified`, embedded checkpoints, and imported verification reports are not accepted as shortcuts. Optional fields accept omission or JSON `null`; serialization emits them explicitly as `null` when absent.
+
+## Generated values
+
+Every enumerated wire value is generated from Rust: diagnostic codes, stages, check statuses, conclusions, provenance kinds, certificate and claim kinds, evidence scopes, finality paths and capture observations. So are the size limits, profile, policy, wire-format and adapter identifiers, the Agave revision, the bridge ABI version and its named operations. Each Rust enum is declared through a `listed_enum!` macro, which also produces its complete variant list; the generator serializes that list with Serde, so the TypeScript strings are exactly what Rust emits. `scripts/check-contracts.sh` regenerates the file and fails if the committed copy differs.
+
+Structural interfaces such as `ProofBundle` and `EvidenceVerificationReport` remain hand-written. `check-shapes.mjs` compiles real Rust reports and fixtures against them, so a field mismatch still fails the gate.
 
 There are no duplicate normalized signature, bitmap, or block fields in a certificate envelope. Its raw bytes are decoded by the separate C3 API under a supported source format. The envelope's kind and the bundle's slot/block claim are unverified assertions until that decoding and semantic binding occurs.
 

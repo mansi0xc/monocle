@@ -1,5 +1,6 @@
 use serde::Serialize;
 
+listed_enum! {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum Code {
@@ -58,6 +59,7 @@ pub enum Code {
     SlowFinalityEstablished,
     GenesisAnchorEstablished,
     Ok,
+}
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize)]

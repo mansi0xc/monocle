@@ -55,6 +55,8 @@ Replacing the checkpoint revokes its selection immediately, including when repla
 | 8 | Replay archive bytes | Validated archive; no trust selection or current verdict |
 | 9 | Raw genesis JSON-RPC response bytes | Capture inspection and missing prerequisites; never a verification success |
 
+These numbers are the Rust `Operation` enum in `crates/monocle-wasm`; the browser uses the generated `Operation` names from the contracts package rather than literals. Unknown numbers fail with `INVALID_SCHEMA` at path `operation`.
+
 Responses are `{ok:true,value:...}` or `{ok:false,error:Diagnostic}`. An execution failure has no usable old output. Request run IDs must match the worker envelope and returned report; C6 comparison reports use distinct baseline/derived IDs checked together. The app never accepts imported reports as results.
 
 In production, the worker is bundled inline and WASM bytes are loaded once into page memory. Fresh workers receive a copy of those bytes; their startup does not require another fetch. Development mode may still request Vite modules. See [offline behavior](tamper-replay.md#offline-behavior).

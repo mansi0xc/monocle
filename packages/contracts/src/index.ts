@@ -1,4 +1,19 @@
-/** Transport types only. Rust is authoritative for validation and conclusions. */
+/** Transport types only. Rust is authoritative for validation and conclusions.
+ * Enumerations and limits come from `generated.ts`, which Rust writes. */
+import type {
+  CaptureObservation,
+  CertificateKind,
+  CheckStatus,
+  ClaimKind,
+  Conclusion,
+  DiagnosticCode,
+  EvidenceScope,
+  FinalityPath,
+  SourceKind,
+  Stage,
+} from './generated.js';
+import { CAPTURE_ADAPTER_ID, MAX_BUNDLE_BYTES, REPLAY_FORMAT } from './generated.js';
+export * from './generated.js';
 export type DecimalU64 = string;
 export type Hex = string;
 export type ContentDigest = `sha256:${string}`;
@@ -8,7 +23,7 @@ export interface ChainContext {
   shred_version: number;
 }
 export interface Provenance {
-  kind: 'synthetic' | 'capture';
+  kind: SourceKind;
   description: string;
 }
 export interface CertificateEnvelope {
@@ -76,29 +91,10 @@ export interface VerifyRequest {
   bundle_json: string;
   selected_checkpoint?: ContentDigest | null;
 }
-export type DiagnosticCode =
-  | 'CAPTURE_CONTEXT_MISSING' | 'RPC_CERTIFICATE_UNAVAILABLE' | 'RPC_METHOD_UNAVAILABLE' | 'RPC_REQUEST_FAILED'
-  | 'INPUT_TOO_LARGE' | 'MALFORMED_JSON' | 'DUPLICATE_FIELD' | 'STRUCTURE_LIMIT'
-  | 'INVALID_SCHEMA' | 'INVALID_INTEGER' | 'INVALID_HEX' | 'UNKNOWN_FIELD'
-  | 'UNSUPPORTED_VERSION' | 'LIMIT_EXCEEDED' | 'DUPLICATE_ID' | 'INVALID_RANK_MAP'
-  | 'INVALID_STAKE' | 'INVALID_MUTATION' | 'UNSUPPORTED_PROFILE' | 'PROFILE_MISMATCH'
-  | 'UNSUPPORTED_CERTIFICATE' | 'MISSING_CHECKPOINT' | 'CHECKPOINT_NOT_TRUSTED'
-  | 'CHECKPOINT_MISMATCH' | 'CONTEXT_MISMATCH' | 'VERIFIER_NOT_IMPLEMENTED'
-  | 'MALFORMED_CERTIFICATE' | 'UNSUPPORTED_WIRE_VERSION' | 'ENVELOPE_MISMATCH'
-  | 'CLAIM_MISMATCH' | 'UNSUPPORTED_SIGNER_ENCODING' | 'MALFORMED_BITMAP'
-  | 'UNKNOWN_SIGNER_RANK' | 'EMPTY_SIGNER_SET' | 'INVALID_PUBLIC_KEY'
-  | 'MISSING_POP' | 'INVALID_POP' | 'INVALID_SIGNATURE' | 'INSUFFICIENT_STAKE'
-  | 'UNSUPPORTED_CLAIM' | 'CERTIFICATE_CHECKS_FAILED' | 'CERTIFICATE_CHECKS_INCOMPLETE'
-  | 'FINALITY_NOT_REQUESTED' | 'MISSING_BLOCK_ID' | 'MISSING_NOTARIZATION'
-  | 'MISSING_FINALIZATION' | 'MISSING_GENESIS' | 'INCOMPATIBLE_EVIDENCE'
-  | 'FAST_FINALITY_ESTABLISHED' | 'SLOW_FINALITY_ESTABLISHED' | 'GENESIS_ANCHOR_ESTABLISHED'
-  | 'STAKE_OVERFLOW' | 'FINALITY_NOT_EVALUATED' | 'PREREQUISITE_MISSING' | 'OK';
 export interface Diagnostic { code: DiagnosticCode; path: string; message: string }
-export type Stage = 'input' | 'profile' | 'context' | 'certificate_decoding' | 'signers'
-  | 'key_qualification' | 'signature' | 'quorum' | 'finality';
 export interface CheckResult {
   stage: Stage;
-  status: 'PASS' | 'FAIL' | 'NOT_CHECKED';
+  status: CheckStatus;
   diagnostic: Diagnostic;
 }
 export interface VerificationReport {
@@ -107,13 +103,12 @@ export interface VerificationReport {
   bundle_digest: ContentDigest | null;
   profile_id: string | null;
   checkpoint_digest: ContentDigest | null;
-  conclusion: 'VERIFIED' | 'REJECTED' | 'INCONCLUSIVE';
+  conclusion: Conclusion;
   evidence_scope: 'preflight_only';
   checks: CheckResult[];
   assumptions: string[];
 }
 
-export const MAX_BUNDLE_BYTES = 1024 * 1024;
 /** For locally constructed values; never round-trip a u64 through Number. */
 export function decimalU64(value: string | bigint): DecimalU64 {
   if (typeof value !== 'string' && typeof value !== 'bigint') throw new TypeError('Use a string or bigint, never Number');
@@ -140,11 +135,10 @@ export function encodeVerifyRequest(request: VerifyRequest): Uint8Array {
   return new TextEncoder().encode(JSON.stringify(request));
 }
 
-export type CertificateKind = 'notarization' | 'finalization' | 'fast_finalization' | 'genesis';
 export interface CertificateReport {
   certificate_id: string;
   raw_digest: ContentDigest;
-  conclusion: 'VERIFIED' | 'REJECTED' | 'INCONCLUSIVE';
+  conclusion: Conclusion;
   kind: CertificateKind | null;
   slot: DecimalU64 | null;
   block_id_hex: Hex | null;
@@ -163,16 +157,13 @@ export interface CertificateVerificationReport {
   bundle_digest: ContentDigest | null;
   profile_id: string | null;
   checkpoint_digest: ContentDigest | null;
-  conclusion: 'VERIFIED' | 'REJECTED' | 'INCONCLUSIVE';
+  conclusion: Conclusion;
   evidence_scope: 'individual_certificates';
   checks: CheckResult[];
   certificates: CertificateReport[];
   assumptions: string[];
 }
 
-export type ClaimKind = 'certificate_inspection' | 'block_finality' | 'genesis_migration';
-export type EvidenceScope = 'unestablished' | 'individual_certificates' | 'block_finality' | 'genesis_migration';
-export type FinalityPath = 'fast' | 'slow';
 export interface EvaluatedClaim {
   kind: ClaimKind;
   slot: DecimalU64;
@@ -186,7 +177,7 @@ export interface EvidenceVerificationReport {
   bundle_digest: ContentDigest | null;
   profile_id: string | null;
   checkpoint_digest: ContentDigest | null;
-  conclusion: 'VERIFIED' | 'REJECTED' | 'INCONCLUSIVE';
+  conclusion: Conclusion;
   evidence_scope: EvidenceScope;
   claim: EvaluatedClaim | null;
   finality_path: FinalityPath | null;
@@ -203,7 +194,7 @@ export interface DerivedEvidence { bundle_json: string; digest: ContentDigest; d
 /** Saved reports are deliberately unknown/untrusted on import. They never enter verification. */
 export interface ReplayArchive {
   schema_version: 1;
-  format: 'monocle-replay';
+  format: typeof REPLAY_FORMAT;
   profile_id: string;
   policy_id: string;
   baseline_json: string;
@@ -212,16 +203,13 @@ export interface ReplayArchive {
   checkpoint_digest: ContentDigest | null;
   saved_reports: { baseline: unknown | null; derived: unknown | null } | null;
 }
-export const MAX_REPLAY_BYTES = 16 * 1024 * 1024;
 
-
-export const MAX_CAPTURE_BYTES = 64 * 1024;
 export interface CaptureReport {
   schema_version: 1;
-  adapter_id: 'agave-genesis-rpc-v1';
+  adapter_id: typeof CAPTURE_ADAPTER_ID;
   source_digest: ContentDigest;
   source_bytes: number;
-  observation: 'certificate_present' | 'no_certificate' | 'method_unavailable' | 'rpc_error';
+  observation: CaptureObservation;
   conclusion: 'INCONCLUSIVE';
   evidence_scope: 'capture_inspection';
   certificate: { slot: DecimalU64; block_id_hex: Hex; signature_hex: Hex; bitmap_hex: Hex } | null;

@@ -41,6 +41,7 @@ pub struct CapturedGenesis {
     pub signature_hex: String,
     pub bitmap_hex: String,
 }
+listed_enum! {
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum CaptureObservation {
@@ -48,6 +49,7 @@ pub enum CaptureObservation {
     NoCertificate,
     MethodUnavailable,
     RpcError,
+}
 }
 #[derive(Debug, Serialize)]
 pub struct CaptureReport {

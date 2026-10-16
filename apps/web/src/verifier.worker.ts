@@ -3,6 +3,8 @@ import {
   createVerifyRequest,
   encodeVerifyRequest,
   MAX_REPLAY_BYTES,
+  Operation,
+  REPLAY_FORMAT,
 } from "../../../packages/contracts/src/index";
 import type {
   DerivedEvidence,
@@ -37,12 +39,15 @@ self.onmessage = async ({
     const inspect = (bytes: Uint8Array, name: string): Bundle => ({
       bytes,
       name,
-      parsed: call<Inspected<ProofBundle>>(1, bytes),
+      parsed: call<Inspected<ProofBundle>>(Operation.InspectBundle, bytes),
     });
     const checkpoint = (bytes: Uint8Array): Checkpoint => ({
       bytes,
       name: "Replay checkpoint",
-      parsed: call<Inspected<EpochCheckpoint>>(2, bytes),
+      parsed: call<Inspected<EpochCheckpoint>>(
+        Operation.InspectCheckpoint,
+        bytes,
+      ),
     });
     function archive(
       baseline: Uint8Array,
@@ -51,10 +56,13 @@ self.onmessage = async ({
       digest: ContentDigest | null,
       reports: ReplayArchive["saved_reports"] = null,
     ): Uint8Array {
-      const original = call<Inspected<ProofBundle>>(1, baseline);
+      const original = call<Inspected<ProofBundle>>(
+        Operation.InspectBundle,
+        baseline,
+      );
       const bytes = json({
         schema_version: 1,
-        format: "monocle-replay",
+        format: REPLAY_FORMAT,
         profile_id: original.document.profile_id,
         policy_id: POLICY,
         baseline_json: text(baseline),
@@ -66,21 +74,30 @@ self.onmessage = async ({
       } satisfies ReplayArchive);
       if (bytes.byteLength > MAX_REPLAY_BYTES)
         throw new Error("Replay file exceeds the 16 MiB archive limit.");
-      call(8, bytes); // The same strict lineage/identity checks govern import and export.
+      call(Operation.InspectReplay, bytes); // The same strict lineage/identity checks govern import and export.
       return bytes;
     }
     let value: JobResult;
-    if (job.kind === "capture") value = call(9, job.bytes);
-    else if (job.kind === "bundle") value = call(1, job.bytes);
-    else if (job.kind === "checkpoint") value = call(2, job.bytes);
+    if (job.kind === "capture")
+      value = call(Operation.InspectCapture, job.bytes);
+    else if (job.kind === "bundle")
+      value = call(Operation.InspectBundle, job.bytes);
+    else if (job.kind === "checkpoint")
+      value = call(Operation.InspectCheckpoint, job.bytes);
     else if (job.kind === "example")
       value = {
-        bundle: call<Inspected<ProofBundle>>(1, job.bundle),
-        checkpoint: call<Inspected<EpochCheckpoint>>(2, job.checkpoint),
+        bundle: call<Inspected<ProofBundle>>(
+          Operation.InspectBundle,
+          job.bundle,
+        ),
+        checkpoint: call<Inspected<EpochCheckpoint>>(
+          Operation.InspectCheckpoint,
+          job.checkpoint,
+        ),
       };
     else if (job.kind === "mutate") {
       const result = call<DerivedEvidence>(
-        7,
+        Operation.Mutate,
         json({
           schema_version: 1,
           baseline_json: text(job.baseline),
@@ -94,7 +111,7 @@ self.onmessage = async ({
         parsed: { digest: result.digest, document: result.document },
       };
     } else if (job.kind === "replay") {
-      const replay = call<ReplayArchive>(8, job.bytes);
+      const replay = call<ReplayArchive>(Operation.InspectReplay, job.bytes);
       value = {
         baseline: inspect(
           encoder.encode(replay.baseline_json),
@@ -139,9 +156,11 @@ self.onmessage = async ({
       if (job.selection) {
         if (!job.checkpoint)
           throw new Error("The selected checkpoint is no longer available.");
-        call(2, job.checkpoint);
+        call(Operation.InspectCheckpoint, job.checkpoint);
         const digest = call<string>(
-          job.selection.basis === "synthetic" ? 3 : 4,
+          job.selection.basis === "synthetic"
+            ? Operation.SelectSynthetic
+            : Operation.SelectOperator,
           encoder.encode(
             job.selection.basis === "synthetic" ? "" : job.selection.reason,
           ),
@@ -153,7 +172,7 @@ self.onmessage = async ({
       }
       const verify = (bytes: Uint8Array, run: string) =>
         call<EvidenceVerificationReport>(
-          5,
+          Operation.Verify,
           encodeVerifyRequest(
             createVerifyRequest(
               run,

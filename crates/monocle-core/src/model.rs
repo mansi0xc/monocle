@@ -18,11 +18,13 @@ pub struct Provenance {
     pub kind: SourceKind,
     pub description: String,
 }
+listed_enum! {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum SourceKind {
     Synthetic,
     Capture,
+}
 }
 
 /// All descriptive fields are claims until a later decoder verifies their binding.
@@ -144,6 +146,7 @@ pub fn profile_by_id(id: &str) -> Option<ProtocolProfile> {
     }
 }
 
+listed_enum! {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum Conclusion {
@@ -151,6 +154,8 @@ pub enum Conclusion {
     Rejected,
     Inconclusive,
 }
+}
+listed_enum! {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum CheckStatus {
@@ -158,6 +163,8 @@ pub enum CheckStatus {
     Fail,
     NotChecked,
 }
+}
+listed_enum! {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum Stage {
@@ -170,6 +177,7 @@ pub enum Stage {
     Signature,
     Quorum,
     Finality,
+}
 }
 #[derive(Clone, Debug, Serialize)]
 pub struct CheckResult {

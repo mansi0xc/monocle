@@ -102,3 +102,19 @@ fn operator_reason_is_required_and_cannot_be_imported() {
         "VERIFIED"
     );
 }
+#[test]
+fn operation_numbers_are_stable_and_unknown_numbers_fail_closed() {
+    use monocle_wasm::Operation;
+    let numbers: Vec<u32> = Operation::ALL.iter().map(|op| *op as u32).collect();
+    assert_eq!(numbers, (1..=9).collect::<Vec<_>>());
+    for op in Operation::ALL {
+        assert_eq!(Operation::from_u32(op as u32), Some(op));
+    }
+    let mut s = Session::default();
+    for unknown in [0, 10, u32::MAX] {
+        let response = s.execute(unknown, b"");
+        assert_eq!(response["ok"], false);
+        assert_eq!(response["error"]["code"], "INVALID_SCHEMA");
+        assert_eq!(response["error"]["path"], "operation");
+    }
+}

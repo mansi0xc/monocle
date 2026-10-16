@@ -1,7 +1,8 @@
 import { useState } from "react";
-import type {
-  CheckResult,
-  MutationAction,
+import {
+  BASE2_PROFILE_ID,
+  type CheckResult,
+  type MutationAction,
 } from "../../../packages/contracts/src/index";
 import type { Bundle, Comparison } from "./protocol";
 import { words } from "./Report";
@@ -26,7 +27,7 @@ export function TamperLab({
   const [after, setAfter] = useState("");
   const mutation = derived?.parsed.document.mutations[0];
   const supported =
-    baseline.parsed.document.profile_id === "agave-98535e50-base2-v1" &&
+    baseline.parsed.document.profile_id === BASE2_PROFILE_ID &&
     !baseline.parsed.document.parent_digest;
   return (
     <details className="tamper-lab" open={Boolean(derived)}>

@@ -30,6 +30,8 @@ const routes = new Map([
 if (mode === 'contracts') {
   routes.set('/bundle.json', ['fixtures/contracts/bundle.json', 'application/json']);
   routes.set('/contracts.js', ['target/contracts-js/index.js', 'text/javascript']);
+  // index.js re-exports the Rust-generated values by this relative path.
+  routes.set('/generated.js', ['target/contracts-js/generated.js', 'text/javascript']);
 }
 let complete;
 let fail;

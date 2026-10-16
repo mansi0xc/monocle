@@ -1,4 +1,9 @@
 /** Deliberately small ABI: Rust owns every buffer; JS never supplies an address. */
+import {
+  ABI_VERSION,
+  MAX_BRIDGE_INPUT_BYTES,
+  type Operation,
+} from "../../../packages/contracts/src/generated.ts"; // Node also loads this file directly.
 interface Exports extends WebAssembly.Exports {
   memory: WebAssembly.Memory;
   monocle_abi_version: () => number;
@@ -10,13 +15,13 @@ interface Exports extends WebAssembly.Exports {
 export async function loadVerifier(bytes: BufferSource) {
   const { instance } = await WebAssembly.instantiate(bytes, {});
   const api = instance.exports as Exports;
-  if (api.monocle_abi_version() !== 2)
+  if (api.monocle_abi_version() !== ABI_VERSION)
     throw new Error("Unsupported verifier ABI. Rebuild the app assets.");
   return function call<T>(
-    operation: number,
+    operation: Operation,
     input: Uint8Array = new Uint8Array(),
   ): T {
-    if (input.byteLength > 16 * 1024 * 1024)
+    if (input.byteLength > MAX_BRIDGE_INPUT_BYTES)
       throw new Error("Verifier input exceeds its size limit.");
     const ptr = api.monocle_input_alloc(input.byteLength);
     if (!ptr)

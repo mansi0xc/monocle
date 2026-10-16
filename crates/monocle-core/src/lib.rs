@@ -1,4 +1,16 @@
 //! Bounded evidence contracts, explicit checkpoint trust, and scoped Base2 certificate checks.
+/// Declares a field-less enum together with `ALL`, every variant in declaration
+/// order, so contracts generated from it can never omit a value.
+macro_rules! listed_enum {
+    ($(#[$meta:meta])* pub enum $name:ident { $($variant:ident),+ $(,)? }) => {
+        $(#[$meta])*
+        pub enum $name { $($variant),+ }
+        impl $name {
+            pub const ALL: &'static [Self] = &[$(Self::$variant),+];
+        }
+    };
+}
+
 pub mod capture;
 pub mod certificate;
 mod error;

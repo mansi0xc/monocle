@@ -30,6 +30,7 @@ pub fn protocol_profile() -> ProtocolProfile {
     }
 }
 
+listed_enum! {
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum CertificateKind {
@@ -37,6 +38,7 @@ pub enum CertificateKind {
     Finalization,
     FastFinalization,
     Genesis,
+}
 }
 impl CertificateKind {
     pub fn name(self) -> &'static str {
