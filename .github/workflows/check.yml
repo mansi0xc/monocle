@@ -1,0 +1,76 @@
+# Runs the same full gate developers run locally: formatting, native tests and
+# clippy, byte-for-byte fixture regeneration, the WASM build, native/browser
+# parity for every corpus, contract checks, and the browser test suite.
+name: Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  gate:
+    name: Full gate (native, WASM, parity, browser)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    env:
+      CARGO_TERM_COLOR: always
+      CHROME_BIN: /usr/bin/google-chrome
+      CC_wasm32_unknown_unknown: clang
+    steps:
+      # Third-party actions are pinned to commit SHAs; the tag is noted beside each.
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Install the pinned Rust toolchain
+        # rust-toolchain.toml stays the single source of truth for the version.
+        run: |
+          channel="$(sed -n 's/^channel = "\(.*\)"$/\1/p' rust-toolchain.toml)"
+          test -n "$channel"
+          rustup toolchain install "$channel" --profile minimal \
+            --component clippy,rustfmt,llvm-tools --target wasm32-unknown-unknown
+          rustc --version
+
+      - uses: Swatinem/rust-cache@98c8021b550208e191a6a3145459bfc9fb29c4c0 # v2.8.0
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install JavaScript dependencies
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Allow Chrome's sandbox on Ubuntu 24.04
+        # Ubuntu 24.04 restricts unprivileged user namespaces, which Chrome's
+        # sandbox needs. Relax the runner instead of disabling the sandbox in
+        # the test scripts.
+        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+
+      - name: Show tool versions
+        run: |
+          cargo --version
+          node --version
+          clang --version | head -n 1
+          "$CHROME_BIN" --version
+
+      - name: Run the full gate
+        run: bash scripts/check-web.sh
+
+      - name: Upload browser test evidence
+        if: failure()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: playwright-results
+          path: test-results/
+          retention-days: 7
+          if-no-files-found: ignore

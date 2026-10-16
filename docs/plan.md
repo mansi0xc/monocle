@@ -250,7 +250,7 @@ Acceptance:
 - All existing browser regressions pass unchanged; desktop and phone layouts are inspected without overflow.
 - Update docs and ignored handoff 015; leave changes unstaged and pause for the owner's commit.
 
-## C15 - Checkpoint defects stay inconclusive (ready for owner review)
+## C15 - Checkpoint defects stay inconclusive (committed)
 
 Requested 2026-10-16 after Mansi committed C14 (`fff1251`); the first item from the codebase review. Previously, an invalid public key or proof of possession in the caller-trusted checkpoint produced `REJECTED`, blaming evidence for a trust-context defect. Classify those failures as `INCONCLUSIVE`. Key qualification still reports `FAIL` with its existing code and a message naming the checkpoint. Evidence defects remain `REJECTED`.
 
@@ -260,4 +260,15 @@ Acceptance:
 - New tests cover certificate- and finality-level behaviour.
 - The full native, WASM, parity, and browser gate passes.
 - Update the docs and ignored handoff 016; leave changes unstaged and pause for the owner's commit.
+
+## C16 - Continuous integration (ready for owner review)
+
+Requested 2026-10-16 after Mansi committed C15 (`323481f`); the second item from the codebase review. Run the existing full gate (`scripts/check-web.sh`) automatically in GitHub Actions on pushes to `main`, pull requests, and on demand.
+
+Acceptance:
+
+- The workflow runs the same gate as local development, with read-only permissions, SHA-pinned actions and the toolchain read from `rust-toolchain.toml`; it passes actionlint.
+- No commit, push, deploy or publish step.
+- The first GitHub run happens only after Mansi pushes; its result is reported then.
+- Update the docs and ignored handoff 017; leave changes unstaged and pause for the owner's commit.
 

@@ -82,3 +82,24 @@ The byte ABI is now version 2, with operations 7 (mutation) and 8 (replay valida
 Use `npm run inspect:capture -- fixtures/captures/testnet-genesis-rpc.json` for native inspection, or the direct Cargo command in [capture-import.md](capture-import.md) for clean JSON output. `-` reads standard input. The command never performs network I/O or writes evidence files; exit success describes parsed input rather than a verified certificate. No new dependency is needed. Operation 9 is additive within ABI v2; rebuild matching assets before running the browser.
 
 The [interface guide](interface.md) and [fixture catalog](fixture-catalog.md) describe the supported workflow. C7 ends the planned MVP checkpoints with real-capture verification still conditional on missing historical evidence. Further feature work follows owner review and a new agreed scope, not an automatic extension past this commit boundary.
+
+## Continuous integration
+
+`.github/workflows/check.yml` runs `bash scripts/check-web.sh` on Ubuntu 24.04 for every push to `main`, every pull request, and on demand. It is the same gate developers run locally, with no reduced CI-only variant:
+
+- formatting, `cargo test --workspace` and `cargo clippy -D warnings`;
+- byte-for-byte fixture regeneration and the WASM build;
+- native/browser parity for every corpus and the TypeScript contract checks;
+- the WASM bridge comparisons, the production build, and the Playwright suite.
+
+Details:
+
+- The workflow has read-only repository permissions and does not persist checkout credentials.
+- Third-party actions are pinned to commit SHAs, with their tags noted.
+- The Rust version is read from `rust-toolchain.toml`, so there is one source of truth.
+- The runner's preinstalled Google Chrome is used through `CHROME_BIN`.
+- Ubuntu 24.04 restricts unprivileged user namespaces, so the workflow relaxes that runner setting rather than disabling Chrome's sandbox in the test scripts.
+- On failure, Playwright traces and screenshots from `test-results/` are uploaded for seven days.
+
+CI does not commit, push, deploy, or publish anything. Commits and pushes remain owner-controlled as described above.
+

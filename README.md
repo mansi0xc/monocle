@@ -1,5 +1,7 @@
 # Monocle
 
+[![Check](https://github.com/mansi0xc/monocle/actions/workflows/check.yml/badge.svg)](https://github.com/mansi0xc/monocle/actions/workflows/check.yml)
+
 An open-source finality debugger for Solana's Alpenglow consensus.
 
 Monocle is designed to inspect certificate evidence, check signatures and stake thresholds against an explicitly trusted validator checkpoint, and explain the result. Its tamper lab preserves the original evidence, applies one controlled byte replacement, and compares freshly computed checks. Portable replay files preserve exact evidence and optional checkpoint bytes for verification in a loaded production app, including after disconnecting from the network.
@@ -56,7 +58,7 @@ For the full implemented gate:
 bash scripts/check-web.sh
 ```
 
-The gate requires Chrome/Chromium (`CHROME_BIN` can select its executable) and includes native crypto, previous browser corpora, arbitrary-input WASM parity, and inspector interactions/accessibility. See [browser-inspector.md](docs/browser-inspector.md) for setup, trust semantics, limits, and unverified environments.
+GitHub Actions runs this same gate on every push to `main` and every pull request (`.github/workflows/check.yml`). The gate requires Chrome/Chromium (`CHROME_BIN` can select its executable) and includes native crypto, previous browser corpora, arbitrary-input WASM parity, and inspector interactions/accessibility. See [browser-inspector.md](docs/browser-inspector.md) for setup, trust semantics, limits, and unverified environments.
 
 The Rust library owns verification and composition. `crates/monocle-wasm` exposes a bounded byte interface; `apps/web` manages original inputs, explicit trust, worker lifecycle, and report presentation. The native fixture generator stays separate from the verification path. C6 adds mutation application and replay validation in that same core. C7 adds a read-only genesis RPC adapter and local-file command, sharing the native/WASM core.
 

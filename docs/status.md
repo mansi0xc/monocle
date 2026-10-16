@@ -31,7 +31,8 @@ The genuine Rust/WASM verification paths, immutable tamper experiments, fresh di
 | C12 - Display typeface | Committed by Mansi: `8bc8708` |
 | C13 - Motion and interaction | Committed by Mansi: `f93b6fe` |
 | C14 - Step-by-step inspector | Committed by Mansi: `fff1251` |
-| C15 - Checkpoint defects stay inconclusive | Implemented; awaiting owner review/commit |
+| C15 - Checkpoint defects stay inconclusive | Committed by Mansi: `323481f` |
+| C16 - Continuous integration | Workflow added; first GitHub run pending the owner's push |
 
 C10 added three static design-direction previews under `apps/design-study/`; the owner chose Dusk, which C11 implements.
 
