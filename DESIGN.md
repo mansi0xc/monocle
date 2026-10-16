@@ -1,43 +1,55 @@
 # Monocle interface
 
-C8 design system and C9 logo refinement. Product context is in [PRODUCT.md](PRODUCT.md); navigation and scope are documented in [docs/interface.md](docs/interface.md).
+C11 implements the Dusk direction chosen by the owner on 2026-10-16 from the C10 design study (`apps/design-study/`). Product context is in [PRODUCT.md](PRODUCT.md); navigation and scope are documented in [docs/interface.md](docs/interface.md).
 
 ## Direction
 
-The reference supplied by the owner on 2026-10-13 defines this revision: a feather curling around a monocle lens, and burgundy `#AA2D3C`, navy `#28324F`, cream `#F2E6D8`. It replaces the previous palette and rejected exploratory marks. The architecture PDF remains black and white.
+Dusk takes its light from Alpenglow itself: an indigo night canvas, snow-coloured text, and a rose-to-amber glow used only for light sources, primary actions, and selected emphasis. It replaces the C9 cream/navy/burgundy product palette. The owner-supplied feather-and-lens mark is unchanged in shape; in the product it is drawn with a rose feather and a snow lens so it reads on the dark canvas. The exported brand files in `apps/web/public/brand/` and the favicon keep the C9 reference colours on cream. The architecture PDF remains black and white.
 
-Cream is the page canvas; navy carries text, the lens, and dark structural sections; burgundy carries primary actions, the feather, and deliberate landing highlights. Existing product layout and interactions are preserved. The shared mark is derived from the owner-supplied reference and retains its short handle and inner reflection arc. The surrounding reference text/badge is excluded.
+The landing hero is data, not decoration. Its ridge is the fast-finality fixture's cumulative signer stake (ranks 0, 1 and 3 reaching 40, 65 and 80 of 100), lit where it meets the 80% fast-path line, with the 60% slow-path line behind it. A caption labels it as synthetic fixture data.
 
 ## Typography and assets
 
-Sora variable (`100–800`) is the wordmark/display family; Public Sans variable (`100–900`) is the body/control family. Their Latin-subset WOFF2 files total about 60 kB and are local Vite assets. Both SIL Open Font Licenses and source URLs live in `apps/web/src/fonts/`. No external image/font services are contacted at runtime. Missing glyphs use system fallbacks; bytes and exact amounts use system monospace.
+Schibsted Grotesk variable (`400–900`) carries the wordmark, headings, and interface text. Red Hat Mono variable (`300–700`) carries digests, byte views, diagnostic codes, and exact integers. Their Latin-subset WOFF2 files total about 69 kB and are local Vite assets. Both SIL Open Font Licenses and source URLs live in `apps/web/src/fonts/`. No external image or font service is contacted at runtime.
 
-Landing headings use fluid sizing capped below 6rem, balanced wrapping, and letter spacing no tighter than -0.04em. The inspector uses a restrained rem scale and tabular numeric rendering. Readable explanation text and exact diagnostic metadata remain distinct.
+Headings use sentence case. Status is always a word plus a symbol (`✓` verified/pass, `×` rejected/fail, `—` inconclusive/not run), never colour alone.
 
-## Tokens and components
+## Tokens
 
-`apps/web/src/styles.css` owns shared font faces and tokens. The three supplied sRGB colours are encoded as precise OKLCH primitive tokens (`--brand-navy`, `--brand-burgundy`, `--brand-cream`). Surface, muted, border, hover and report tokens derive from these colours with OKLab mixing. Navy on cream measures 10.30:1 and burgundy on cream 5.42:1. White is used only to lift local product surfaces. Verified checks use navy with an explicit checkmark; failed checks use burgundy with an explicit failure symbol; missing context retains its label and a cream surface. Focus uses a visible palette outline.
+`apps/web/src/styles.css` owns the font faces and tokens:
 
-The product has an overview/inspector navigation shell, an ordered workflow rail, a three-step evidence/checkpoint/verify column, a report surface, and a separate recorded-capture/replay area. Traces, signer tables, native disclosures, comparison reports, source labels, file inputs, status banners, loading placeholders, and errors share consistent visual treatment. No automatic trust selection or crypto logic is added by this design system.
+| Token | Value | Use |
+| --- | --- | --- |
+| `--night` | `#12172B` | Canvas |
+| `--night-2`, `--panel`, `--panel-2` | `#181F3A`, `#1D2546`, `#232C52` | Rails, cards, selected surfaces |
+| `--snow` | `#EEF1F8` | Primary text (15.7:1 on canvas) |
+| `--mist`, `--dim` | `#A7AFCC`, `#8C95B9` | Secondary and tertiary text (8.2:1 and 6.0:1 on canvas) |
+| `--glacier` | `#9ED6E0` | Verified / pass |
+| `--rose` | `#F29484` | Rejected / fail |
+| `--amber` | `#F6C177` | Focus, selection, trust highlight |
+| `--glow` | amber → rose → orchid | Primary actions and stake bars |
 
-`landing.css` is scoped to the landing surface. It defines the split hero, geometric optical illustration, keyboard-operable workflow preview, byte-change illustration, trust explanation, and closing action. Its preview is declared illustrative and synthetic; it is not a substitute for the working inspector.
+Text on the glow uses `--on-glow` (`#1A1430`; 10.8:1 on amber, 7.9:1 on rose, 5.8:1 at the orchid end). Every text pair passes WCAG AA in the automated scans.
+
+## Inspector layout
+
+The inspector is a three-column workspace below a sticky app bar:
+
+- **App bar:** brand, navigation, the loaded evidence name with its provenance label, the original/experiment report switch (after a comparison), and verifier readiness.
+- **Left rail (the only `complementary` landmark):** numbered steps for evidence, checkpoint trust, and verification, followed by recorded RPC evidence and portable replay. The steps replace the C8 page heading, workflow rail, and step headers, which told the same story three times. A selected checkpoint is an amber-outlined card that states its basis and that Monocle does not authenticate it.
+- **Centre (`Evidence report`):** status line, then the verdict first. That means the outcome badge, title, scope sentence, and a stake meter per certificate. A meter compares stake with its threshold only when the quorum check ran; otherwise it is dimmed and says quorum was not evaluated. Below come the facts, the trace as a chain of status nodes with codes visible inline, certificates, signers, signed bytes, and trust and scope.
+- **Right column (`Experiments`):** tamper lab and the fresh comparison, where each changed check shows original and experiment status side by side.
+
+At 1181px and wider, the rail and experiment column stay in view and scroll independently. Between 761 and 1180px the experiment column moves below. At 760px and narrower everything stacks, and once a report or capture exists the result moves above the controls.
 
 ## Routing and state
 
-`Root.tsx` routes with URL hashes, compatible with static hosting. `/` and `#/` show the landing page, `#/inspect` shows the inspector, and the inspector's `#inspector` skip target remains an inspector route. `#workflow` is a landing anchor. The inspector loads lazily and stays mounted, hidden from layout/accessibility while on the landing page. Returning restores the same evidence, trust decision, and reports. Nothing is persisted across refreshes.
+`Root.tsx` routes with URL hashes, compatible with static hosting. `/` and `#/` show the landing page, `#/inspect` shows the inspector, and `#inspector` is the inspector's skip target. `#outcomes` is a landing anchor. The inspector loads lazily and stays mounted, hidden from layout and accessibility while on the landing page. Nothing is persisted across refreshes.
 
-## Responsive and motion behavior
+## Motion
 
-The hero and product columns stack on narrow screens. Long digests wrap, wide data tables scroll within labeled regions, and signer pagination stays available. Native controls retain keyboard behavior. Skip links are revealed on focus. All animations/transitions have reduced-motion alternatives. The landing lens settles once on entry; workflow preview transitions are brief. Product motion conveys loading/state rather than introducing a page entrance sequence.
+The landing summit glow fades in once. Loading placeholders shimmer while the worker runs. All animation and transitions are removed under `prefers-reduced-motion`.
 
 ## Validation boundaries
 
-Chrome product coverage includes desktop, 375px and 768px landing layouts, narrow verified/capture/comparison states, navigation/history, explicit checkpoint trust, hostile input, replay, reduced motion, and automated accessibility scans. Screenshots are visually inspected in addition to automated checks. This is not a claim of complete assistive-technology or cross-browser conformance; Safari/Firefox and real devices remain untested.
-
-## Reference feather and lens mark
-
-C9 follows the supplied feather/lens reference rather than drawing another original mark. The cleaned/recoloured raster was converted into native SVG outline paths, so the live mark uses exact CSS palette colours and requires no image request. Feather is burgundy; rim, short handle and inner reflection are navy. Transparent counters show the cream page. `Brand.tsx` is decorative (`aria-hidden`, `focusable=false`) beside the existing accessible brand/link text.
-
-The favicon uses the same outlines on cream. Transparent PNG, standalone native SVG, outlined horizontal wordmark, and cream inverse SVG exports live in `apps/web/public/brand/`. The existing Sora wordmark is retained; its SIL Open Font License remains in `apps/web/src/fonts/Sora-OFL.txt`. Asset notes identify the owner-supplied online reference rather than claiming the original symbol was authored by Monocle.
-
-The logo and palette are a revision of the same pending C9 checkpoint. No cryptography, additional remote dependency, or deployment is included. Validate keyboard states, contrast, and complete report/capture/comparison layouts at desktop and narrow widths.
+Chrome coverage includes landing at desktop, 375px and 768px, navigation/history, explicit checkpoint trust, hostile input, replay, captures, reduced motion, and automated WCAG A/AA scans of empty, verified, narrow, capture and comparison states. Screenshots at 1440, 1024 and 390px were inspected. Safari, Firefox, real devices and manual assistive-technology use remain untested.

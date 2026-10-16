@@ -1,6 +1,6 @@
 # Monocle: project idea
 
-Status: MVP and C8 interface workflows committed. C9 adopts the supplied feather/lens reference and burgundy/navy/cream palette, awaiting owner review/commit. Real-network verification remains unestablished.
+Status: MVP, C8 interface workflows, C9 reference mark and C10 design study committed. C11 implements the chosen Dusk design and awaits owner review. Real-network verification remains unestablished.
 
 ## Description
 

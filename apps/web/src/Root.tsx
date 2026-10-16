@@ -19,7 +19,7 @@ export default function Root() {
   useEffect(() => {
     document.title = inInspector
       ? "Inspector — Monocle"
-      : "Monocle — Finality, in full view";
+      : "Monocle — Alpenglow finality debugger";
     if (location.hash === "#/" || location.hash.startsWith("#/inspect"))
       window.scrollTo(0, 0);
   }, [inInspector]);

@@ -1,215 +1,178 @@
-import { useState } from "react";
-import { Arrow, Brand, Mark } from "./Brand";
+import { Arrow, Brand } from "./Brand";
 import "./landing.css";
 
 const source = "https://github.com/mansi0xc/monocle";
-const modes = {
-  Verify: {
-    title: "Every check, accounted for.",
-    label: "Fast finality",
-    verdict: "Verified",
-    body: "Follow the path from original bytes to a scoped conclusion. Inspect the signature, signer weights, and assumptions behind the result.",
-    rows: [
-      ["Certificate encoding", "Pass"],
-      ["BLS aggregate signature", "Pass"],
-      ["Signer stake threshold", "Pass"],
-      ["Finality composition", "Pass"],
-    ],
-    foot: "Under an explicitly selected synthetic checkpoint.",
-  },
-  Tamper: {
-    title: "One byte. A different result.",
-    label: "Changed signature",
-    verdict: "Rejected",
-    body: "Change a signed byte while preserving the original. Compare fresh reports and find the first check that no longer holds.",
-    rows: [
-      ["Certificate encoding", "Pass"],
-      ["BLS aggregate signature", "Fail"],
-      ["Dependent checks", "Not checked"],
-      ["Supplied finality claim", "Rejected"],
-    ],
-    foot: "A rejected claim does not prove that a block is non-final.",
-  },
-  Replay: {
-    title: "Same evidence. Fresh verification.",
-    label: "Imported replay",
-    verdict: "Trust required",
-    body: "Take the exact evidence and experiment with you. Re-import, choose the checkpoint again, and recompute every conclusion.",
-    rows: [
-      ["Original evidence", "Preserved"],
-      ["Mutation history", "Preserved"],
-      ["Saved report", "Not trusted"],
-      ["Checkpoint selection", "Required"],
-    ],
-    foot: "An imported report never becomes a trusted result.",
-  },
-} as const;
-type Mode = keyof typeof modes;
 
-function OpticalView() {
+/*
+ * Values below restate results produced by Monocle's signed synthetic fixtures
+ * (fixtures/finality/corpus.json, public test keys and invented stake). The
+ * landing page never loads evidence or runs the verifier.
+ */
+const outcomes = [
+  {
+    name: "Fast finality",
+    conclusion: "VERIFIED",
+    code: "FAST_FINALITY_ESTABLISHED",
+    why: "One fast-finalization certificate with 80 of 100 stake binds the block.",
+  },
+  {
+    name: "Slow finality",
+    conclusion: "VERIFIED",
+    code: "SLOW_FINALITY_ESTABLISHED",
+    why: "Notarization and finalization each reach 60%. Their stakes are never added.",
+  },
+  {
+    name: "Missing finalization",
+    conclusion: "INCONCLUSIVE",
+    code: "MISSING_FINALIZATION",
+    why: "A valid notarization alone leaves the block claim incomplete.",
+  },
+  {
+    name: "Changed signature",
+    conclusion: "REJECTED",
+    code: "INVALID_SIGNATURE",
+    why: "The aggregate no longer verifies for the exact signed payload.",
+  },
+  {
+    name: "Insufficient stake",
+    conclusion: "REJECTED",
+    code: "INSUFFICIENT_STAKE",
+    why: "A genuine signature from 65 of 100 stake misses the 80% fast path.",
+  },
+  {
+    name: "Genesis anchor",
+    conclusion: "VERIFIED",
+    code: "GENESIS_ANCHOR_ESTABLISHED",
+    why: "82% signs the migration anchor. It is reported separately from block finality.",
+  },
+  {
+    name: "Recorded RPC response",
+    conclusion: "INCONCLUSIVE",
+    code: "CAPTURE_CONTEXT_MISSING",
+    why: "A recorded getAgGenesisCert response is inspected but stays inconclusive without its historical checkpoint.",
+  },
+] as const;
+const glyph = { VERIFIED: "✓", REJECTED: "×", INCONCLUSIVE: "—" } as const;
+
+/* Ridge geometry: x in a 1440-wide box, stake percentage mapped to height. */
+const H = 560;
+const y = (stake: number) => 540 - stake * 4.6;
+const ridge: [number, number][] = [
+  [0, y(2)],
+  [420, y(6)],
+  [700, y(40)],
+  [880, y(65)],
+  [1040, y(80)],
+  [1130, y(70)],
+  [1260, y(50)],
+  [1360, y(34)],
+  [1440, y(28)],
+];
+const ridgeLine = ridge.map((p) => p.join(" ")).join(" L");
+const pct = (value: number, of: number) => `${(value / of) * 100}%`;
+
+function Ridge() {
   return (
-    <div className="optical-scene" aria-hidden="true">
-      <svg viewBox="0 0 620 570" className="optical-drawing" fill="none">
+    <div className="ridge" aria-hidden="true">
+      <svg viewBox={`0 0 1440 ${H}`} preserveAspectRatio="none">
         <defs>
-          <radialGradient id="optic-surface" cx=".36" cy=".3" r=".8">
-            <stop stopColor="var(--optic-glass)" />
-            <stop offset="1" stopColor="var(--brand-navy)" />
+          <linearGradient id="ridge-rock" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="var(--ridge-top)" />
+            <stop offset="1" stopColor="var(--night)" />
+          </linearGradient>
+          <linearGradient id="ridge-edge" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" stopColor="var(--amber)" stopOpacity="0" />
+            <stop offset=".55" stopColor="var(--amber)" />
+            <stop offset=".72" stopColor="var(--rose)" />
+            <stop offset=".9" stopColor="var(--orchid)" stopOpacity=".2" />
+          </linearGradient>
+          <radialGradient
+            id="ridge-summit"
+            cx="1040"
+            cy={y(80)}
+            r="380"
+            gradientUnits="userSpaceOnUse"
+          >
+            <stop offset="0" stopColor="var(--amber)" stopOpacity=".5" />
+            <stop offset=".45" stopColor="var(--rose)" stopOpacity=".14" />
+            <stop offset="1" stopColor="var(--rose)" stopOpacity="0" />
           </radialGradient>
-          <linearGradient
-            id="optic-rim"
-            x1="170"
-            y1="70"
-            x2="460"
-            y2="460"
-            gradientUnits="userSpaceOnUse"
-          >
-            <stop stopColor="var(--brand-cream)" />
-            <stop offset=".37" stopColor="var(--optic-rim-muted)" />
-            <stop offset=".72" stopColor="var(--optic-glass)" />
-            <stop offset="1" stopColor="var(--brand-cream)" />
-          </linearGradient>
-          <linearGradient
-            id="optic-beam"
-            x1="70"
-            y1="430"
-            x2="520"
-            y2="50"
-            gradientUnits="userSpaceOnUse"
-          >
-            <stop stopColor="var(--brand-burgundy)" stopOpacity="0" />
-            <stop
-              offset=".54"
-              stopColor="var(--brand-burgundy)"
-              stopOpacity=".16"
-            />
-            <stop
-              offset="1"
-              stopColor="var(--brand-burgundy)"
-              stopOpacity="0"
-            />
-          </linearGradient>
         </defs>
         <circle
-          cx="332"
-          cy="269"
-          r="214"
-          stroke="var(--brand-cream)"
-          strokeOpacity=".14"
-          strokeDasharray="2 9"
+          className="summit-glow"
+          cx="1040"
+          cy={y(80)}
+          r="380"
+          fill="url(#ridge-summit)"
         />
-        <circle
-          cx="332"
-          cy="269"
-          r="245"
-          stroke="var(--brand-cream)"
-          strokeOpacity=".12"
-        />
-        <path d="M64 425 425 28l100 109L159 502Z" fill="url(#optic-beam)" />
-        <g className="optic-lens">
-          <ellipse
-            cx="318"
-            cy="296"
-            rx="177"
-            ry="188"
-            transform="rotate(31 318 296)"
-            fill="var(--optic-shadow)"
-          />
-          <ellipse
-            cx="328"
-            cy="277"
-            rx="177"
-            ry="188"
-            transform="rotate(31 328 277)"
-            fill="url(#optic-surface)"
-            stroke="url(#optic-rim)"
-            strokeWidth="3"
-          />
-          <ellipse
-            cx="328"
-            cy="277"
-            rx="164"
-            ry="175"
-            transform="rotate(31 328 277)"
-            stroke="var(--brand-cream)"
-            strokeOpacity=".32"
-          />
-          <ellipse
-            cx="328"
-            cy="277"
-            rx="138"
-            ry="150"
-            transform="rotate(31 328 277)"
-            stroke="var(--brand-cream)"
-            strokeOpacity=".19"
-          />
-          <path
-            d="m202 374 252-227M211 180l218 186"
-            stroke="var(--brand-cream)"
-            strokeOpacity=".16"
-          />
-          <g stroke="var(--brand-cream)" strokeOpacity=".3">
-            <path d="M245 153v12m22-23v12m24-18v12m25-14v12m25-9v12m25-5v12m23-1v12m23 4v12m20 9v12" />
-            <path d="M202 230h12m-17 25h12m-16 25h12m-10 25h12m-6 25h12m1 25h12" />
-          </g>
-          <g className="optic-focus">
-            <circle
-              cx="328"
-              cy="277"
-              r="63"
-              stroke="var(--brand-cream)"
-              strokeWidth="1.5"
-            />
-            <circle
-              cx="328"
-              cy="277"
-              r="48"
-              stroke="var(--brand-cream)"
-              strokeOpacity=".32"
-            />
-            <path
-              d="M307 277h42m-21-21v42"
-              stroke="var(--brand-cream)"
-              strokeWidth="1.5"
-            />
-            <circle cx="328" cy="277" r="5" fill="var(--brand-cream)" />
-          </g>
-        </g>
-        <g stroke="var(--brand-cream)" strokeOpacity=".65">
-          <path d="M393 196h74l32-32h48" />
-          <circle cx="393" cy="196" r="3" fill="var(--brand-cream)" />
-          <path d="M266 361h-73l-45 45H65" />
-          <circle cx="266" cy="361" r="3" fill="var(--brand-cream)" />
-        </g>
-        <g
-          fill="var(--brand-cream)"
-          fontFamily="'Public Sans', sans-serif"
-          fontSize="12"
-        >
-          <text x="459" y="150">
-            The signed bytes
-          </text>
-          <text x="65" y="428">
-            The selected context
-          </text>
-        </g>
         <path
-          d="M94 113h20m-10-10v20M505 427h20m-10-10v20"
-          stroke="var(--brand-cream)"
-          strokeWidth="1"
+          d="M0 560 L0 520 L300 500 L560 430 L760 360 L980 300 L1180 330 L1440 280 L1440 560 Z"
+          fill="var(--ridge-back)"
         />
-        <circle cx="536" cy="311" r="4" fill="var(--brand-cream)" />
-        <circle cx="167" cy="119" r="3" fill="var(--brand-cream)" />
+        <line
+          x1="600"
+          x2="1440"
+          y1={y(60)}
+          y2={y(60)}
+          className="horizon slow"
+          vectorEffect="non-scaling-stroke"
+        />
+        <line
+          x1="640"
+          x2="1440"
+          y1={y(80)}
+          y2={y(80)}
+          className="horizon fast"
+          vectorEffect="non-scaling-stroke"
+        />
+        <path
+          d={`M0 ${H} L${ridgeLine} L1440 ${H} Z`}
+          fill="url(#ridge-rock)"
+        />
+        <path
+          d={`M${ridgeLine}`}
+          fill="none"
+          stroke="url(#ridge-edge)"
+          strokeWidth="2"
+          vectorEffect="non-scaling-stroke"
+        />
       </svg>
-      <div className="optic-caption">
-        <span className="optic-caption-dot" />A closer look at consensus.
-      </div>
+      {ridge.slice(2, 5).map(([x, py]) => (
+        <span
+          key={x}
+          className="ridge-point"
+          style={{ left: pct(x, 1440), top: pct(py, H) }}
+        />
+      ))}
+      <span className="ridge-tag keep hot" style={{ top: pct(y(80), H) }}>
+        fast path: 80% in one round
+      </span>
+      <span className="ridge-tag right" style={{ top: pct(y(60), H) }}>
+        slow path: 60% in each of two rounds
+      </span>
+      <span
+        className="ridge-tag"
+        style={{ left: pct(640, 1440), top: pct(y(46), H) }}
+      >
+        rank 0 · 40
+      </span>
+      <span
+        className="ridge-tag"
+        style={{ left: pct(820, 1440), top: pct(y(71), H) }}
+      >
+        + rank 1 · 65
+      </span>
+      <span
+        className="ridge-tag hot"
+        style={{ left: pct(985, 1440), top: pct(y(88), H) }}
+      >
+        + rank 3 · 80
+      </span>
     </div>
   );
 }
 
 export function Landing() {
-  const [mode, setMode] = useState<Mode>("Verify");
-  const current = modes[mode];
   return (
     <div className="landing">
       <a className="skip-link" href="#landing-main">
@@ -220,7 +183,7 @@ export function Landing() {
           <Brand />
         </a>
         <nav aria-label="Main navigation">
-          <a href="#workflow">How it works</a>
+          <a href="#outcomes">What it checks</a>
           <a
             href={`${source}/tree/main/docs`}
             target="_blank"
@@ -228,246 +191,179 @@ export function Landing() {
           >
             Documentation <Arrow diagonal />
           </a>
-          <a
-            href={source}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="source-link"
-          >
+          <a href={source} target="_blank" rel="noopener noreferrer">
             GitHub <Arrow diagonal />
           </a>
         </nav>
-        <a className="landing-nav-cta" href="#/inspect">
-          Open inspector <Arrow />
+        <a className="landing-button ghost small" href="#/inspect">
+          Open inspector
         </a>
       </header>
       <main id="landing-main" tabIndex={-1}>
         <section className="landing-hero" aria-labelledby="hero-title">
           <div className="hero-copy">
-            <div className="hero-intro">
-              <span />
-              An open-source lens on Alpenglow
-            </div>
-            <h1 id="hero-title">
-              <span>Finality,</span> <span>in full view.</span>
-            </h1>
+            <h1 id="hero-title">See finality reach the summit.</h1>
             <p className="hero-description">
-              Look inside the evidence behind Solana’s consensus. Verify
-              certificates, question assumptions, and understand every result.
+              Monocle verifies Alpenglow certificates in your browser, covering{" "}
+              <strong>
+                BLS signatures, key proofs, exact signer stake and the fast or
+                slow path
+              </strong>
+              , against a validator checkpoint you choose. When evidence falls
+              short, it names the check that stopped it.
             </p>
             <div className="hero-actions">
-              <a className="landing-button" href="#/inspect">
-                Open inspector <Arrow />
+              <a className="landing-button glow" href="#/inspect">
+                Open the inspector
               </a>
-              <a className="workflow-link" href="#workflow">
-                Explore the workflow <span aria-hidden="true">↓</span>
+              <a className="landing-button ghost" href="#outcomes">
+                See what a run reports
               </a>
             </div>
-            <p className="hero-note">
-              Runs in your browser. No wallet required.
-            </p>
           </div>
-          <OpticalView />
+          <Ridge />
+          <p className="ridge-caption">
+            The ridge is fixture data. Ranks 0, 1 and 3 sign 40 + 25 + 15 of 100
+            stake and reach the 80% fast-path line exactly. Synthetic keys,
+            invented stake.
+          </p>
         </section>
-        <div className="landing-principles" aria-label="Product principles">
-          <p>
-            <span aria-hidden="true">⌘</span> Local by design
-          </p>
-          <p>
-            <span aria-hidden="true">◎</span> Explicit trust
-          </p>
-          <p>
-            <span aria-hidden="true">↗</span> Reproducible evidence
-          </p>
-          <a href={source} target="_blank" rel="noopener noreferrer">
-            Built in the open <Arrow diagonal />
-          </a>
-        </div>
+
         <section
-          className="workflow-section"
-          id="workflow"
-          aria-labelledby="workflow-title"
+          className="outcomes"
+          id="outcomes"
+          aria-labelledby="outcomes-title"
         >
-          <div className="section-intro">
-            <h2 id="workflow-title">
-              A verdict is only
-              <br />
-              the beginning.
-            </h2>
+          <div className="section-head">
+            <h2 id="outcomes-title">Every run ends with a reason.</h2>
             <p>
-              Get closer to the why. From a first inspection to a reproducible
-              experiment, every step leaves a trace you can follow.
+              These results come from Monocle’s signed synthetic fixtures. Each
+              conclusion carries a stable diagnostic code, and a rejection never
+              claims that a block is non-final.
             </p>
           </div>
-          <div className="workflow-layout">
-            <div className="workflow-copy">
-              <div
-                className="workflow-modes"
-                role="group"
-                aria-label="Explore Monocle’s workflow"
-              >
-                {(Object.keys(modes) as Mode[]).map((item, index) => (
-                  <button
-                    key={item}
-                    aria-pressed={mode === item}
-                    onClick={() => setMode(item)}
-                  >
-                    <span className="mode-number" aria-hidden="true">
-                      0{index + 1}
-                    </span>
-                    {item}
-                    <Arrow />
-                  </button>
-                ))}
-              </div>
-              <div className="mode-copy" key={mode}>
-                <h3>{current.title}</h3>
-                <p>{current.body}</p>
-              </div>
-              <a className="text-link" href="#/inspect">
-                Try it with a signed example <Arrow />
-              </a>
-            </div>
-            <section
-              className={`inspector-preview preview-${mode.toLowerCase()}`}
-              aria-label="Illustrative inspector preview"
-            >
-              <div className="preview-toolbar">
-                <span>
-                  <Mark /> Evidence inspector
+          <ul className="outcome-list">
+            {outcomes.map((o) => (
+              <li key={o.name}>
+                <span className="outcome-name">{o.name}</span>
+                <span className="outcome-verdict" data-status={o.conclusion}>
+                  <span aria-hidden="true">{glyph[o.conclusion]}</span>{" "}
+                  {o.conclusion}
                 </span>
-                <span className="preview-local">Local session</span>
-              </div>
-              <div
-                className="preview-main"
-                aria-live="polite"
-                aria-atomic="true"
-              >
-                <div className="preview-context">
-                  <span>Synthetic example</span>
-                  <span>Checkpoint · epoch 42</span>
-                </div>
-                <div className="preview-verdict">
-                  <div>
-                    <p>{current.label}</p>
-                    <strong>{current.verdict}</strong>
-                  </div>
-                  <span className="preview-verdict-symbol" aria-hidden="true">
-                    {mode === "Verify" ? "✓" : mode === "Tamper" ? "×" : "—"}
-                  </span>
-                </div>
-                <div className="preview-checks">
-                  {current.rows.map(([label, value]) => (
-                    <div key={label}>
-                      <span>{label}</span>
-                      <span
-                        className={
-                          value === "Fail" || value === "Rejected"
-                            ? "preview-fail"
-                            : ""
-                        }
-                      >
-                        <span aria-hidden="true">
-                          {value === "Pass"
-                            ? "✓ "
-                            : value === "Fail"
-                              ? "× "
-                              : ""}
-                        </span>
-                        {value}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-                <p className="preview-footnote">{current.foot}</p>
-              </div>
-              <p className="preview-caption">
-                Illustrative preview · synthetic evidence
-              </p>
+                <span className="outcome-why">
+                  <code>{o.code}</code> {o.why}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="capabilities" aria-label="Capabilities">
+          <article>
+            <h3>Verify on your machine</h3>
+            <p>
+              The Rust verifier runs as WebAssembly in a browser worker. Once
+              the inspector has loaded, evidence never leaves the page and no
+              network is needed.
+            </p>
+            <span>
+              Checkpoint authenticity stays your assumption, recorded beside the
+              result.
+            </span>
+          </article>
+          <article>
+            <h3>Change one byte</h3>
+            <p>
+              Derive an experiment from the immutable original, verify both
+              again under the same checkpoint, and see the first check that
+              breaks.
+            </p>
+            <span>
+              One equal-length replacement per experiment, never stacked.
+            </span>
+          </article>
+          <article>
+            <h3>Hand someone the replay</h3>
+            <p>
+              Export the original bytes, the change and their digests. On import
+              every verdict is recomputed; saved reports grant nothing.
+            </p>
+            <span>The recipient selects trust again.</span>
+          </article>
+        </section>
+
+        <section className="ledger" aria-labelledby="ledger-title">
+          <h2 id="ledger-title">
+            What a result establishes, and what stays with you.
+          </h2>
+          <div className="ledger-columns">
+            <section aria-labelledby="ledger-established">
+              <h3 id="ledger-established">Monocle establishes</h3>
+              <ul>
+                <li>
+                  The aggregate signature verifies for the exact signed bytes
+                  <small>
+                    BLS12-381, with each selected key’s proof of possession
+                    checked
+                  </small>
+                </li>
+                <li>
+                  The signers carry enough stake
+                  <small>
+                    Exact integers against the checkpoint’s original denominator
+                  </small>
+                </li>
+                <li>
+                  Which finality path holds, if any
+                  <small>
+                    Fast, slow and genesis scopes are reported separately
+                  </small>
+                </li>
+                <li>
+                  What one changed byte breaks
+                  <small>
+                    A fresh comparison against the immutable original
+                  </small>
+                </li>
+              </ul>
+            </section>
+            <section aria-labelledby="ledger-yours">
+              <h3 id="ledger-yours">You remain responsible for</h3>
+              <ul>
+                <li>
+                  Trusting the validator checkpoint
+                  <small>
+                    Monocle records your reason; it does not authenticate the
+                    set
+                  </small>
+                </li>
+                <li>
+                  Context a raw RPC response lacks
+                  <small>Recorded responses stay inconclusive without it</small>
+                </li>
+                <li>
+                  Ancestry, execution and epoch transitions
+                  <small>None of these are evaluated</small>
+                </li>
+                <li>
+                  Reading a rejection correctly
+                  <small>
+                    Rejected evidence is not proof that a block is non-final
+                  </small>
+                </li>
+              </ul>
             </section>
           </div>
         </section>
-        <section
-          className="experiment-section"
-          aria-labelledby="experiment-title"
-        >
-          <div className="experiment-visual" aria-hidden="true">
-            <div className="byte-caption">
-              <span>Original</span>
-              <span>Experiment</span>
-            </div>
-            <div className="byte-line">
-              <span>8a</span>
-              <span>2f</span>
-              <span className="byte-original">01</span>
-              <span className="byte-connector">→</span>
-              <span>8a</span>
-              <span>2f</span>
-              <span className="byte-mutated">00</span>
-            </div>
-            <div className="byte-underlines">
-              <span>Original bytes preserved</span>
-              <span>One controlled change</span>
-            </div>
-          </div>
-          <div className="experiment-copy">
-            <h2 id="experiment-title">
-              Small change.
-              <br />
-              Clear consequence.
-            </h2>
-            <p>
-              Good research asks what happens next. Change a signature byte,
-              inspect the failure, and share an experiment someone else can
-              reproduce.
-            </p>
-            <a href="#/inspect" className="text-link">
-              Enter the tamper lab <Arrow />
-            </a>
-          </div>
-        </section>
-        <section className="trust-section" aria-labelledby="trust-title">
-          <div className="trust-heading">
-            <Mark />
-            <h2 id="trust-title">
-              Your evidence.
-              <br />
-              Your machine.
-            </h2>
-            <p>A focused research tool, with its assumptions in the open.</p>
-          </div>
-          <div className="trust-details">
-            <article>
-              <h3>Verification stays local.</h3>
-              <p>
-                The Rust verifier runs in your browser through WebAssembly.
-                Evidence files are processed on your device.
-              </p>
-            </article>
-            <article>
-              <h3>You choose the trust basis.</h3>
-              <p>
-                A checkpoint is an explicit input. Monocle shows what a result
-                establishes, and what still depends on external trust.
-              </p>
-            </article>
-            <article>
-              <h3>Missing evidence stays visible.</h3>
-              <p>
-                Synthetic examples are labeled. Recorded RPC evidence with
-                missing context stays inconclusive. The limits stay beside the
-                result.
-              </p>
-            </article>
-          </div>
-        </section>
+
         <section className="landing-closing" aria-labelledby="closing-title">
-          <div>
-            <p>Bring your curiosity. Start with an example.</p>
-            <h2 id="closing-title">See what holds up.</h2>
-          </div>
-          <a className="landing-button light-button" href="#/inspect">
-            Open inspector <Arrow />
+          <h2 id="closing-title">Start with a signed example.</h2>
+          <p>
+            Six synthetic cases cover fast, slow and genesis evidence, a changed
+            signature and too little stake.
+          </p>
+          <a className="landing-button glow" href="#/inspect">
+            Open the inspector
           </a>
         </section>
       </main>
@@ -475,7 +371,9 @@ export function Landing() {
         <a href="#/" aria-label="Monocle home" className="landing-brand">
           <Brand />
         </a>
-        <p>A fixed-checkpoint research tool for Alpenglow.</p>
+        <p>
+          An open-source finality debugger for Alpenglow. Not a light client.
+        </p>
         <a href={source} target="_blank" rel="noopener noreferrer">
           View source <Arrow diagonal />
         </a>

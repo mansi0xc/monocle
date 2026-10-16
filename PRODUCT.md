@@ -16,15 +16,13 @@ Precise, calm, and direct. Explain trust assumptions beside the result. Use read
 
 ## Visual direction
 
-The owner's 2026-10-13 reference supersedes the earlier ocean-blue/persimmon palette and exploratory logos. The architecture PDF remains unchanged. Use the supplied feather-and-lens symbol, with the reference's surrounding badge and “Feathered Lens” text removed; the product name remains Monocle.
+The owner chose the Dusk direction on 2026-10-16 (C10 design study, implemented in C11). It supersedes the C9 cream/navy/burgundy product palette. Dusk uses an indigo night canvas, snow text, and a rose-to-amber alpenglow light reserved for primary actions, selected emphasis and the landing ridge. The ridge is drawn from the fast fixture's real cumulative signer stake and is labelled as synthetic. The owner-supplied feather-and-lens symbol is kept; in the product the feather is rose and the lens snow. Exported brand files keep the reference colours.
 
-The selected colours are burgundy `#AA2D3C`, deep navy `#28324F`, and cream `#F2E6D8`. Cream carries the main canvas, navy carries readable text and structural areas, and burgundy carries primary actions, selected emphasis, and the feather. The lens and wordmark are navy. The landing has a navy optical scene and a burgundy experiment section; product report surfaces remain restrained and readable.
-
-Sora carries the wordmark/headings; Public Sans carries interface text. Both stay bundled locally. All input, trust, result, and offline boundaries remain unchanged. Status words and check symbols retain meaning independently of their colour.
+Schibsted Grotesk carries headings and interface text; Red Hat Mono carries digests, codes and exact integers. Both are bundled locally. All input, trust, result, and offline boundaries remain unchanged. Status words and check symbols retain meaning independently of their colour.
 
 ## Interaction and accessibility
 
-The landing page at `/` or `#/` leads to the inspector at `#/inspect`. Its Verify/Tamper/Replay preview is explicitly illustrative and never runs or grants trust. The real inspector is loaded on first entry and stays mounted when visiting the landing page within the same session, preserving inputs and explicit decisions. Refreshing still starts a new in-memory session.
+The landing page at `/` or `#/` leads to the inspector at `#/inspect`. Its outcome list restates real fixture results with their diagnostic codes, labelled synthetic; the landing page never loads evidence, runs the verifier, or grants trust. The real inspector is loaded on first entry and stays mounted when visiting the landing page within the same session, preserving inputs and explicit decisions. Refreshing still starts a new in-memory session.
 
 Inputs and trust selection are deliberate actions. Display the original-byte digest and session trust basis. Verification runs in an interruptible worker; changes invalidate old results. Support keyboard use, visible focus, explicit loading/error/empty states, reduced motion, readable contrast, and narrow screens. Untrusted strings are rendered as text. Preserve large integers as decimal strings.
 

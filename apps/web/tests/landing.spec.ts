@@ -1,13 +1,9 @@
 import AxeBuilder from "@axe-core/playwright";
 import { test, expect, type Page } from "@playwright/test";
 
-const landingTitle = /Finality,\s+in full view\./;
-const previewCaption = "Illustrative preview · synthetic evidence";
-const previewHeadings = {
-  Verify: "Every check, accounted for.",
-  Tamper: "One byte. A different result.",
-  Replay: "Same evidence. Fresh verification.",
-};
+const landingTitle = /See finality reach the summit\./;
+const ridgeCaption =
+  "The ridge is fixture data. Ranks 0, 1 and 3 sign 40 + 25 + 15 of 100 stake and reach the 80% fast-path line exactly. Synthetic keys, invented stake.";
 
 async function openInspector(page: Page) {
   await page
@@ -16,7 +12,10 @@ async function openInspector(page: Page) {
     .click();
   await expect(page).toHaveURL(/#\/inspect$/);
   await expect(
-    page.getByRole("heading", { name: "Follow the evidence." }),
+    page.getByRole("heading", { level: 1, name: "Monocle evidence inspector" }),
+  ).toBeAttached();
+  await expect(
+    page.getByRole("button", { name: "Load", exact: true }),
   ).toBeVisible();
 }
 
@@ -39,18 +38,17 @@ test.beforeEach(async ({ page }) => {
   await page.goto("/");
 });
 
-test("landing explains its synthetic preview and links to the working inspector", async ({
+test("landing labels its fixture data and links to the working inspector", async ({
   page,
 }, info) => {
   await expect(
     page.getByRole("heading", { level: 1, name: landingTitle }),
   ).toBeVisible();
-  await expect(page.getByText(previewCaption, { exact: true })).toBeVisible();
+  await expect(page.getByText(ridgeCaption, { exact: true })).toBeVisible();
   await expect(
-    page.getByText(
-      "Synthetic examples are labeled. Recorded RPC evidence with missing context stays inconclusive. The limits stay beside the result.",
-      { exact: true },
-    ),
+    page.getByText("Rejected evidence is not proof that a block is non-final", {
+      exact: true,
+    }),
   ).toBeVisible();
   const source = page
     .getByRole("navigation", { name: "Main navigation" })
@@ -83,7 +81,7 @@ test("landing explains its synthetic preview and links to the working inspector"
   ).toHaveCount(0);
 });
 
-test("workflow link stays on the landing page and brings the workflow into view", async ({
+test("outcomes link stays on the landing page and brings the outcomes into view", async ({
   page,
 }) => {
   await page.goto("/#/");
@@ -91,10 +89,10 @@ test("workflow link stays on the landing page and brings the workflow into view"
     page.getByRole("heading", { level: 1, name: landingTitle }),
   ).toBeVisible();
   await page
-    .getByRole("link", { name: "Explore the workflow", exact: true })
+    .getByRole("link", { name: "See what a run reports", exact: true })
     .click();
-  await expect(page).toHaveURL(/#workflow$/);
-  await expect(page.locator("#workflow")).toBeInViewport();
+  await expect(page).toHaveURL(/#outcomes$/);
+  await expect(page.locator("#outcomes")).toBeInViewport();
   await expect(
     page.getByRole("heading", { level: 1, name: landingTitle }),
   ).toHaveCount(1);
@@ -104,52 +102,25 @@ test("workflow link stays on the landing page and brings the workflow into view"
   ).toBeVisible();
 });
 
-test("preview modes remain illustrative and do not create evidence or select trust", async ({
+test("fixture outcomes are labelled and do not create evidence or select trust", async ({
   page,
 }) => {
-  const preview = page.getByRole("region", {
-    name: "Illustrative inspector preview",
-  });
-  const modeControls = page.getByRole("group", {
-    name: "Explore Monocle’s workflow",
-  });
-  await expect(
-    modeControls.getByRole("button", { name: "Verify", exact: true }),
-  ).toHaveAttribute("aria-pressed", "true");
-  for (const mode of ["Tamper", "Replay", "Verify"] as const) {
-    const button = modeControls.getByRole("button", {
-      name: mode,
-      exact: true,
-    });
-    await button.focus();
-    await page.keyboard.press("Space");
-    await expect(button).toHaveAttribute("aria-pressed", "true");
-    await expect(
-      page.getByRole("heading", {
-        name: previewHeadings[mode],
-        exact: true,
-      }),
-    ).toBeVisible();
-    for (const other of ["Verify", "Tamper", "Replay"].filter(
-      (name) => name !== mode,
-    )) {
-      await expect(
-        modeControls.getByRole("button", { name: other, exact: true }),
-      ).toHaveAttribute("aria-pressed", "false");
-    }
-    await expect(
-      preview.getByText(previewCaption, { exact: true }),
-    ).toBeVisible();
-    if (mode === "Replay") {
-      await expect(
-        preview.getByText("Trust required", { exact: true }),
-      ).toBeVisible();
-      await expect(
-        preview.getByText("Not trusted", { exact: true }),
-      ).toBeVisible();
-    }
-    await expect(page.getByLabel("Evidence report")).toHaveCount(0);
-  }
+  const outcomes = page.locator("#outcomes");
+  await expect(outcomes).toContainText(
+    "These results come from Monocle’s signed synthetic fixtures.",
+  );
+  for (const code of [
+    "FAST_FINALITY_ESTABLISHED",
+    "SLOW_FINALITY_ESTABLISHED",
+    "MISSING_FINALIZATION",
+    "INVALID_SIGNATURE",
+    "INSUFFICIENT_STAKE",
+    "GENESIS_ANCHOR_ESTABLISHED",
+    "CAPTURE_CONTEXT_MISSING",
+  ])
+    await expect(outcomes.getByText(code, { exact: true })).toBeVisible();
+  await expect(page.getByRole("button")).toHaveCount(0);
+  await expect(page.getByLabel("Evidence report")).toHaveCount(0);
   await openInspector(page);
   await expect(
     page.getByRole("button", { name: "Verify evidence" }),

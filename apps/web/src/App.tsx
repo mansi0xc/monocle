@@ -407,6 +407,20 @@ export default function App() {
     activeReport === "derived" && derivedReport ? derivedReport : report;
   const shownBundle =
     activeReport === "derived" && derivedReport && derived ? derived : bundle;
+  const steps = [
+    { label: "Evidence", done: Boolean(bundle) },
+    { label: "Checkpoint trust", done: Boolean(selection) },
+    { label: "Verify", done: Boolean(report) },
+  ];
+  const stepHeading = (index: number) => (
+    <span
+      className="step"
+      data-done={steps[index].done}
+      aria-label={steps[index].done ? "Done" : `Step ${index + 1}`}
+    >
+      {steps[index].done ? "✓" : index + 1}
+    </span>
+  );
   return (
     <div className="inspector-app">
       <a className="skip-link" href="#inspector">
@@ -422,6 +436,41 @@ export default function App() {
             Inspector
           </a>
         </nav>
+        {bundle && (
+          <span className="app-crumb">
+            <span className="file-name">{bundle.name}</span>
+            <span
+              className="source-label"
+              data-kind={bundle.parsed.document.provenance.kind}
+            >
+              {bundle.parsed.document.provenance.kind === "synthetic"
+                ? "Synthetic evidence"
+                : "Capture · declared provenance"}
+            </span>
+          </span>
+        )}
+        {report && derivedReport && (
+          <div
+            className="report-tabs"
+            role="group"
+            aria-label="Choose full report"
+          >
+            <button
+              aria-pressed={activeReport === "baseline"}
+              data-status={report.conclusion}
+              onClick={() => setActiveReport("baseline")}
+            >
+              Original report
+            </button>
+            <button
+              aria-pressed={activeReport === "derived"}
+              data-status={derivedReport.conclusion}
+              onClick={() => setActiveReport("derived")}
+            >
+              Experiment report
+            </button>
+          </div>
+        )}
         <a
           className="app-source"
           href="https://github.com/mansi0xc/monocle"
@@ -440,76 +489,14 @@ export default function App() {
         </span>
       </header>
       <main id="inspector" tabIndex={-1}>
-        <div className="page-heading">
-          <div>
-            <p className="eyebrow">Alpenglow evidence inspector</p>
-            <h1>Follow the evidence.</h1>
-            <p>
-              Inspect the certificates, signers, and assumptions behind
-              finality.
-            </p>
-          </div>
-          <span className="profile-label">
-            <span className="profile-mark" aria-hidden="true">
-              B2
-            </span>
-            <span>
-              Base2 profile <span className="mono">98535e50</span>
-            </span>
-          </span>
-        </div>
-        <ol className="workflow-rail" aria-label="Verification workflow">
-          <li data-state={bundle ? "complete" : "current"}>
-            <span className="workflow-number" aria-hidden="true">
-              {bundle ? "✓" : "01"}
-            </span>
-            <div>
-              <strong>Load evidence</strong>
-              <span>
-                {bundle ? "Input inspected" : "A signed example or local file"}
-              </span>
-            </div>
-          </li>
-          <li
-            data-state={selection ? "complete" : bundle ? "current" : "pending"}
-          >
-            <span className="workflow-number" aria-hidden="true">
-              {selection ? "✓" : "02"}
-            </span>
-            <div>
-              <strong>Select your checkpoint</strong>
-              <span>
-                {selection
-                  ? "Trust basis recorded"
-                  : "An explicit trust decision"}
-              </span>
-            </div>
-          </li>
-          <li
-            data-state={report ? "complete" : selection ? "current" : "pending"}
-          >
-            <span className="workflow-number" aria-hidden="true">
-              {report ? "✓" : "03"}
-            </span>
-            <div>
-              <strong>Read the trace</strong>
-              <span>
-                {report
-                  ? "Verification complete"
-                  : "Every check, with its scope"}
-              </span>
-            </div>
-          </li>
-        </ol>
-        <div className="workspace">
+        <h1 className="visually-hidden">Monocle evidence inspector</h1>
+        <div className="workspace" data-has-result={Boolean(report || capture)}>
           <aside
             className="inputs"
             aria-label="Evidence and checkpoint controls"
           >
             <section className="input-section">
-              <h2>
-                <span className="step">1</span> Evidence
-              </h2>
+              <h2>{stepHeading(0)} Evidence</h2>
               <label htmlFor="example">Signed synthetic example</label>
               <div className="example-control">
                 <select
@@ -539,7 +526,7 @@ export default function App() {
                   if (file) void importFile("bundle", file);
                 }}
               />
-              <p className="small muted">Monocle JSON · up to 1 MiB</p>
+              <p className="small muted">Monocle JSON, up to 1 MiB</p>
               {bundle && (
                 <div className="loaded-input">
                   <div className="section-heading">
@@ -559,11 +546,6 @@ export default function App() {
                       Clear evidence
                     </button>
                   </div>
-                  <span className="source-label">
-                    {bundle.parsed.document.provenance.kind === "synthetic"
-                      ? "Synthetic evidence"
-                      : "Capture · declared provenance"}
-                  </span>
                   <p className="small">
                     {bundle.parsed.document.provenance.description}
                   </p>
@@ -618,10 +600,8 @@ export default function App() {
                 </div>
               )}
             </section>
-            <section className="input-section">
-              <h2>
-                <span className="step">2</span> Validator checkpoint
-              </h2>
+            <section className="input-section trust-section">
+              <h2>{stepHeading(1)} Checkpoint trust</h2>
               <p className="small muted">
                 Importing a checkpoint does not make it trusted. Select its
                 basis separately.
@@ -638,20 +618,24 @@ export default function App() {
                   if (file) void importFile("checkpoint", file);
                 }}
               />
-              <p className="small muted">Monocle JSON · up to 4 MiB</p>
+              <p className="small muted">Monocle JSON, up to 4 MiB</p>
               {checkpoint && cp ? (
                 <div className="loaded-input">
                   <strong className="file-name">{checkpoint.name}</strong>
-                  <p className="small">
-                    {cp.provenance.kind === "synthetic"
-                      ? "Synthetic"
-                      : "Capture"}{" "}
-                    · epoch <span className="mono">{cp.context.epoch}</span> ·{" "}
-                    {cp.validators.length} validators
-                  </p>
-                  <p className="small">
-                    Total stake <span className="mono">{cp.total_stake}</span>
-                  </p>
+                  <dl className="compact-facts">
+                    <dt>Source</dt>
+                    <dd>
+                      {cp.provenance.kind === "synthetic"
+                        ? "Synthetic"
+                        : "Capture"}
+                    </dd>
+                    <dt>Epoch</dt>
+                    <dd className="mono">{cp.context.epoch}</dd>
+                    <dt>Validators</dt>
+                    <dd className="mono">{cp.validators.length}</dd>
+                    <dt>Total stake</dt>
+                    <dd className="mono">{cp.total_stake}</dd>
+                  </dl>
                   <details>
                     <summary>Checkpoint identity</summary>
                     <p className="mono small break">
@@ -723,6 +707,10 @@ export default function App() {
                           ? "Synthetic fixture only"
                           : `Operator-pinned: ${selection.reason}`}
                       </p>
+                      <p className="small muted">
+                        Applies to this session. Monocle does not authenticate
+                        the checkpoint.
+                      </p>
                       <button
                         className="text-button"
                         onClick={() => {
@@ -745,16 +733,13 @@ export default function App() {
               )}
             </section>
             <section className="input-section run-section">
-              <h2>
-                <span className="step">3</span> Verify
-              </h2>
+              <h2>{stepHeading(2)} Verify</h2>
               <button
                 className="primary full-width"
                 disabled={!bundle || Boolean(busy)}
                 onClick={verify}
               >
-                {derived ? "Verify comparison" : "Verify evidence"}{" "}
-                <span aria-hidden="true">↗</span>
+                {derived ? "Verify comparison" : "Verify evidence"}
               </button>
               {busy && (
                 <button
@@ -775,16 +760,94 @@ export default function App() {
                     : "Verification uses the selected checkpoint and the pinned protocol profile."}
               </p>
             </section>
+            <section className="input-section capture-controls">
+              <h2>Recorded RPC evidence</h2>
+              <p className="small muted">
+                Inspect a saved getAgGenesisCert response. Historical context is
+                required before it can become verification input.
+              </p>
+              <button
+                className="full-width"
+                onClick={() =>
+                  void importCapture({
+                    bytes: encoder.encode(recordedCapture.source_json),
+                    name: "Recorded testnet response",
+                  })
+                }
+              >
+                Load recorded testnet response
+              </button>
+              <p className="small muted">
+                Supplied by the project owner; retrieval time and endpoint
+                origin have not been independently established.
+              </p>
+              <label htmlFor="capture-file">Import genesis RPC response</label>
+              <input
+                id="capture-file"
+                type="file"
+                accept=".json,application/json"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  e.target.value = "";
+                  if (file) void importCapture(file);
+                }}
+              />
+              <p className="small muted">Raw JSON-RPC response, up to 64 KiB</p>
+            </section>
+            <section className="input-section replay-controls">
+              <h2>Portable replay</h2>
+              <p className="small muted">
+                Share original bytes, the experiment, and recorded reports.
+                Trust must be selected again on import.
+              </p>
+              <label className="inline-label">
+                <input
+                  type="checkbox"
+                  checked={includeCheckpoint}
+                  disabled={!checkpoint}
+                  onChange={(e) => setIncludeCheckpoint(e.target.checked)}
+                />{" "}
+                Include checkpoint bytes
+              </label>
+              <button
+                className="full-width"
+                disabled={!bundle || Boolean(busy)}
+                onClick={exportReplay}
+              >
+                Export replay
+              </button>
+              <label htmlFor="replay-file">Import replay file</label>
+              <input
+                id="replay-file"
+                type="file"
+                accept=".json,application/json"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  e.target.value = "";
+                  if (file) void importReplay(file);
+                }}
+              />
+              <p className="small muted">Monocle replay v1, up to 16 MiB</p>
+              {replayInfo && <p className="small break">{replayInfo}</p>}
+              {requiredCheckpoint && (
+                <details>
+                  <summary>Required checkpoint digest</summary>
+                  <p className="mono small break">{requiredCheckpoint}</p>
+                  <p className="small muted">
+                    {checkpoint
+                      ? "Select this exact checkpoint to reproduce the recorded context."
+                      : "Checkpoint bytes are not included. Import the referenced checkpoint separately."}
+                  </p>
+                </details>
+              )}
+            </section>
           </aside>
-          <div className="evidence-panel" aria-label="Evidence report">
+          <section className="evidence-panel" aria-label="Evidence report">
             <div className="panel-top">
-              <span className="panel-title">
-                <span className="panel-glyph" aria-hidden="true">
-                  ⌕
-                </span>{" "}
-                Inspection
-              </span>
-              <span className="small muted">
+              <div className="announcement" role="status" aria-live="polite">
+                {notice}
+              </div>
+              <span className="small muted panel-state">
                 {busy
                   ? "Working…"
                   : capture
@@ -793,9 +856,6 @@ export default function App() {
                       ? "Run complete"
                       : "Awaiting verification"}
               </span>
-            </div>
-            <div className="announcement" role="status" aria-live="polite">
-              {notice}
             </div>
             {error && (
               <div className="error" role="alert">
@@ -818,48 +878,6 @@ export default function App() {
                 }}
               />
             )}
-            {bundle && (
-              <TamperLab
-                key={bundle.parsed.digest}
-                baseline={bundle}
-                derived={derived}
-                busy={Boolean(busy)}
-                create={createExperiment}
-                reset={() => {
-                  invalidate();
-                  setDerived(null);
-                  setActiveReport("baseline");
-                  setNotice(
-                    "Experiment discarded. Original bytes are unchanged.",
-                  );
-                }}
-              />
-            )}
-            {report && derivedReport && (
-              <ComparisonView
-                reports={{ baseline: report, derived: derivedReport }}
-              />
-            )}
-            {report && derivedReport && (
-              <div
-                className="report-tabs"
-                role="group"
-                aria-label="Choose full report"
-              >
-                <button
-                  aria-pressed={activeReport === "baseline"}
-                  onClick={() => setActiveReport("baseline")}
-                >
-                  Original report
-                </button>
-                <button
-                  aria-pressed={activeReport === "derived"}
-                  onClick={() => setActiveReport("derived")}
-                >
-                  Experiment report
-                </button>
-              </div>
-            )}
             {busy && (
               <div className="working">
                 <div className="loading-lines" aria-hidden="true">
@@ -879,47 +897,14 @@ export default function App() {
                 report={shownReport}
                 bundle={shownBundle.parsed.document}
                 checkpoint={selection ? (cp ?? null) : null}
+                experiment={
+                  activeReport === "derived" && Boolean(derivedReport)
+                }
               />
             ) : (
               !busy &&
               !capture && (
                 <div className="empty-report">
-                  <div className="empty-symbol" aria-hidden="true">
-                    <svg viewBox="0 0 156 128" fill="none">
-                      <path
-                        className="instrument-guides"
-                        d="M0 64h156M78 0v128M16 12h12M16 12v12M140 12h-12M140 12v12M16 116h12M16 116v-12M140 116h-12M140 116v-12"
-                      />
-                      <circle
-                        className="instrument-ring"
-                        cx="78"
-                        cy="64"
-                        r="47"
-                      />
-                      <circle
-                        className="instrument-ring inner"
-                        cx="78"
-                        cy="64"
-                        r="32"
-                      />
-                      <circle
-                        className="instrument-core"
-                        cx="78"
-                        cy="64"
-                        r="12"
-                      />
-                      <path
-                        className="instrument-focus"
-                        d="M78 8v11M78 109v11M22 64h11M123 64h11M109 97l15 15"
-                      />
-                      <circle
-                        className="instrument-dot"
-                        cx="109"
-                        cy="29"
-                        r="4"
-                      />
-                    </svg>
-                  </div>
                   <p className="eyebrow">
                     {bundle ? "Input prepared" : "Your local workspace"}
                   </p>
@@ -930,30 +915,21 @@ export default function App() {
                   </h2>
                   <p>
                     {bundle
-                      ? "Your input has been structurally inspected. Run verification to check signatures, signer weight, and the requested finality claim."
-                      : "Load a signed example or import your evidence. Monocle makes each verification step visible, from the original bytes to the finality claim."}
+                      ? "Your input has been structurally inspected. Select a checkpoint, then verify to check signatures, signer weight, and the requested finality claim."
+                      : "Load a signed example or import your evidence. Monocle shows each verification step, from the original bytes to the finality claim."}
                   </p>
                   <ol className="pipeline">
                     <li>
-                      <span className="pipeline-number" aria-hidden="true">
-                        01
-                      </span>
                       <strong>Decode</strong>
-                      <span>Certificate bytes & signer ranks</span>
+                      <span>Certificate bytes and signer ranks</span>
                     </li>
                     <li>
-                      <span className="pipeline-number" aria-hidden="true">
-                        02
-                      </span>
                       <strong>Authenticate</strong>
-                      <span>BLS signatures & key qualification</span>
+                      <span>BLS signatures and key proofs of possession</span>
                     </li>
                     <li>
-                      <span className="pipeline-number" aria-hidden="true">
-                        03
-                      </span>
                       <strong>Evaluate</strong>
-                      <span>Stake thresholds & finality scope</span>
+                      <span>Exact stake thresholds and finality scope</span>
                     </li>
                   </ol>
                   <p className="empty-footnote">
@@ -963,99 +939,47 @@ export default function App() {
                 </div>
               )
             )}
-          </div>
-        </div>
-        <section
-          className="session-tools"
-          aria-label="Capture and replay tools"
-        >
-          <section className="input-section capture-controls">
-            <p className="eyebrow">Recorded source</p>
-            <h2>Recorded RPC evidence</h2>
-            <p className="small muted">
-              Inspect a saved getAgGenesisCert response. Historical context is
-              required before it can become verification input.
-            </p>
-            <button
-              className="full-width"
-              onClick={() =>
-                void importCapture({
-                  bytes: encoder.encode(recordedCapture.source_json),
-                  name: "Recorded testnet response",
-                })
-              }
-            >
-              Load recorded testnet response
-            </button>
-            <p className="small muted">
-              Supplied by the project owner; retrieval time and endpoint origin
-              have not been independently established.
-            </p>
-            <label htmlFor="capture-file">Import genesis RPC response</label>
-            <input
-              id="capture-file"
-              type="file"
-              accept=".json,application/json"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                e.target.value = "";
-                if (file) void importCapture(file);
-              }}
-            />
-            <p className="small muted">Raw JSON-RPC response · up to 64 KiB</p>
           </section>
-          <section className="input-section replay-controls">
-            <p className="eyebrow">Reproduce a result</p>
-            <h2>Portable replay</h2>
-            <p className="small muted">
-              Share original bytes, the experiment, and recorded reports. Trust
-              must be selected again on import.
-            </p>
-            <label className="inline-label">
-              <input
-                type="checkbox"
-                checked={includeCheckpoint}
-                disabled={!checkpoint}
-                onChange={(e) => setIncludeCheckpoint(e.target.checked)}
-              />{" "}
-              Include checkpoint bytes
-            </label>
-            <button
-              className="full-width"
-              disabled={!bundle || Boolean(busy)}
-              onClick={exportReplay}
-            >
-              Export replay
-            </button>
-            <label htmlFor="replay-file">Import replay file</label>
-            <input
-              id="replay-file"
-              type="file"
-              accept=".json,application/json"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                e.target.value = "";
-                if (file) void importReplay(file);
-              }}
-            />
-            <p className="small muted">Monocle replay v1 · up to 16 MiB</p>
-            {replayInfo && <p className="small break">{replayInfo}</p>}
-            {requiredCheckpoint && (
-              <details>
-                <summary>Required checkpoint digest</summary>
-                <p className="mono small break">{requiredCheckpoint}</p>
+          <section className="lab-panel" aria-label="Experiments">
+            {bundle ? (
+              <>
+                <TamperLab
+                  key={bundle.parsed.digest}
+                  baseline={bundle}
+                  derived={derived}
+                  busy={Boolean(busy)}
+                  create={createExperiment}
+                  reset={() => {
+                    invalidate();
+                    setDerived(null);
+                    setActiveReport("baseline");
+                    setNotice(
+                      "Experiment discarded. Original bytes are unchanged.",
+                    );
+                  }}
+                />
+                {report && derivedReport && (
+                  <ComparisonView
+                    reports={{ baseline: report, derived: derivedReport }}
+                  />
+                )}
+              </>
+            ) : (
+              <div className="lab-empty">
+                <h2>Experiments</h2>
                 <p className="small muted">
-                  {checkpoint
-                    ? "Select this exact checkpoint to reproduce the recorded context."
-                    : "Checkpoint bytes are not included. Import the referenced checkpoint separately."}
+                  Load evidence to change one byte of a certificate in a
+                  separate copy. Both the original and the experiment are
+                  verified again under the same checkpoint, and the checks that
+                  changed are listed here.
                 </p>
-              </details>
+              </div>
             )}
           </section>
-        </section>
+        </div>
       </main>
       <footer className="app-footer">
-        <span>Monocle · Fixed-checkpoint research tool</span>
+        <span>Monocle, a fixed-checkpoint research tool for Alpenglow</span>
         <span>Authenticity of the checkpoint is an external assumption.</span>
       </footer>
     </div>

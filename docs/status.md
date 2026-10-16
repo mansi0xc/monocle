@@ -4,9 +4,9 @@ Updated: 2026-10-16.
 
 ## Current state
 
-Mansi committed C8 as `75cbd85` and confirmed it was merged into main. C9 adopts the owner-supplied feather/lens symbol and burgundy/navy/cream palette across the landing and inspector, with matching favicon and transparent SVG/PNG exports. It is ready for owner review on the existing `codex/monocle-ui` checkout. The interface workflows and verification model remain unchanged. Colosseum feature exploration is paused.
+Mansi committed C10, the design study, as `9d2566e` and `a6d562b` and chose the Dusk direction. C11 implements Dusk in the product: an indigo/alpenglow palette, locally bundled Schibsted Grotesk and Red Hat Mono, a landing page built from real fixture outcomes, and a three-column inspector (evidence and trust, verdict-first report, experiments). It is ready for owner review. The verification model, trust rules, tamper/replay and capture behaviour are unchanged. Colosseum feature exploration is paused.
 
-The landing page's Verify/Tamper/Replay preview is explicitly illustrative and synthetic. It cannot load evidence or grant trust. The actual inspector preserves its in-memory evidence and checkpoint choices when navigating home and back; refreshing still discards the session.
+The landing page restates synthetic fixture results with their diagnostic codes and labels them as such. It cannot load evidence or grant trust. The actual inspector preserves its in-memory evidence and checkpoint choices when navigating home and back; refreshing still discards the session.
 
 The recorded response at slot `444625255` remains **INCONCLUSIVE**. Its historical checkpoint, signing context, producer compatibility, and qualifying proofs have not been established. Capture inspection does not run signature, quorum, or finality checks and never substitutes an unrelated checkpoint.
 
@@ -26,9 +26,10 @@ The genuine Rust/WASM verification paths, immutable tamper experiments, fresh di
 | C7 - Capture integration | Committed by Mansi: `e396ade` |
 | C8 - Landing page and product UI | Committed by Mansi: `75cbd85`; merge confirmed |
 | C9 - Reference logo and palette | Committed by Mansi: `8c10872`; merged |
-| C10 - Design directions | Static previews ready for owner review; no product change |
+| C10 - Design directions | Committed by Mansi: `9d2566e`, `a6d562b`; Dusk chosen |
+| C11 - Dusk implementation | Implemented; awaiting owner review/commit |
 
-C10 adds three static design-direction previews under `apps/design-study/` (Dusk, Survey, Chronograph) for the owner to choose from. They use captured synthetic-fixture results, run no verifier, and change no product behaviour. The shipped interface remains the C9 design until a direction is selected and implemented in a later checkpoint.
+C10 added three static design-direction previews under `apps/design-study/`; the owner chose Dusk, which C11 implements.
 
 ## Run and validate
 
@@ -38,7 +39,9 @@ Use `npm run inspect:capture -- fixtures/captures/testnet-genesis-rpc.json` for 
 
 C8 validation passes TypeScript checking, production Vite compilation, formatting, eight worker lifecycle tests, and 33 Chrome browser tests. Browser coverage includes landing navigation/history, checkpoint selection, real WASM verification, tampering, replay, captures, offline zero-HTTP behavior, and automated accessibility checks. Desktop/mobile landing and product screenshots were visually inspected.
 
-C9 reference/palette validation passes TypeScript, formatting, production Vite compilation, eight worker tests and all 33 Chrome browser regressions. Automated accessibility, offline zero-HTTP behaviour, explicit trust, captures, tampering, and replay pass with the new palette. Desktop/mobile landing, verification, capture, and comparison screenshots were inspected. Exact navy/cream and burgundy/cream contrast ratios are 10.30:1 and 5.42:1. Native code remains unchanged.
+C11 validation passes TypeScript, formatting, production compilation, contract checks, eight worker tests and all 33 Chrome browser tests (landing tests rewritten for the new page; inspector, capture and replay tests unchanged). Native code remains unchanged.
+
+C9 reference/palette validation passed TypeScript, formatting, production Vite compilation, eight worker tests and all 33 Chrome browser regressions. Automated accessibility, offline zero-HTTP behaviour, explicit trust, captures, tampering, and replay pass with the new palette. Desktop/mobile landing, verification, capture, and comparison screenshots were inspected. Exact navy/cream and burgundy/cream contrast ratios are 10.30:1 and 5.42:1. Native code remains unchanged.
 
 The full C7 gate previously passed 74 native Rust tests and the native/browser comparison corpora described in [testing.md](testing.md). Native code, contracts, fixtures, and cryptographic inputs are unchanged in C8; those native suites were not rerun for this presentation checkpoint.
 

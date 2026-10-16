@@ -186,7 +186,7 @@ Acceptance:
 - TypeScript, formatting, production compilation, and relevant complete browser regressions pass.
 - Update ignored handoff 010, leave changes unstaged, and pause for the owner commit.
 
-## C10 - Design directions (ready for owner review)
+## C10 - Design directions (committed)
 
 Requested 2026-10-16. Critique the C8/C9 landing page and inspector, then explore three distinct visual directions for the Alpenglow launch while keeping the feather-and-lens mark. Each direction is a static browser preview in `apps/design-study/` showing a landing hero and a populated inspector. Preview data was captured from a real local Rust/WASM run of the signed synthetic fixtures and is labelled synthetic on every page. No product code, verifier, contract, fixture, or trust behaviour changes in this checkpoint; implementing a chosen direction is a later checkpoint that requires the owner's selection.
 
@@ -196,3 +196,16 @@ Acceptance:
 - Previews use captured fixture results and never imply network verification or grant trust.
 - Desktop, tablet, and phone widths render without horizontal overflow; automated WCAG A/AA checks pass.
 - Update ignored handoff 011, leave changes unstaged, and pause for the owner's commit and direction choice.
+
+## C11 - Dusk implementation (ready for owner review)
+
+Requested 2026-10-16 after Mansi committed C10 (`9d2566e`, `a6d562b`) and chose the Dusk direction. Implement it in the product. The landing page shows the stake ridge, the real fixture outcomes, the capabilities, and the "establishes / stays with you" ledger. The inspector has an app bar with the report switch, an evidence/trust/verify rail, a verdict-first report with honest stake meters, and an experiments column with the comparison. Bundle fonts locally and keep every verification, trust, tamper, replay, capture and offline boundary unchanged.
+
+Acceptance:
+
+- Landing never loads evidence or grants trust; fixture-derived content is labelled synthetic.
+- Inspector, capture and replay browser regressions pass unchanged; landing tests are updated for the new content.
+- A stake meter never implies quorum when the quorum check did not run.
+- Desktop, tablet and phone layouts are inspected; automated accessibility passes.
+- Update design/product/interface docs and ignored handoff 012; leave changes unstaged and pause for the owner's commit.
+

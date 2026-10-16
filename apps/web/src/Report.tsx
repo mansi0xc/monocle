@@ -20,7 +20,7 @@ export function Trace({ checks }: { checks: CheckResult[] }) {
                 ? "×"
                 : "—"}
           </span>
-          <div>
+          <div className="check-body">
             <div className="check-title">
               <strong>{words(check.stage)}</strong>
               <span className="check-status">
@@ -28,15 +28,55 @@ export function Trace({ checks }: { checks: CheckResult[] }) {
               </span>
             </div>
             <p>{check.diagnostic.message}</p>
-            <details className="diagnostic">
-              <summary>Diagnostic</summary>
-              <code>{check.diagnostic.code}</code>
-              <span className="mono">{check.diagnostic.path}</span>
-            </details>
           </div>
+          <span className="diagnostic">
+            <code>{check.diagnostic.code}</code>
+            {check.diagnostic.code !== "OK" && (
+              <span className="mono">{check.diagnostic.path}</span>
+            )}
+          </span>
         </li>
       ))}
     </ol>
+  );
+}
+/** Display-only percentage; exact decimal strings are still shown beside it. */
+function percent(part: string, whole: string) {
+  const total = BigInt(whole);
+  if (total === 0n) return 0;
+  return Math.min(100, Number((BigInt(part) * 10000n) / total) / 100);
+}
+function StakeMeter({ cert }: { cert: CertificateReport }) {
+  if (cert.selected_stake === null || cert.total_stake === null) return null;
+  const quorum = cert.checks.find((c) => c.stage === "quorum");
+  const evaluated = quorum?.status === "PASS" || quorum?.status === "FAIL";
+  const share = percent(cert.selected_stake, cert.total_stake);
+  return (
+    <div
+      className="stake-meter"
+      data-evaluated={evaluated}
+      data-status={quorum?.status ?? "NOT_CHECKED"}
+    >
+      <div className="stake-label">
+        <span className="mono">{cert.certificate_id}</span>
+        <span className="stake-numbers mono">
+          {cert.selected_stake} / {cert.total_stake}
+        </span>
+      </div>
+      <div className="stake-bar" aria-hidden="true">
+        <i style={{ width: `${share}%` }} />
+        {cert.threshold_percent !== null && (
+          <b style={{ left: `${cert.threshold_percent}%` }} />
+        )}
+      </div>
+      <p className="stake-note">
+        {!evaluated
+          ? "Quorum not evaluated; an earlier check stopped this certificate."
+          : cert.threshold_percent !== null
+            ? `Needs ${cert.threshold_percent}% of checkpoint stake · quorum ${quorum!.status === "PASS" ? "met" : "not met"}`
+            : `Quorum ${quorum!.status === "PASS" ? "met" : "not met"}`}
+      </p>
+    </div>
   );
 }
 function Signers({
@@ -222,34 +262,54 @@ export function Report({
   report,
   bundle,
   checkpoint,
+  experiment = false,
 }: {
   report: EvidenceVerificationReport;
   bundle: ProofBundle;
   checkpoint: EpochCheckpoint | null;
+  experiment?: boolean;
 }) {
   return (
     <>
       <div className="result-header" data-status={report.conclusion}>
-        <p className="result-label">
-          <strong className="outcome-badge" data-status={report.conclusion}>
-            {report.conclusion}
-          </strong>{" "}
-          <span>
-            {report.checkpoint_digest
-              ? "under the selected checkpoint"
-              : "without a selected trusted checkpoint"}
-          </span>
-        </p>
-        <h2>{reportTitle(report)}</h2>
-        <p>
-          {report.conclusion === "REJECTED"
-            ? "The supplied evidence failed a check. This does not prove that the block is non-final."
-            : report.conclusion === "INCONCLUSIVE"
-              ? "A required check could not establish the requested claim. Read the trace for missing context or unsupported evidence."
-              : report.evidence_scope === "genesis_migration"
-                ? "This establishes migration-anchor evidence only. It does not prove ordinary block finality or completed network migration."
-                : "The selected evidence satisfies the requested scope, subject to the checkpoint and protocol assumptions below."}
-        </p>
+        <div className="result-copy">
+          <p className="result-label">
+            <strong className="outcome-badge" data-status={report.conclusion}>
+              {report.conclusion}
+            </strong>{" "}
+            <span>
+              {report.checkpoint_digest
+                ? "under the selected checkpoint"
+                : "without a selected trusted checkpoint"}
+            </span>
+          </p>
+          <h2>{reportTitle(report)}</h2>
+          <p>
+            {report.conclusion === "REJECTED"
+              ? "The supplied evidence failed a check. This does not prove that the block is non-final."
+              : report.conclusion === "INCONCLUSIVE"
+                ? "A required check could not establish the requested claim. Read the trace for missing context or unsupported evidence."
+                : report.evidence_scope === "genesis_migration"
+                  ? "This establishes migration-anchor evidence only. It does not prove ordinary block finality or completed network migration."
+                  : "The selected evidence satisfies the requested scope, subject to the checkpoint and protocol assumptions below."}
+          </p>
+          {experiment && (
+            <p className="experiment-note">
+              Showing the experiment report. The original bytes are unchanged.
+            </p>
+          )}
+        </div>
+        {report.certificates.some((c) => c.selected_stake !== null) && (
+          <div
+            className="stake-meters"
+            role="group"
+            aria-label="Signer stake by certificate"
+          >
+            {report.certificates.map((cert) => (
+              <StakeMeter key={cert.certificate_id} cert={cert} />
+            ))}
+          </div>
+        )}
       </div>
       <dl className="facts result-facts">
         <dt>Established scope</dt>
