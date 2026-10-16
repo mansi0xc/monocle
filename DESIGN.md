@@ -1,6 +1,6 @@
 # Monocle interface
 
-C11 implements the Dusk direction chosen by the owner on 2026-10-16 from the C10 design study (`apps/design-study/`). Product context is in [PRODUCT.md](PRODUCT.md); navigation and scope are documented in [docs/interface.md](docs/interface.md).
+C11 implements the Dusk direction, and C12 adds its serif display face, chosen by the owner on 2026-10-16 from the C10 design study (`apps/design-study/`). Product context is in [PRODUCT.md](PRODUCT.md); navigation and scope are documented in [docs/interface.md](docs/interface.md).
 
 ## Direction
 
@@ -10,7 +10,13 @@ The landing hero is data, not decoration. Its ridge is the fast-finality fixture
 
 ## Typography and assets
 
-Schibsted Grotesk variable (`400–900`) carries the wordmark, headings, and interface text. Red Hat Mono variable (`300–700`) carries digests, byte views, diagnostic codes, and exact integers. Their Latin-subset WOFF2 files total about 69 kB and are local Vite assets. Both SIL Open Font Licenses and source URLs live in `apps/web/src/fonts/`. No external image or font service is contacted at runtime.
+Three faces, each with one job (C12, after owner feedback that a single grotesk made the site monotonous):
+
+- **Newsreader** (variable, instanced to weights `300–500` and optical sizes `24–72`) is the display face. It sets the landing headline and section titles, capability and ledger statements, outcome names, report verdict titles, report section titles, and the experiments column headings. Large sizes use the light weight.
+- **Schibsted Grotesk** (variable `400–900`) carries the wordmark, navigation, controls, rail headings, labels, and running text.
+- **Red Hat Mono** (variable `300–700`) carries digests, byte views, diagnostic codes, verdict badges, and exact integers.
+
+All three Latin-subset WOFF2 files (about 155 kB together) are local Vite assets. Their SIL Open Font Licenses and sources live in `apps/web/src/fonts/`. No external image or font service is contacted at runtime.
 
 Headings use sentence case. Status is always a word plus a symbol (`✓` verified/pass, `×` rejected/fail, `—` inconclusive/not run), never colour alone.
 

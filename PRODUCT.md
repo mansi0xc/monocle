@@ -18,7 +18,7 @@ Precise, calm, and direct. Explain trust assumptions beside the result. Use read
 
 The owner chose the Dusk direction on 2026-10-16 (C10 design study, implemented in C11). It supersedes the C9 cream/navy/burgundy product palette. Dusk uses an indigo night canvas, snow text, and a rose-to-amber alpenglow light reserved for primary actions, selected emphasis and the landing ridge. The ridge is drawn from the fast fixture's real cumulative signer stake and is labelled as synthetic. The owner-supplied feather-and-lens symbol is kept; in the product the feather is rose and the lens snow. Exported brand files keep the reference colours.
 
-Schibsted Grotesk carries headings and interface text; Red Hat Mono carries digests, codes and exact integers. Both are bundled locally. All input, trust, result, and offline boundaries remain unchanged. Status words and check symbols retain meaning independently of their colour.
+Newsreader, a light serif, carries headlines, section titles and verdicts. Schibsted Grotesk carries interface and body text, and Red Hat Mono carries digests, codes and exact integers. All three are bundled locally. All input, trust, result, and offline boundaries remain unchanged. Status words and check symbols retain meaning independently of their colour.
 
 ## Interaction and accessibility
 

@@ -197,7 +197,7 @@ Acceptance:
 - Desktop, tablet, and phone widths render without horizontal overflow; automated WCAG A/AA checks pass.
 - Update ignored handoff 011, leave changes unstaged, and pause for the owner's commit and direction choice.
 
-## C11 - Dusk implementation (ready for owner review)
+## C11 - Dusk implementation (committed)
 
 Requested 2026-10-16 after Mansi committed C10 (`9d2566e`, `a6d562b`) and chose the Dusk direction. Implement it in the product. The landing page shows the stake ridge, the real fixture outcomes, the capabilities, and the "establishes / stays with you" ledger. The inspector has an app bar with the report switch, an evidence/trust/verify rail, a verdict-first report with honest stake meters, and an experiments column with the comparison. Bundle fonts locally and keep every verification, trust, tamper, replay, capture and offline boundary unchanged.
 
@@ -208,4 +208,14 @@ Acceptance:
 - A stake meter never implies quorum when the quorum check did not run.
 - Desktop, tablet and phone layouts are inspected; automated accessibility passes.
 - Update design/product/interface docs and ignored handoff 012; leave changes unstaged and pause for the owner's commit.
+
+## C12 - Display typeface (ready for owner review)
+
+Requested 2026-10-16 after Mansi committed C11 (`048c3a7`). Using one grotesk for every heading and paragraph made the site monotonous. Add a locally bundled serif display face (Newsreader) for headlines, section titles and verdicts. Keep the grotesk for interface and body text and the mono for data.
+
+Acceptance:
+
+- The font is bundled locally with its licence, with no runtime font requests; file size is kept modest.
+- Typography changes only presentation; all browser regressions and accessibility scans pass.
+- Update design docs and ignored handoff 013; leave changes unstaged and pause for the owner's commit.
 

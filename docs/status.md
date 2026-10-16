@@ -4,7 +4,7 @@ Updated: 2026-10-16.
 
 ## Current state
 
-Mansi committed C10, the design study, as `9d2566e` and `a6d562b` and chose the Dusk direction. C11 implements Dusk in the product: an indigo/alpenglow palette, locally bundled Schibsted Grotesk and Red Hat Mono, a landing page built from real fixture outcomes, and a three-column inspector (evidence and trust, verdict-first report, experiments). It is ready for owner review. The verification model, trust rules, tamper/replay and capture behaviour are unchanged. Colosseum feature exploration is paused.
+Mansi committed C10, the design study, as `9d2566e` and `a6d562b` and chose the Dusk direction. C11 implements Dusk in the product: an indigo/alpenglow palette, locally bundled Schibsted Grotesk and Red Hat Mono, a landing page built from real fixture outcomes, and a three-column inspector (evidence and trust, verdict-first report, experiments). Mansi committed it as `048c3a7`. C12, now ready for owner review, adds Newsreader as a serif display face for headlines, section titles and verdicts, so headings no longer share the interface font. The verification model, trust rules, tamper/replay and capture behaviour are unchanged. Colosseum feature exploration is paused.
 
 The landing page restates synthetic fixture results with their diagnostic codes and labels them as such. It cannot load evidence or grant trust. The actual inspector preserves its in-memory evidence and checkpoint choices when navigating home and back; refreshing still discards the session.
 
@@ -27,7 +27,8 @@ The genuine Rust/WASM verification paths, immutable tamper experiments, fresh di
 | C8 - Landing page and product UI | Committed by Mansi: `75cbd85`; merge confirmed |
 | C9 - Reference logo and palette | Committed by Mansi: `8c10872`; merged |
 | C10 - Design directions | Committed by Mansi: `9d2566e`, `a6d562b`; Dusk chosen |
-| C11 - Dusk implementation | Implemented; awaiting owner review/commit |
+| C11 - Dusk implementation | Committed by Mansi: `048c3a7` |
+| C12 - Display typeface | Implemented; awaiting owner review/commit |
 
 C10 added three static design-direction previews under `apps/design-study/`; the owner chose Dusk, which C11 implements.
 
