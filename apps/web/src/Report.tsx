@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import type {
   CertificateReport,
   CheckResult,
@@ -12,7 +12,11 @@ export function Trace({ checks }: { checks: CheckResult[] }) {
   return (
     <ol className="trace">
       {checks.map((check, i) => (
-        <li key={i} data-status={check.status}>
+        <li
+          key={i}
+          data-status={check.status}
+          style={{ "--i": i } as CSSProperties}
+        >
           <span className="check-symbol" aria-hidden="true">
             {check.status === "PASS"
               ? "✓"

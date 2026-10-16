@@ -1187,6 +1187,7 @@ td {
 }
 /* Check lanes: each changed check, original beside experiment. */
 .comparison-table th[scope="row"] {
+  padding-left: 10px;
   color: var(--snow);
   font-weight: 500;
   white-space: normal;
@@ -1305,6 +1306,57 @@ td {
   }
   .result-facts dd {
     margin-bottom: 8px;
+  }
+}
+/* Inspector motion: each run reveals its trace in check order. */
+@media (prefers-reduced-motion: no-preference) {
+  .trace > li {
+    animation: check-in 0.38s ease-out both;
+    animation-delay: calc(var(--i, 0) * 55ms);
+  }
+  .stake-bar i {
+    transform-origin: left center;
+    animation: stake-fill 0.9s cubic-bezier(0.22, 0.8, 0.24, 1) 0.15s both;
+  }
+  .result-header h2,
+  .result-label {
+    animation: check-in 0.4s ease-out both;
+  }
+  .comparison-table tbody th {
+    animation: changed-flash 1.8s ease-out 0.2s both;
+  }
+  .trust-selected {
+    animation: trust-in 0.5s ease-out both;
+  }
+  /* Reveal by clipping, never by fading, so text keeps full contrast. */
+  @keyframes check-in {
+    from {
+      clip-path: inset(0 0 100% 0);
+      transform: translateY(6px);
+    }
+    to {
+      clip-path: inset(0 0 -20% 0);
+    }
+  }
+  @keyframes stake-fill {
+    from {
+      transform: scaleX(0);
+    }
+  }
+  /* An amber edge marks each changed check, then fades; the row background never changes. */
+  @keyframes changed-flash {
+    from {
+      box-shadow: inset 3px 0 0 var(--amber);
+    }
+    to {
+      box-shadow: inset 3px 0 0 transparent;
+    }
+  }
+  @keyframes trust-in {
+    from {
+      transform: translateY(4px);
+      box-shadow: inset 0 0 0 1px rgb(246 193 119 / 0.8);
+    }
   }
 }
 @media (prefers-reduced-motion: reduce) {

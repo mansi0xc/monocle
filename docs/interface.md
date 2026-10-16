@@ -6,7 +6,7 @@ C8 is a presentation and navigation checkpoint. It adds no consensus functionali
 
 The default page introduces Monocle and links to `#/inspect`. The inspector route uses a fragment so static hosting does not require a server-side route fallback. The documentation and source links open the public repository in a separate tab.
 
-The landing hero draws the fast fixture's cumulative signer stake against the 60% and 80% path thresholds, captioned as synthetic fixture data. An outcome list restates the six signed examples and the recorded capture with their real diagnostic codes, and a ledger separates what a result establishes from what stays the user's responsibility. The landing page neither loads evidence nor selects a checkpoint. “Open inspector” opens the real application with its existing empty state.
+The landing hero draws a fixture certificate's cumulative signer stake against its path threshold. A keyboard-operable switch shows four recorded fixture results (fast path, too little stake, slow path, genesis anchor), each captioned as synthetic. A "Break it on purpose" demo lets visitors flip byte 42 of the fast certificate and watch the recorded trace change; it states that it replays a recorded result and verifies nothing. An outcome list restates the six signed examples and the recorded capture with their real diagnostic codes, and a ledger separates what a result establishes from what stays the user's responsibility. The landing page neither loads evidence nor selects a checkpoint. “Open inspector” opens the real application with its existing empty state.
 
 ## Working with evidence
 

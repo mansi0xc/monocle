@@ -119,7 +119,11 @@ test("fixture outcomes are labelled and do not create evidence or select trust",
     "CAPTURE_CONTEXT_MISSING",
   ])
     await expect(outcomes.getByText(code, { exact: true })).toBeVisible();
-  await expect(page.getByRole("button")).toHaveCount(0);
+  for (const control of ["Load", "Verify evidence", "Use this checkpoint"])
+    await expect(
+      page.getByRole("button", { name: control, exact: true }),
+    ).toHaveCount(0);
+  await expect(page.locator('input[type="file"]')).toHaveCount(0);
   await expect(page.getByLabel("Evidence report")).toHaveCount(0);
   await openInspector(page);
   await expect(
@@ -131,6 +135,47 @@ test("fixture outcomes are labelled and do not create evidence or select trust",
   await expect(
     page.getByRole("button", { name: "Remove selection" }),
   ).toHaveCount(0);
+});
+
+test("ridge scenarios and the tamper demo restate recorded results without verifying", async ({
+  page,
+}) => {
+  const scenarios = page.getByRole("group", {
+    name: "Fixture certificate shown on the ridge",
+  });
+  const hero = page.locator(".landing-hero");
+  await expect(
+    scenarios.getByRole("button", { name: "Fast path", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  for (const [name, code, caption] of [
+    ["Too little stake", "INSUFFICIENT_STAKE", "65 of 100 stake"],
+    ["Slow path", "SLOW_FINALITY_ESTABLISHED", "clearing 60% in both rounds"],
+    ["Genesis anchor", "GENESIS_ANCHOR_ESTABLISHED", "82 of 100 stake"],
+    ["Fast path", "FAST_FINALITY_ESTABLISHED", "40 + 25 + 15 of 100 stake"],
+  ]) {
+    const button = scenarios.getByRole("button", { name, exact: true });
+    await button.focus();
+    await page.keyboard.press("Enter");
+    await expect(button).toHaveAttribute("aria-pressed", "true");
+    await expect(hero.locator(".ridge-result")).toContainText(code);
+    await expect(hero.locator(".ridge-caption")).toContainText(caption);
+    await expect(hero.locator(".ridge-caption")).toContainText(
+      "Synthetic keys, invented stake.",
+    );
+  }
+  const demo = page.locator(".tamper-demo");
+  await expect(demo).toContainText("Nothing is verified on this page");
+  const byte = demo.getByRole("button", { name: /^Byte 42: 01\./ });
+  await byte.click();
+  await expect(
+    demo.getByRole("button", { name: /^Byte 42: 00, changed from 01\./ }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await expect(demo).toContainText("INVALID_SIGNATURE");
+  await expect(demo).toContainText("PREREQUISITE_MISSING");
+  await expect(demo).toContainText("× REJECTED");
+  await demo.getByRole("button", { name: /^Byte 42/ }).click();
+  await expect(demo).toContainText("✓ VERIFIED");
+  await expect(page.getByLabel("Evidence report")).toHaveCount(0);
 });
 
 test("home and browser history preserve loaded evidence without granting checkpoint trust", async ({

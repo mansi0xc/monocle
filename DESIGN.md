@@ -1,6 +1,6 @@
 # Monocle interface
 
-C11 implements the Dusk direction, and C12 adds its serif display face, chosen by the owner on 2026-10-16 from the C10 design study (`apps/design-study/`). Product context is in [PRODUCT.md](PRODUCT.md); navigation and scope are documented in [docs/interface.md](docs/interface.md).
+C11 implements the Dusk direction, C12 adds its serif display face, and C13 adds explanatory motion and interaction, chosen by the owner on 2026-10-16 from the C10 design study (`apps/design-study/`). Product context is in [PRODUCT.md](PRODUCT.md); navigation and scope are documented in [docs/interface.md](docs/interface.md).
 
 ## Direction
 
@@ -52,9 +52,16 @@ At 1181px and wider, the rail and experiment column stay in view and scroll inde
 
 `Root.tsx` routes with URL hashes, compatible with static hosting. `/` and `#/` show the landing page, `#/inspect` shows the inspector, and `#inspector` is the inspector's skip target. `#outcomes` is a landing anchor. The inspector loads lazily and stays mounted, hidden from layout and accessibility while on the landing page. Nothing is persisted across refreshes.
 
-## Motion
+## Motion and interaction
 
-The landing summit glow fades in once. Loading placeholders shimmer while the worker runs. All animation and transitions are removed under `prefers-reduced-motion`.
+C12 added the display face; C13 adds motion that explains something, not decoration:
+
+- **Landing entrance.** The one orchestrated moment: the ridge draws itself signer by signer (40 → 65 → 80), each signer's point appears in turn, and the summit lights when the climb meets the 80% line.
+- **Ridge scenarios.** A four-button switch (fast path, too little stake, slow path, genesis anchor) morphs the ridge between recorded fixture results. The relevant threshold line highlights, and the summit chip shows the real result code. "Too little stake" visibly stops below its line and the glow dims. The caption updates in a polite live region and always says "Synthetic keys, invented stake."
+- **Break it on purpose.** The fast certificate's real bytes 34–55. Byte 42 is a toggle button; flipping it from 01 to 00 slides the new value in, and the recorded trace cascades: signature fails, quorum and finality become "not run", and the verdict reads REJECTED with the non-finality caveat. The section states that it replays a recorded result and verifies nothing.
+- **Inspector.** After each run the trace reveals in check order, stake bars fill from zero to their exact share, the verdict title wipes in, a newly selected checkpoint card settles in, and each changed comparison row gets a fading amber edge.
+
+Reveals clip or move text rather than fading it, so text keeps full contrast at every frame and the automated scans pass mid-animation. Ridge morphing uses CSS `d` transitions (Chromium/Firefox; Safari snaps to the new shape). All motion is removed under `prefers-reduced-motion`.
 
 ## Validation boundaries
 

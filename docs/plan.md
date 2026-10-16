@@ -209,7 +209,7 @@ Acceptance:
 - Desktop, tablet and phone layouts are inspected; automated accessibility passes.
 - Update design/product/interface docs and ignored handoff 012; leave changes unstaged and pause for the owner's commit.
 
-## C12 - Display typeface (ready for owner review)
+## C12 - Display typeface (committed)
 
 Requested 2026-10-16 after Mansi committed C11 (`048c3a7`). Using one grotesk for every heading and paragraph made the site monotonous. Add a locally bundled serif display face (Newsreader) for headlines, section titles and verdicts. Keep the grotesk for interface and body text and the mono for data.
 
@@ -218,4 +218,19 @@ Acceptance:
 - The font is bundled locally with its licence, with no runtime font requests; file size is kept modest.
 - Typography changes only presentation; all browser regressions and accessibility scans pass.
 - Update design docs and ignored handoff 013; leave changes unstaged and pause for the owner's commit.
+
+## C13 - Motion and interaction (ready for owner review)
+
+Requested 2026-10-16 after Mansi committed C12 (`8bc8708`): the pages felt static. Add motion and interaction that explain Monocle's checks:
+
+- a single landing entrance in which the stake ridge climbs to its threshold;
+- a switch between recorded fixture scenarios;
+- an interactive one-byte tamper demo replaying the recorded trace;
+- ordered trace reveals, stake fills and changed-row markers in the inspector.
+
+Acceptance:
+
+- The landing page still never loads evidence, runs the verifier or grants trust; every interactive result is labelled as recorded synthetic data.
+- Motion never lowers text contrast and is removed under reduced motion; all browser regressions pass, with a new test for the landing interactions.
+- Update docs and ignored handoff 014; leave changes unstaged and pause for the owner's commit.
 
