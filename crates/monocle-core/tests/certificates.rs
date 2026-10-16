@@ -73,6 +73,7 @@ fn signed_corpus_has_expected_conclusions_and_failure_stages() {
                     serde_json::to_value(check.stage).unwrap() == case["expected"]["stage"]
                         && serde_json::to_value(check.diagnostic.code).unwrap()
                             == case["expected"]["code"]
+                        && check.diagnostic.path == case["expected"]["path"]
                 }),
             "{}",
             case["name"]
@@ -392,5 +393,120 @@ fn checkpoint_key_defects_leave_the_evidence_unjudged() {
         );
         assert_eq!(stage(Stage::Signature).status, CheckStatus::NotChecked);
         assert_eq!(stage(Stage::Quorum).status, CheckStatus::NotChecked);
+    }
+}
+
+fn with_raw(mut bundle: Value, change: impl FnOnce(&mut Vec<u8>)) -> Value {
+    let mut raw = hex::decode(bundle["certificates"][0]["raw_hex"].as_str().unwrap()).unwrap();
+    change(&mut raw);
+    bundle["certificates"][0]["raw_hex"] = json!(hex::encode(raw));
+    bundle
+}
+
+#[test]
+fn an_off_curve_signature_is_malformed_not_outside_the_subgroup() {
+    // The tamper lab's preset: flipping a coordinate bit leaves a point off the curve.
+    for (name, at) in [("valid_notarization", 42), ("valid_finalization", 10)] {
+        for offset in [at, at + 100] {
+            let (bundle, cp) = fixture(name);
+            let report = run(with_raw(bundle, |raw| raw[offset] ^= 1), cp);
+            let check = stage(&report, Stage::Signature);
+            assert_eq!(report.conclusion, Conclusion::Rejected, "{name} {offset}");
+            assert_eq!(
+                check.diagnostic.code,
+                Code::MalformedSignature,
+                "{name} {offset}"
+            );
+            assert_eq!(
+                check.diagnostic.path,
+                format!("certificates[0].raw_hex[{at}..{}]", at + 192)
+            );
+            assert_eq!(
+                stage(&report, Stage::Quorum).status,
+                CheckStatus::NotChecked
+            );
+        }
+    }
+}
+
+#[test]
+fn decoded_layout_names_every_field_of_the_fixed_byte_layout() {
+    for kind in [
+        "notarization",
+        "finalization",
+        "fast_finalization",
+        "genesis",
+    ] {
+        let wire = reference::message(kind, 42, [0x42; 32], 1234, [0x37; 192], vec![0, 5, 0, 3]);
+        let layout = decode_certificate(&wire).unwrap().layout;
+        let signature = if kind == "finalization" { 10 } else { 42 };
+        assert_eq!(layout.version, 0..1);
+        assert_eq!(layout.kind, 1..2);
+        assert_eq!(layout.slot, 2..10);
+        assert_eq!(layout.block_id, (kind != "finalization").then_some(10..42));
+        assert_eq!(layout.signature, signature..signature + 192);
+        assert_eq!(layout.bitmap_length, signature + 192..signature + 200);
+        assert_eq!(layout.bitmap, signature + 200..signature + 204);
+        assert_eq!(layout.shred_version, signature + 204..wire.len());
+        assert_eq!(&wire[layout.signature], &[0x37; 192]);
+        assert_eq!(&wire[layout.bitmap], &[0, 5, 0, 3]);
+    }
+}
+
+#[test]
+fn every_decoding_fault_names_bytes_inside_the_input() {
+    for kind in [
+        "notarization",
+        "finalization",
+        "fast_finalization",
+        "genesis",
+    ] {
+        let wire = reference::message(kind, 42, [0x42; 32], 1234, [0; 192], vec![0, 5, 0, 3]);
+        for end in 0..wire.len() {
+            let fault = decode_certificate(&wire[..end]).unwrap_err();
+            assert_eq!(fault.code, Code::MalformedCertificate, "{kind} {end}");
+            // A truncation points from the incomplete field to the end of the input.
+            assert!(
+                fault.bytes.start <= end && fault.bytes.end == end,
+                "{kind} {end}"
+            );
+        }
+        let length = if kind == "finalization" { 202 } else { 234 };
+        let mut oversized = wire.clone();
+        oversized[length..length + 8].copy_from_slice(&u64::MAX.to_le_bytes());
+        assert_eq!(
+            decode_certificate(&oversized).unwrap_err().bytes,
+            length..length + 8
+        );
+        let mut trailing = wire.clone();
+        trailing.extend_from_slice(&[0, 0, 0]);
+        let fault = decode_certificate(&trailing).unwrap_err();
+        assert_eq!(fault.bytes, wire.len()..wire.len() + 3);
+        assert!(fault.message.starts_with("3 trailing bytes"));
+    }
+}
+
+#[test]
+fn quorum_messages_state_exact_stake_and_the_required_minimum() {
+    let (bundle, cp) = fixture("notar_under_quorum");
+    assert_eq!(
+        stage(&run(bundle, cp), Stage::Quorum).diagnostic.message,
+        "Signers hold 58 of 100 stake; 60% needs at least 60. The signature itself is valid"
+    );
+    let (bundle, cp) = fixture("valid_fast");
+    assert_eq!(
+        stage(&run(bundle, cp), Stage::Quorum).diagnostic.message,
+        "Signers hold 80 of 100 stake, meeting the exact 80% threshold of 80"
+    );
+    // The displayed minimum must agree with the acceptance rule at every boundary.
+    for total in [1, 3, 7, 99, 100, 101, u64::MAX] {
+        for kind in CertificateKind::ALL {
+            let required = required_stake(total, *kind);
+            assert!(meets_threshold(required, total, *kind), "{total} {kind:?}");
+            assert!(
+                !meets_threshold(required - 1, total, *kind),
+                "{total} {kind:?}"
+            );
+        }
     }
 }

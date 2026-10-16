@@ -42,7 +42,7 @@ The declared envelope kind must match the wire tag. Decoded slot/block values mu
 2. Preserve checkpoint rank order. Each set bit selects one distinct rank; no sorting or denominator reduction occurs. The input parser already rejects duplicate identities/keys and noncontiguous ranks.
 3. Decode every selected G1 public key using the checked Solana BLS API. Malformed, off-curve, identity, and non-prime-order keys cannot qualify.
 4. Require and verify that key's actual G2 proof of possession. The policy is the SDK's standard compressed-public-key-bound PoP with **no extra application payload**. A missing proof is inconclusive; an invalid proof fails. No Boolean label or unsafe qualification shortcut replaces verification. Qualification results are cached only within this request and checkpoint.
-5. Decode the aggregate G2 signature with checked point/subgroup validation, explicitly reject identity, aggregate qualified keys, and verify the exact reconstructed source-vote bytes using `solana-bls-signatures 4.0.0`. The upstream verification path also rejects an identity aggregate public key.
+5. Decode the aggregate G2 signature with checked point/subgroup validation, explicitly reject identity, aggregate qualified keys, and verify the exact reconstructed source-vote bytes using `solana-bls-signatures 4.0.0`. The upstream verification path also rejects an identity aggregate public key. The checked conversion alone decides acceptance; after it rejects a signature, Monocle only classifies the reason (see [diagnostic locations](#diagnostic-locations-and-signature-codes)).
 6. Sum selected stakes with checked u64 addition, retain the checkpoint's original denominator, then compare `u128(selected) * 100 >= u128(total) * threshold_percent`. With u64 inputs and thresholds below 100, those products cannot overflow u128. No floating-point arithmetic decides quorum.
 
 Only participating keys need PoP qualification for this certificate. An unselected key without a proof does not remove its weight from the denominator. `selected_stake` reports the bitmap-selected weight; it is not evidence of a valid signature until the signature check passes.
@@ -65,6 +65,42 @@ Synthetic fixtures use invented context and public test keys. The supplied testn
 - Inspection with every selected certificate passing: `VERIFIED`, scoped to individual certificates.
 
 One failed certificate prevents a mixed bundle from receiving a successful overall inspection. A rejected bundle is not a chain-level proof that a block can never finalize. Reports are outputs, not importable trust tokens.
+
+## Diagnostic locations and signature codes
+
+C18 makes every certificate-level diagnostic name its exact location. A path is rooted at the bundle (or, for key qualification, the checkpoint) and, for certificate bytes, ends in a half-open **byte** range over the decoded `raw_hex` value. Offsets count bytes, not hex characters.
+
+| Path | Meaning |
+| --- | --- |
+| `certificates[1].raw_hex[42..234]` | Bytes 42 to 233 of the second certificate: its signature |
+| `certificates[0].kind` | The envelope's declared kind |
+| `claim.block_id_hex` | The bundle's claim field |
+| `validators[3].proof_of_possession_hex` | A field of the selected checkpoint |
+
+The index is the certificate's position in the bundle, which the report's `certificate_id` also identifies. Wire fields occupy these ranges (a slot-only finalization has no block ID, so its later fields start 32 bytes earlier):
+
+| Field | Bytes (notarization, fast finalization, genesis) | Bytes (finalization) |
+| --- | --- | --- |
+| Version, certificate tag | 0..1, 1..2 | 0..1, 1..2 |
+| Slot (u64 LE) | 2..10 | 2..10 |
+| Block ID | 10..42 | — |
+| Aggregate signature | 42..234 | 10..202 |
+| Bitmap length (u64 LE) | 234..242 | 202..210 |
+| Bitmap | 242..242+n | 210..210+n |
+| Shred version (u16 LE) | final 2 bytes | final 2 bytes |
+
+Decoding faults point at the field that failed: a truncation from the incomplete field to the end of the input, trailing data at the extra bytes, a wrong tag or version at its byte, and context or claim mismatches at the shred-version, slot or block-ID bytes. An envelope-kind mismatch names `certificates[i].kind`. Signer faults point inside the bitmap: the encoding byte, the 2-byte position count, the packed payload, or the last byte for nonzero padding. Signature checks name the signature bytes; quorum names the bitmap, because the signer set decides the stake. Passing signer, signature and quorum checks carry their locations too; a passing decoding check names the whole `raw_hex`, and a passing key qualification keeps `$`. Finality-level checks still name `claim`, and preflight checks keep their schema paths.
+
+Signature failures have distinct codes. All are evidence defects and `REJECTED`:
+
+| Code | Meaning |
+| --- | --- |
+| `MALFORMED_SIGNATURE` | Not a valid uncompressed G2 encoding, or not on the curve. The tamper lab's bit flip lands here. |
+| `SIGNATURE_OUTSIDE_SUBGROUP` | A curve point outside the prime-order subgroup |
+| `IDENTITY_SIGNATURE` | The point at infinity |
+| `INVALID_SIGNATURE` | A well-formed point that fails verification for the reconstructed payload and selected keys. BLS cannot say whether the payload, the signer set or the signature changed. |
+
+The classification runs only after the checked conversion has rejected a signature. It uses the same library's unchecked decoding and its `verify_subgroup` check, so it can never accept anything. Messages carry exact values: declared and available byte counts, signer positions against checkpoint size, and stake held against the integer minimum, for example `Signers hold 58 of 100 stake; 60% needs at least 60`. The displayed minimum is `ceil(total * threshold / 100)`, tested against the acceptance rule at every boundary.
 
 ## Compatibility evidence and reproducibility
 

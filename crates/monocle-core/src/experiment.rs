@@ -1,8 +1,5 @@
 //! One controlled replacement from an immutable baseline, plus untrusted replay packaging.
-use crate::{
-    certificate::{self, CertificateKind},
-    finality, *,
-};
+use crate::{certificate, finality, *};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 
@@ -148,11 +145,12 @@ pub fn apply_mutation(bytes: &[u8]) -> Result<DerivedEvidence, Diagnostic> {
             (offset.get(), after_hex.as_slice().to_vec())
         }
         MutationAction::SignatureBit {} => {
-            let cert = original
+            let (index, cert) = original
                 .document()
                 .certificates
                 .iter()
-                .find(|c| c.id == request.certificate_id)
+                .enumerate()
+                .find(|(_, c)| c.id == request.certificate_id)
                 .ok_or_else(|| {
                     invalid(
                         "certificate_id",
@@ -166,13 +164,10 @@ pub fn apply_mutation(bytes: &[u8]) -> Result<DerivedEvidence, Diagnostic> {
                     "Signature preset requires the pinned complete wire format",
                 ));
             }
-            let decoded = certificate::decode_certificate(cert.raw_hex.as_slice())?;
-            // V1 tag (1), kind (1), slot (8), optional block ID (32), then signature.
-            let offset = if decoded.kind == CertificateKind::Finalization {
-                10
-            } else {
-                42
-            };
+            let decoded = certificate::decode_certificate(cert.raw_hex.as_slice())
+                .map_err(|fault| fault.at(&format!("certificates[{index}].raw_hex"), 0))?;
+            // The decoder's layout locates the signature: byte 42, or 10 for a slot-only finalization.
+            let offset = decoded.layout.signature.start as u64;
             (offset, vec![decoded.signature[0] ^ 1])
         }
     };

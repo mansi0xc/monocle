@@ -91,3 +91,13 @@ C14 (step-by-step inspector) passes `npm run typecheck:web`, `npm run format:che
 C16 adds `.github/workflows/check.yml`, which runs `scripts/check-web.sh` in GitHub Actions on Ubuntu 24.04. The workflow passes actionlint 1.7.7 and structural checks: read-only permissions, SHA-pinned actions, and the gate command. Its first GitHub run (38897922360, commit `9531c59`) passed the full gate, confirming the Linux-specific steps.
 
 C17 adds a drift check to `scripts/check-contracts.sh`: it regenerates `packages/contracts/src/generated.ts` from Rust and compares it byte-for-byte with the committed file. A deliberately altered copy fails the comparison. A new bridge test pins operation numbers 1–9 and checks that unknown numbers (0, 10, `u32::MAX`) fail closed with `INVALID_SCHEMA`.
+
+C18 (precise diagnostics) passes the full gate with 82 Rust tests and 34 Chrome tests. Every certificate fixture now records its expected diagnostic path, computed independently of the runtime decoder, and both the native test and the native/browser harness match it. New tests cover:
+
+- off-curve signatures (`MALFORMED_SIGNATURE`, never misreported as outside the subgroup);
+- the decoded field layout for all four kinds;
+- fault ranges for every truncation length, oversized lengths and trailing bytes;
+- exact quorum messages, and agreement of the displayed minimum with the acceptance rule at boundary totals;
+- per-certificate indices in a mixed bundle.
+
+A first gate run lost one browser test to system sleep (confirmed in the power log); the rerun under `caffeinate -i` passed.

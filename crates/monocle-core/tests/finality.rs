@@ -318,3 +318,21 @@ fn a_defective_checkpoint_key_never_rejects_a_block_claim() {
     assert_eq!(finality.status, CheckStatus::NotChecked);
     assert_eq!(finality.diagnostic.code, Code::CertificateChecksIncomplete);
 }
+
+#[test]
+fn diagnostics_name_each_certificate_by_its_bundle_index() {
+    let report = run(&fixture("fast_with_bad_extra"));
+    let signature = |index: usize| {
+        report.certificates[index]
+            .checks
+            .iter()
+            .find(|check| check.stage == Stage::Signature)
+            .unwrap()
+            .diagnostic
+            .clone()
+    };
+    assert_eq!(signature(0).code, Code::Ok);
+    assert_eq!(signature(0).path, "certificates[0].raw_hex[42..234]");
+    assert_eq!(signature(1).code, Code::InvalidSignature);
+    assert_eq!(signature(1).path, "certificates[1].raw_hex[42..234]");
+}

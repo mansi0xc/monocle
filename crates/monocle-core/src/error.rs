@@ -42,6 +42,14 @@ pub enum Code {
     InvalidPublicKey,
     MissingPop,
     InvalidPop,
+    // Signature failures are distinct because a debugger must tell them apart:
+    // not a valid uncompressed G2 encoding or not on the curve,
+    MalformedSignature,
+    // on the curve but outside the prime-order subgroup,
+    SignatureOutsideSubgroup,
+    // the point at infinity,
+    IdentitySignature,
+    // or a well-formed point that does not verify for the payload and signer keys.
     InvalidSignature,
     InsufficientStake,
     StakeOverflow,

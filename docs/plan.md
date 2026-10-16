@@ -274,7 +274,7 @@ Acceptance:
 
 Result: committed by Mansi as `9531c59`; the first GitHub Actions run (38897922360) passed the full gate on Ubuntu 24.04.
 
-## C17 - Generated contracts (ready for owner review)
+## C17 - Generated contracts (committed)
 
 Requested 2026-10-16 after Mansi committed C16 (`9531c59`); the third item from the codebase review. The TypeScript contracts repeated Rust's diagnostic codes, stages, conclusions, kinds, limits and profile identifiers by hand, and the browser called the bridge with bare numbers 1–9. Generate those values from Rust and fail the gate if the committed copy drifts.
 
@@ -286,4 +286,19 @@ Acceptance:
 - `scripts/check-contracts.sh` regenerates the file and fails on any difference.
 - Structural interfaces stay hand-written and remain checked against real Rust output by `check-shapes.mjs`.
 - The full gate passes. Update the docs and ignored handoff 018; leave changes unstaged and pause for the owner's commit.
+
+Result: committed by Mansi as `d86dde0`.
+
+## C18 - Precise diagnostics (ready for owner review)
+
+Requested 2026-10-16 after Mansi committed C17 (`d86dde0`); the fourth item from the codebase review. Certificate diagnostics said `raw_hex`, `signature`, `bitmap` or `stake`, and four different signature failures shared `INVALID_SIGNATURE`. Name the exact bytes behind each certificate check and give each signature failure its own code.
+
+Acceptance:
+
+- Certificate-level paths name the bundle field and a half-open byte range of the decoded certificate, using the certificate's bundle index.
+- `MALFORMED_SIGNATURE`, `SIGNATURE_OUTSIDE_SUBGROUP` and `IDENTITY_SIGNATURE` separate from `INVALID_SIGNATURE`; the checked library conversion still alone decides acceptance.
+- Messages carry exact values, including stake held against the integer minimum.
+- Fixture expectations pin the path for every certificate case, computed independently of the runtime decoder; only the three affected expected codes change, and fixture inputs stay byte-identical.
+- Display labels describe what each example actually changes; the landing demo shows the code the real verifier produces.
+- The full gate passes. Update the docs and ignored handoff 019; leave changes unstaged and pause for the owner's commit.
 

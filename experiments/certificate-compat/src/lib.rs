@@ -53,7 +53,8 @@ pub fn corpus_results() -> Value {
                 checks
                     .iter()
                     .any(|check| check["stage"] == expected["stage"]
-                        && check["diagnostic"]["code"] == expected["code"]),
+                        && check["diagnostic"]["code"] == expected["code"]
+                        && check["diagnostic"]["path"] == expected["path"]),
                 "{}: missing expected diagnostic",
                 case["name"]
             );

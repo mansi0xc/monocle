@@ -1,11 +1,11 @@
 use super::{
-    CertificateReport, CertificateVerificationReport, PROFILE_ID, decode_certificate,
-    decode_signers, meets_threshold, signed_payload,
+    CertificateReport, CertificateVerificationReport, PROFILE_ID, byte_path, decode_certificate,
+    decode_signers, meets_threshold, required_stake, signed_payload,
 };
 use crate::*;
 use solana_bls_signatures::{
-    ProofOfPossession, Pubkey, PubkeyProjective, Signature, SignatureProjective, VerifyPop,
-    VerifySignature,
+    ProofOfPossession, Pubkey, PubkeyProjective, Signature, SignatureAffineUnchecked,
+    SignatureProjective, VerifyPop, VerifySignature,
     pubkey::{PopVerified, PubkeyAffine},
     signature::SignatureAffine,
 };
@@ -89,6 +89,21 @@ impl CertificateReport {
     }
 }
 
+/// Explain a signature the checked conversion has already rejected. This
+/// classification never accepts anything; it only chooses the diagnostic.
+fn rejected_signature(signature: &Signature) -> (Code, &'static str) {
+    match SignatureAffineUnchecked::try_from(signature) {
+        Ok(point) if point.verify_subgroup().is_err() => (
+            Code::SignatureOutsideSubgroup,
+            "Signature is a curve point outside the prime-order subgroup G2, so it cannot be a BLS signature",
+        ),
+        _ => (
+            Code::MalformedSignature,
+            "Signature bytes are not a valid uncompressed G2 point: the encoding flags or coordinates are invalid, or the point is not on the curve",
+        ),
+    }
+}
+
 fn qualify(entry: &ValidatorEntry) -> Result<PopVerified<PubkeyAffine>, Diagnostic> {
     let mut key_bytes = [0; 96];
     key_bytes.copy_from_slice(entry.bls_pubkey_hex.as_slice());
@@ -119,17 +134,23 @@ fn qualify(entry: &ValidatorEntry) -> Result<PopVerified<PubkeyAffine>, Diagnost
         })
 }
 
+/// Paths name the bundle field and, for certificate bytes, the half-open byte
+/// range within it, e.g. `certificates[0].raw_hex[42..234]` for a signature.
 fn verify_one(
+    index: usize,
     envelope: &CertificateEnvelope,
     bundle: &ProofBundle,
     checkpoint: &EpochCheckpoint,
     cache: &mut KeyCache,
 ) -> CertificateReport {
     let mut report = CertificateReport::new(envelope);
+    let raw = format!("certificates[{index}].raw_hex");
+    let bytes = |range| byte_path(&raw, range);
     let decoded = match decode_certificate(envelope.raw_hex.as_slice()) {
         Ok(cert) => cert,
-        Err(error) => return report.stop(Stage::CertificateDecoding, error),
+        Err(fault) => return report.stop(Stage::CertificateDecoding, fault.at(&raw, 0)),
     };
+    let layout = &decoded.layout;
     report.kind = Some(decoded.kind);
     report.slot = Some(DecimalU64::new(decoded.slot));
     report.block_id_hex = decoded.block_id.map(hex::encode);
@@ -139,8 +160,12 @@ fn verify_one(
             Stage::CertificateDecoding,
             Diagnostic::new(
                 Code::EnvelopeMismatch,
-                "kind",
-                "Envelope kind contradicts the certificate's actual wire tag",
+                format!("certificates[{index}].kind"),
+                format!(
+                    "Envelope kind contradicts the wire tag at {}, which encodes {}",
+                    bytes(&layout.kind),
+                    decoded.kind.name()
+                ),
             ),
         );
     }
@@ -149,24 +174,40 @@ fn verify_one(
             Stage::CertificateDecoding,
             Diagnostic::new(
                 Code::ContextMismatch,
-                "shred_version",
-                "Wire message shred version differs from the selected checkpoint",
+                bytes(&layout.shred_version),
+                format!(
+                    "Wire shred version {} differs from the selected checkpoint's {}",
+                    decoded.shred_version, checkpoint.context.shred_version
+                ),
             ),
         );
     }
-    if decoded.slot != bundle.claim.slot.get()
-        || bundle
-            .claim
-            .block_id_hex
-            .as_ref()
-            .is_some_and(|claim| decoded.block_id.is_some_and(|id| claim.as_slice() != id))
+    if decoded.slot != bundle.claim.slot.get() {
+        return report.stop(
+            Stage::CertificateDecoding,
+            Diagnostic::new(
+                Code::ClaimMismatch,
+                bytes(&layout.slot),
+                format!(
+                    "Certificate slot {} contradicts claim.slot {}",
+                    decoded.slot,
+                    bundle.claim.slot.get()
+                ),
+            ),
+        );
+    }
+    if let (Some(claim), Some(id), Some(at)) = (
+        bundle.claim.block_id_hex.as_ref(),
+        decoded.block_id,
+        layout.block_id.as_ref(),
+    ) && claim.as_slice() != id
     {
         return report.stop(
             Stage::CertificateDecoding,
             Diagnostic::new(
                 Code::ClaimMismatch,
-                "claim",
-                "Decoded slot/block contradicts the declared claim",
+                bytes(at),
+                "Certificate block ID contradicts claim.block_id_hex",
             ),
         );
     }
@@ -178,13 +219,19 @@ fn verify_one(
     }
     let payload = signed_payload(&decoded);
     report.signed_payload_hex = Some(hex::encode(&payload));
-    report.pass(
+    report.set(
         Stage::CertificateDecoding,
-        "Supported complete wire message and declared context agree",
+        CheckStatus::Pass,
+        Diagnostic::new(
+            Code::Ok,
+            raw.clone(),
+            "Supported complete wire message and declared context agree",
+        ),
     );
+    let bitmap_path = bytes(&layout.bitmap);
     let ranks = match decode_signers(&decoded.bitmap, checkpoint.validators.len()) {
         Ok(ranks) => ranks,
-        Err(error) => return report.stop(Stage::Signers, error),
+        Err(fault) => return report.stop(Stage::Signers, fault.at(&raw, layout.bitmap.start)),
     };
     let mut stake = 0u64;
     for rank in &ranks {
@@ -193,8 +240,8 @@ fn verify_one(
                 Stage::Signers,
                 Diagnostic::new(
                     Code::UnknownSignerRank,
-                    "bitmap",
-                    "No entry for selected rank",
+                    bitmap_path,
+                    format!("Signer position {rank} has no entry in the selected checkpoint"),
                 ),
             );
         };
@@ -203,7 +250,7 @@ fn verify_one(
                 Stage::Signers,
                 Diagnostic::new(
                     Code::StakeOverflow,
-                    "stake",
+                    bitmap_path,
                     "Selected stake accumulation overflow",
                 ),
             );
@@ -213,9 +260,14 @@ fn verify_one(
     report.signer_ranks = ranks.clone();
     report.selected_stake = Some(DecimalU64::new(stake));
     report.total_stake = Some(checkpoint.total_stake);
-    report.pass(
+    report.set(
         Stage::Signers,
-        "Unique Base2 signer positions resolve in the selected immutable rank map",
+        CheckStatus::Pass,
+        Diagnostic::new(
+            Code::Ok,
+            bitmap_path.clone(),
+            "Unique Base2 signer positions resolve in the selected immutable rank map",
+        ),
     );
     let mut keys = Vec::with_capacity(ranks.len());
     for rank in ranks {
@@ -228,17 +280,17 @@ fn verify_one(
         }
     }
     report.pass(Stage::KeyQualification, "All selected keys passed checked point decoding and actual public-key-bound PoP verification");
+    let signature_path = bytes(&layout.signature);
     let signature = Signature(decoded.signature);
+    // The checked conversion alone decides acceptance; `rejected_signature` only
+    // explains a rejection it has already made.
     let affine = match SignatureAffine::try_from(&signature) {
         Ok(affine) => affine,
         Err(_) => {
+            let (code, message) = rejected_signature(&signature);
             return report.stop(
                 Stage::Signature,
-                Diagnostic::new(
-                    Code::InvalidSignature,
-                    "signature",
-                    "Signature is malformed, off curve, or outside the prime-order subgroup",
-                ),
+                Diagnostic::new(code, signature_path, message),
             );
         }
     };
@@ -246,9 +298,9 @@ fn verify_one(
         return report.stop(
             Stage::Signature,
             Diagnostic::new(
-                Code::InvalidSignature,
-                "signature",
-                "Identity signature is not accepted",
+                Code::IdentitySignature,
+                signature_path,
+                "Signature is the identity point (point at infinity), which is never accepted",
             ),
         );
     }
@@ -259,30 +311,46 @@ fn verify_one(
                 Stage::Signature,
                 Diagnostic::new(
                     Code::InvalidSignature,
-                    "signature",
+                    signature_path,
                     "Qualified key aggregation failed",
                 ),
             );
         }
     };
     if aggregate.verify_signature(&affine, &payload).is_err() {
-        return report.stop(Stage::Signature, Diagnostic::new(Code::InvalidSignature, "signature", "Aggregate signature does not verify for the exact signed payload and selected keys"));
+        return report.stop(Stage::Signature, Diagnostic::new(Code::InvalidSignature, signature_path, "Signature is a valid G2 point but does not verify for the reconstructed signed payload and the selected signers' keys. BLS cannot tell which changed: the payload, the signer set, or the signature"));
     }
-    report.pass(
+    report.set(
         Stage::Signature,
-        "BLS aggregate verifies against the reconstructed source vote bytes",
+        CheckStatus::Pass,
+        Diagnostic::new(
+            Code::Ok,
+            signature_path,
+            "BLS aggregate verifies against the reconstructed source vote bytes",
+        ),
     );
-    if !meets_threshold(stake, checkpoint.total_stake.get(), decoded.kind) {
+    let total = checkpoint.total_stake.get();
+    let required = required_stake(total, decoded.kind);
+    let percent = decoded.kind.threshold_percent();
+    if !meets_threshold(stake, total, decoded.kind) {
         return report.stop(
             Stage::Quorum,
             Diagnostic::new(
                 Code::InsufficientStake,
-                "stake",
-                "Valid signature has insufficient stake under the original checkpoint denominator",
+                bitmap_path,
+                format!("Signers hold {stake} of {total} stake; {percent}% needs at least {required}. The signature itself is valid"),
             ),
         );
     }
-    report.pass(Stage::Quorum, "Exact integer stake threshold is met");
+    report.set(
+        Stage::Quorum,
+        CheckStatus::Pass,
+        Diagnostic::new(
+            Code::Ok,
+            bitmap_path,
+            format!("Signers hold {stake} of {total} stake, meeting the exact {percent}% threshold of {required}"),
+        ),
+    );
     report.conclusion = Conclusion::Verified;
     report
 }
@@ -340,8 +408,9 @@ pub fn verify_certificates(
         return report;
     };
     let mut cache = KeyCache::new();
-    for envelope in &bundle.document().certificates {
+    for (index, envelope) in bundle.document().certificates.iter().enumerate() {
         report.certificates.push(verify_one(
+            index,
             envelope,
             bundle.document(),
             checkpoint.parsed.document(),

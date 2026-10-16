@@ -29,10 +29,10 @@ const outcomes = [
     why: "A valid notarization alone leaves the block claim incomplete.",
   },
   {
-    name: "Changed signature",
+    name: "Changed signer set",
     conclusion: "REJECTED",
     code: "INVALID_SIGNATURE",
-    why: "The aggregate no longer verifies for the exact signed payload.",
+    why: "The bitmap names different signers, so the aggregate no longer verifies.",
   },
   {
     name: "Insufficient stake",
@@ -310,8 +310,9 @@ function StakeRidge() {
 
 /*
  * Recorded result of the signature-bit experiment on the fast fixture: byte 42
- * of certificate "fast" changes from 01 to 00. Nothing is verified here; the
- * inspector reproduces this with the real verifier.
+ * of certificate "fast" changes from 01 to 00, which moves the signature point
+ * off the curve. Nothing is verified here; the inspector reproduces this with
+ * the real verifier, and tests/experiments.rs pins the same code.
  */
 const certBytes =
   "42 42 42 42 42 42 42 42 01 81 84 e8 3b 37 7a 43 21 ae 29 e4 b9 65".split(
@@ -333,7 +334,7 @@ const demoChecks = [
   {
     stage: "Signature",
     before: ["PASS", "OK"],
-    after: ["FAIL", "INVALID_SIGNATURE"],
+    after: ["FAIL", "MALFORMED_SIGNATURE"],
   },
   {
     stage: "Quorum",

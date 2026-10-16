@@ -170,7 +170,7 @@ test("ridge scenarios and the tamper demo restate recorded results without verif
   await expect(
     demo.getByRole("button", { name: /^Byte 42: 00, changed from 01\./ }),
   ).toHaveAttribute("aria-pressed", "true");
-  await expect(demo).toContainText("INVALID_SIGNATURE");
+  await expect(demo).toContainText("MALFORMED_SIGNATURE");
   await expect(demo).toContainText("PREREQUISITE_MISSING");
   await expect(demo).toContainText("× REJECTED");
   await demo.getByRole("button", { name: /^Byte 42/ }).click();

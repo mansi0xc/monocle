@@ -18,7 +18,7 @@ Fixtures serve different purposes. A synthetic signature can be cryptographicall
 | Slow finality | Verified synthetic paired Notar/Finalize path |
 | Genesis anchor | Verified synthetic migration-anchor evidence, separate from block finality |
 | Missing finalization | Inconclusive block claim despite valid notarization |
-| Changed signature | Rejected supplied evidence; dependent checks remain unperformed |
+| Changed signer set | Rejected supplied evidence: the bitmap names different signers, so the unchanged aggregate fails `INVALID_SIGNATURE`; dependent checks remain unperformed. Fixture ID `changed_signature` is kept for compatibility. |
 | Insufficient stake | Signature passes, quorum fails; independently signed below-threshold aggregate |
 
 These are expectations for the presenter, not imported authorization. `scripts/prepare-web.mjs` copies only original evidence/context strings into product assets. Browser verification computes its own results. The recorded RPC sample has a separate control and asset so its provenance is not mixed with synthetic examples.

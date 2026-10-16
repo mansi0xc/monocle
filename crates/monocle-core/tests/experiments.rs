@@ -55,9 +55,21 @@ fn mutation_preserves_original_and_records_reproducible_bytes() {
     validate_lineage(&before, &after).unwrap();
     let cp = f["checkpoint_json"].as_str().unwrap();
     assert_eq!(verify(source, Some(cp))["conclusion"], "VERIFIED");
+    let derived = verify(&result.bundle_json, Some(cp));
+    assert_eq!(derived["conclusion"], "REJECTED");
+    // The flipped coordinate bit leaves a point off the curve: a decoding-level
+    // signature failure, not a failed pairing check.
+    let fast = &derived["certificates"][0]["checks"];
+    let signature = fast
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|check| check["stage"] == "signature")
+        .unwrap();
+    assert_eq!(signature["diagnostic"]["code"], "MALFORMED_SIGNATURE");
     assert_eq!(
-        verify(&result.bundle_json, Some(cp))["conclusion"],
-        "REJECTED"
+        signature["diagnostic"]["path"],
+        "certificates[0].raw_hex[42..234]"
     );
 }
 #[test]

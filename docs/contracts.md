@@ -71,7 +71,7 @@ These are Monocle MVP resource limits, not asserted Solana consensus limits. A l
 | Identifier length | 96 ASCII bytes, restricted to letters, digits, `_`, `-`, `.`, `:` |
 | Provenance description / local trust reason | 1,024 UTF-8 bytes |
 
-A strict first pass bounds JSON structure and rejects repeated object keys, including escaped spellings of the same key. Whole-file limits apply before JSON parsing. Schema-specific limits apply after the bounded first pass. Trailing non-whitespace input and invalid UTF-8/JSON are rejected. Schema-specific errors include a field path; first-pass errors use `$`. Messages and paths are truncated to keep diagnostics bounded.
+A strict first pass bounds JSON structure and rejects repeated object keys, including escaped spellings of the same key. Whole-file limits apply before JSON parsing. Schema-specific limits apply after the bounded first pass. Trailing non-whitespace input and invalid UTF-8/JSON are rejected. Schema-specific errors include a field path; first-pass errors use `$`. Certificate checks add a byte range within `raw_hex`; see [diagnostic locations](certificate-verification.md#diagnostic-locations-and-signature-codes). Messages and paths are truncated to keep diagnostics bounded.
 
 The implementation retains Serde JSON's own recursion protection as well. It does not enable unbounded parsing.
 

@@ -33,7 +33,8 @@ The genuine Rust/WASM verification paths, immutable tamper experiments, fresh di
 | C14 - Step-by-step inspector | Committed by Mansi: `fff1251` |
 | C15 - Checkpoint defects stay inconclusive | Committed by Mansi: `323481f` |
 | C16 - Continuous integration | Committed by Mansi: `9531c59`; first GitHub run passed |
-| C17 - Generated contracts | Ready for owner review |
+| C17 - Generated contracts | Committed by Mansi: `d86dde0` |
+| C18 - Precise diagnostics | Ready for owner review |
 
 C10 added three static design-direction previews under `apps/design-study/`; the owner chose Dusk, which C11 implements.
 

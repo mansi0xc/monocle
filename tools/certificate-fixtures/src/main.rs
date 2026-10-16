@@ -12,6 +12,42 @@ const PROFILE: &str = "agave-98535e50-base2-v1";
 fn digest(bytes: &[u8]) -> String {
     format!("sha256:{}", hex::encode(Sha256::digest(bytes)))
 }
+/// Where the expected diagnostic points, from the reduced wire layout rather than
+/// the runtime decoder: tag, kind, slot, optional block ID, 192-byte signature,
+/// 8-byte bitmap length, bitmap, 2-byte shred version, then any trailing bytes.
+fn expected_path(name: &str, kind: &str, bitmap_len: usize, wire_len: usize) -> String {
+    let signature = if kind == "finalization" { 10 } else { 42 };
+    let bitmap = signature + 192 + 8;
+    let shred = bitmap + bitmap_len;
+    let range = |start: usize, end: usize| format!("certificates[0].raw_hex[{start}..{end}]");
+    match name {
+        "wrong_subgroup_signature"
+        | "changed_payload"
+        | "changed_bitmap"
+        | "malformed_signature"
+        | "identity_signature"
+        | "wrong_signed_context" => range(signature, signature + 192),
+        "wrong_key_pop" | "missing_pop" | "invalid_pop" => {
+            "validators[0].proof_of_possession_hex".into()
+        }
+        "invalid_pubkey" | "identity_pubkey" | "wrong_subgroup_key" => {
+            "validators[0].bls_pubkey_hex".into()
+        }
+        "wrong_wire_context" => range(shred, shred + 2),
+        "unknown_bitmap_version" | "base3_bitmap" => range(bitmap, bitmap + 1),
+        "unknown_rank" => range(bitmap + 1, bitmap + 3),
+        "empty_bitmap" => range(bitmap + 3, shred),
+        "nonzero_padding" => range(shred - 1, shred),
+        "unknown_wire_version" => range(0, 1),
+        "unsupported_wire_kind" => range(1, 2),
+        "trailing_wire" => range(shred + 2, wire_len),
+        "envelope_mismatch" => "certificates[0].kind".into(),
+        "claim_mismatch" => range(2, 10),
+        "block_claim_deferred" | "genesis_claim_deferred" => "$".into(),
+        // Verified and under-quorum cases: the quorum check names the signer set.
+        _ => range(bitmap, shred),
+    }
+}
 fn main() {
     let keys: Vec<_> = (11..=15)
         .map(|seed| Keypair::derive(&[seed; 32]).unwrap())
@@ -25,7 +61,7 @@ fn main() {
             vec![0, 1],
             "REJECTED",
             "signature",
-            "INVALID_SIGNATURE",
+            "SIGNATURE_OUTSIDE_SUBGROUP",
         ),
         (
             "wrong_key_pop",
@@ -113,7 +149,7 @@ fn main() {
             vec![0, 1],
             "REJECTED",
             "signature",
-            "INVALID_SIGNATURE",
+            "MALFORMED_SIGNATURE",
         ),
         (
             "identity_signature",
@@ -121,7 +157,7 @@ fn main() {
             vec![0, 1],
             "REJECTED",
             "signature",
-            "INVALID_SIGNATURE",
+            "IDENTITY_SIGNATURE",
         ),
         (
             "wrong_wire_context",
@@ -338,6 +374,7 @@ fn main() {
             "trailing_wire" => wire.push(0),
             _ => {}
         }
+        let path = expected_path(name, kind, bitmap.len(), wire.len());
         let checkpoint_json = serde_json::to_string(&cp).unwrap();
         let claim_kind = match name {
             "block_claim_deferred" => "block_finality",
@@ -345,7 +382,7 @@ fn main() {
             _ => "certificate_inspection",
         };
         let bundle = json!({"schema_version":1,"profile_id":PROFILE,"context":cp["context"],"claim":{"kind":claim_kind,"slot":if name=="claim_mismatch" {"43"} else {"42"},"block_id_hex":if kind=="finalization" {Value::Null} else {json!(hex::encode(block))},"certificate_ids":["cert-1"]},"certificates":[{"schema_version":1,"id":"cert-1","kind":if name=="envelope_mismatch" {"genesis"} else {kind},"format":"agave-versioned-consensus-v1","raw_hex":hex::encode(&wire)}],"checkpoint_reference":digest(checkpoint_json.as_bytes()),"provenance":{"kind":"synthetic","description":format!("C3 signed public test fixture: {name}. No live network claim.")},"parent_digest":null,"mutations":[]});
-        cases.push(json!({"name":name,"bundle_json":serde_json::to_string(&bundle).unwrap(),"checkpoint_json":checkpoint_json,"expected":{"conclusion":conclusion,"stage":stage,"code":code},"signed_payload_hex":hex::encode(payload),"original_signer_ranks":ranks}));
+        cases.push(json!({"name":name,"bundle_json":serde_json::to_string(&bundle).unwrap(),"checkpoint_json":checkpoint_json,"expected":{"conclusion":conclusion,"stage":stage,"code":code,"path":path},"signed_payload_hex":hex::encode(payload),"original_signer_ranks":ranks}));
     }
     println!("{}",serde_json::to_string_pretty(&json!({"schema_version":1,"profile_id":PROFILE,"provenance":"Generated independently of the runtime decoder using reduced pinned wincode schemas and upstream signer-store encoder. Public test seeds only.","cases":cases})).unwrap());
 }

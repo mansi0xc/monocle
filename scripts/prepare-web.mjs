@@ -37,8 +37,8 @@ const choices = [
   ],
   [
     "changed_signature",
-    "Changed signature",
-    "A modified signature fails cryptographic verification.",
+    "Changed signer set",
+    "The bitmap names different signers, so the aggregate no longer verifies.",
   ],
   [
     "fast_under_quorum",

@@ -100,7 +100,7 @@ C5 exposes source identity, provenance, explicit checkpoint selection, check tra
 
 ## D025 - One reproducible mutation from the original
 
-C6 permits one nonempty equal-length replacement of at most 4096 bytes in one certificate. Replacing an experiment always starts from the original, and a no-op or chained mutation fails. The core rebuilds the entire derived document from the original during replay validation; a plausible after-slice alone cannot authorize forged before-bytes or unrelated metadata changes. The guided signature-bit preset uses the pinned decoder's certificate kind to locate the signature.
+C6 permits one nonempty equal-length replacement of at most 4096 bytes in one certificate. Replacing an experiment always starts from the original, and a no-op or chained mutation fails. The core rebuilds the entire derived document from the original during replay validation; a plausible after-slice alone cannot authorize forged before-bytes or unrelated metadata changes. The guided signature-bit preset uses the pinned decoder's field layout to locate the signature.
 
 ## D026 - Preserve source strings, discard imported verdicts
 
@@ -117,6 +117,10 @@ C7's read-only adapter takes a complete single JSON-RPC response, preserves exac
 ## D029 - Complete the demo with an honest missing-context branch
 
 Use the owner's recorded response for an endpoint-independent demonstration, with provenance and unknown retrieval time stated explicitly. Retain real cryptographic synthetic examples for signature/quorum/finality experiments. Historical checkpoint authentication, producer compatibility, and proof qualification remain future evidence requirements; no current-bank query or synthetic checkpoint substitutes for them. The demo guide explains both paths and the boundaries of loaded-session offline use.
+
+## D030 - Locate diagnostics in bytes and separate signature failures
+
+A debugger must say which bytes failed and why. Certificate-level paths end in a half-open byte range of the decoded certificate (`certificates[0].raw_hex[42..234]`), so a viewer can highlight them without reimplementing the wire format. The path stays a string, so the report schema is unchanged. Signature rejections are split into malformed, outside-subgroup, identity and failed-verification codes. The checked library conversion still alone decides acceptance; the split only classifies a rejection it has made. Key-qualification codes are unchanged, since those are checkpoint defects that already leave evidence unjudged.
 
 ## Open decisions
 

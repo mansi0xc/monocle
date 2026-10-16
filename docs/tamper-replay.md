@@ -6,7 +6,7 @@ Monocle can derive one controlled certificate mutation from an immutable origina
 
 1. Build and open the inspector using the commands in [browser-inspector.md](browser-inspector.md).
 2. Load **Fast finality**, explicitly choose **Use this checkpoint**, and verify the genuine synthetic baseline.
-3. Open **Tamper lab**, select the certificate and **Flip one signature bit**, then create the experiment. The original remains byte-for-byte unchanged.
+3. Open **Tamper lab**, select the certificate and **Flip one signature bit**, then create the experiment. The original remains byte-for-byte unchanged. The flipped bit moves the signature point off the curve, so the experiment fails at the signature check with `MALFORMED_SIGNATURE` at `certificates[0].raw_hex[42..234]`; verification itself never runs. A replace-bytes experiment reaches the check for the field it changes: for example `CLAIM_MISMATCH` for the slot, `CONTEXT_MISMATCH` for the shred version, or `INVALID_SIGNATURE` for a bitmap that still decodes but names different signers.
 4. Verify the comparison. Both results come from fresh Rust verification in the same worker/context. **What changed?** displays changed status, code, or message by stage and certificate; disable its filter to inspect every check. Switch between the full original and experiment reports below it.
 5. Export a replay. Checkpoint bytes are included by default; they may be omitted while retaining the required digest.
 6. Import the downloaded file. The app clears the current session inputs/trust/results, validates the archive and mutation history, and imports the checkpoint only as a candidate. Saved reports are ignored.
