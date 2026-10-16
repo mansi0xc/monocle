@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Monocle — Direction B: Survey</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..900&family=Martian+Mono:wdth,wght@75..100,400..600&display=swap" rel="stylesheet" />
+<script src="../shared/data.js"></script>
+<script src="../shared/preview.js"></script>
+<style>
+:root {
+  --fog: #eceff3;
+  --paper: #f7f8fa;
+  --ink: #101626;
+  --ink-2: #3c4459;
+  --ink-3: #5c6377;
+  --rule: #c9ced8;
+  --rule-soft: #dde1e8;
+  --rose: #c2264f;
+  --rose-2: #ef7f8f;
+  --rose-wash: #fbe3e7;
+  --mark-feather: var(--rose);
+  --mark-lens: var(--ink);
+  --sans: "Archivo", ui-sans-serif, system-ui, sans-serif;
+  --mono: "Martian Mono", ui-monospace, Menlo, monospace;
+  --gutter: clamp(16px, 3vw, 40px);
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--fog); color: var(--ink); font: 400 15px/1.5 var(--sans); font-variation-settings: "wdth" 100; -webkit-font-smoothing: antialiased; }
+a { color: inherit; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--rose); outline-offset: 2px; }
+.mono { font-family: var(--mono); font-size: 0.86em; font-variation-settings: "wdth" 85; }
+html[data-view="landing"] .inspector, html[data-view="inspector"] .landing { display: none; }
+
+.preview-strip { position: sticky; top: 0; z-index: 50; display: flex; gap: 16px; align-items: center; justify-content: space-between; padding: 8px var(--gutter); padding-top: calc(8px + env(safe-area-inset-top, 0px)); background: var(--ink); color: #c5cad6; font-size: 12.5px; }
+.preview-strip nav { display: flex; gap: 4px; }
+.preview-strip a { text-decoration: none; padding: 4px 10px; }
+.preview-strip a[aria-current="page"] { background: #fff; color: var(--ink); }
+.preview-strip p { margin: 0; }
+@media (max-width: 720px) { .preview-strip p { display: none; } }
+
+/* ---------- Landing ---------- */
+.grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); column-gap: var(--gutter); padding-inline: var(--gutter); }
+.site-nav { align-items: center; padding-block: 18px; border-bottom: 1px solid var(--rule); }
+.brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; font-variation-settings: "wdth" 112; text-decoration: none; letter-spacing: -0.01em; }
+.site-nav .brand { grid-column: 1 / 4; }
+.site-nav .links { grid-column: 4 / 10; display: flex; gap: 28px; font-size: 14px; color: var(--ink-2); }
+.site-nav .links a { text-decoration: none; }
+.site-nav .links a:hover { color: var(--ink); text-decoration: underline; text-underline-offset: 4px; }
+.site-nav .cta { grid-column: 10 / 13; justify-self: end; }
+.btn { display: inline-flex; align-items: center; gap: 10px; border: 1.5px solid var(--ink); background: var(--ink); color: #fff; padding: 11px 20px; font-weight: 600; font-size: 15px; text-decoration: none; cursor: pointer; border-radius: 0; }
+.btn:hover { background: #24304d; }
+.btn-line { background: transparent; color: var(--ink); }
+.btn-line:hover { background: #fff; }
+.btn-small { padding: 7px 14px; font-size: 13.5px; }
+
+.hero { padding-top: clamp(40px, 7vw, 96px); }
+.hero h1 { grid-column: 1 / -1; margin: 0; font-weight: 800; font-variation-settings: "wdth" 125; font-size: clamp(44px, 8.2vw, 132px); line-height: 0.9; letter-spacing: -0.035em; max-width: 13ch; }
+.hero-lede { grid-column: 1 / 6; margin: 40px 0 0; font-size: clamp(17px, 1.4vw, 19px); line-height: 1.55; color: var(--ink-2); max-width: 44ch; }
+.hero-actions { grid-column: 1 / 6; display: flex; flex-wrap: wrap; gap: 10px; margin-top: 28px; align-self: start; align-items: flex-start; }
+.spec { grid-column: 7 / 13; grid-row: 2 / 4; margin: 40px 0 0; display: grid; grid-template-columns: 9.5em minmax(0, 1fr); align-content: start; border-top: 1.5px solid var(--ink); }
+.spec dt, .spec dd { padding: 12px 0; border-bottom: 1px solid var(--rule); margin: 0; }
+.spec dt { font-weight: 600; }
+.spec dd { color: var(--ink-2); }
+.spec dd b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.ruler-wrap { margin-top: clamp(48px, 7vw, 88px); padding: 28px var(--gutter) 22px; background: var(--paper); border-block: 1px solid var(--rule); }
+.ruler-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; margin-bottom: 18px; }
+.ruler-head h2 { margin: 0; font-size: 15px; font-weight: 600; }
+.ruler-head p { margin: 0; color: var(--ink-3); font-size: 13px; }
+.ruler { position: relative; padding-top: 34px; padding-bottom: 34px; }
+.track { position: relative; display: flex; height: 54px; border: 1.5px solid var(--ink); }
+.seg { position: relative; display: flex; align-items: flex-end; padding: 0 0 6px 8px; font: 500 11.5px var(--mono); font-variation-settings: "wdth" 85; border-right: 1px solid var(--ink); white-space: nowrap; overflow: hidden; }
+.seg:last-child { border-right: 0; }
+.seg[data-signed="true"] { background: var(--rose); color: #fff; }
+.seg[data-signed="true"]:nth-child(2) { background: #8f1d3f; }
+.seg[data-signed="true"]:nth-child(3) { background: var(--rose-2); color: var(--ink); }
+.seg[data-signed="false"] { background: repeating-linear-gradient(135deg, transparent 0 5px, var(--rule-soft) 5px 6px); color: var(--ink-3); }
+.ticks { position: absolute; left: 0; right: 0; bottom: 0; height: 30px; }
+.ticks span { position: absolute; top: 0; transform: translateX(-50%); font: 400 11px var(--mono); color: var(--ink-3); padding-top: 12px; }
+.ticks span::before { content: ""; position: absolute; left: 50%; top: 0; height: 8px; width: 1px; background: var(--ink-3); }
+.mark-line { position: absolute; top: 0; bottom: 26px; width: 0; border-left: 2px solid var(--ink); }
+.mark-line span { position: absolute; top: 0; right: 8px; font: 600 12px var(--sans); white-space: nowrap; }
+.mark-line.dashed { border-left: 2px dashed var(--ink-3); }
+.mark-line.dashed span { color: var(--ink-2); font-weight: 500; }
+.mark-line.genesis span { right: auto; left: 8px; color: var(--ink-3); font-weight: 500; }
+.ruler-foot { display: flex; flex-wrap: wrap; gap: 6px 24px; font-size: 13px; color: var(--ink-3); }
+.ruler-foot strong { color: var(--ink); font-weight: 600; }
+
+.how { padding-block: clamp(56px, 8vw, 104px); row-gap: 0; }
+.how h2 { grid-column: 1 / 5; margin: 0; font-weight: 700; font-variation-settings: "wdth" 118; font-size: clamp(28px, 3vw, 40px); line-height: 1.02; letter-spacing: -0.02em; }
+.how ol { grid-column: 5 / 13; list-style: none; margin: 0; padding: 0; counter-reset: s; border-top: 1.5px solid var(--ink); }
+.how li { counter-increment: s; display: grid; grid-template-columns: 3em 13em minmax(0, 1fr); gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--rule); }
+.how li::before { content: counter(s); font: 500 12px var(--mono); color: var(--ink-3); padding-top: 3px; }
+.how li strong { font-weight: 600; }
+.how li span { color: var(--ink-2); }
+.how li code { font: 400 11.5px var(--mono); background: #fff; border: 1px solid var(--rule); padding: 1px 5px; }
+.landing-foot { padding: 22px var(--gutter) calc(22px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid var(--rule); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; font-size: 13px; color: var(--ink-3); }
+
+@media (max-width: 900px) {
+  .site-nav .links { display: none; }
+  .site-nav .brand { grid-column: 1 / 7; }
+  .site-nav .cta { grid-column: 7 / 13; }
+  .hero-lede, .hero-actions, .spec { grid-column: 1 / -1; grid-row: auto; }
+  .how h2, .how ol { grid-column: 1 / -1; }
+  .how h2 { margin-bottom: 24px; }
+  .how li { grid-template-columns: 2.4em minmax(0, 1fr); }
+  .how li span { grid-column: 2; }
+  .seg { font-size: 0; padding: 0; }
+  .mark-line.genesis span { display: none; }
+}
+
+/* ---------- Inspector ---------- */
+.appbar { display: flex; align-items: center; gap: 20px; padding: 12px var(--gutter); background: var(--paper); border-bottom: 1.5px solid var(--ink); }
+.appbar nav { display: flex; gap: 2px; font-size: 14px; }
+.appbar nav a { text-decoration: none; padding: 6px 10px; color: var(--ink-2); }
+.appbar nav a[aria-current="page"] { color: var(--ink); font-weight: 600; box-shadow: inset 0 -2px 0 var(--rose); }
+.appbar .status { margin-left: auto; font-size: 13px; color: var(--ink-2); display: flex; align-items: center; gap: 8px; }
+.appbar .status::before { content: ""; width: 8px; height: 8px; background: var(--ink); border-radius: 50%; }
+
+.summary { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px 40px; align-items: end; padding: 28px var(--gutter) 22px; border-bottom: 1px solid var(--rule); }
+.summary .kicker { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; font-size: 13px; color: var(--ink-2); margin-bottom: 8px; }
+.synthetic { font: 600 11.5px var(--mono); padding: 3px 8px; border: 1.5px dashed var(--ink); background: #fff; }
+.summary h1 { margin: 0; font-weight: 800; font-variation-settings: "wdth" 122; font-size: clamp(34px, 4.4vw, 60px); line-height: 0.95; letter-spacing: -0.03em; }
+.summary p { margin: 10px 0 0; color: var(--ink-2); max-width: 70ch; }
+.summary-stake { text-align: right; }
+.summary-stake .big { font-weight: 700; font-variation-settings: "wdth" 112; font-size: 44px; line-height: 1; font-variant-numeric: tabular-nums; }
+.summary-stake .big small { font-size: 18px; color: var(--ink-3); font-weight: 500; }
+.summary-stake p { margin: 6px 0 0; font-size: 13px; }
+
+.lanes { padding: 18px var(--gutter) 20px; border-bottom: 1px solid var(--rule); background: var(--paper); overflow-x: auto; }
+.lanes-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 20px; margin-bottom: 10px; font-size: 13px; color: var(--ink-2); }
+.lanes-head strong { color: var(--ink); }
+.lane-table { border-collapse: collapse; width: 100%; min-width: 860px; table-layout: fixed; }
+.lane-table th { font-weight: 500; font-size: 12px; color: var(--ink-2); text-align: left; padding: 0 6px 6px; font-variation-settings: "wdth" 80; }
+.lane-table th.group { color: var(--ink-3); font-weight: 400; border-bottom: 1px solid var(--rule); }
+.lane-table th[scope="row"] { width: 108px; padding: 0 12px 0 0; font-size: 13px; font-weight: 600; color: var(--ink); font-variation-settings: "wdth" 100; }
+.lane-table td { padding: 3px; }
+.cell { display: flex; align-items: center; gap: 6px; width: 100%; height: 36px; padding: 0 8px; border: 1.5px solid var(--ink); background: #fff; font: 500 12px var(--sans); text-align: left; cursor: pointer; }
+.cell .g { font-size: 14px; width: 14px; text-align: center; }
+.cell[data-s="FAIL"] { background: var(--rose); border-color: var(--rose); color: #fff; }
+.cell[data-s="NOT_CHECKED"] { border-style: dashed; border-color: var(--ink-3); color: var(--ink-3); background: transparent; }
+.cell[aria-pressed="true"] { outline: 3px solid var(--ink); outline-offset: 1px; }
+.cell .chg { margin-left: auto; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+
+.body { display: grid; grid-template-columns: minmax(280px, 4fr) minmax(0, 8fr); gap: 0; }
+.body > * { min-width: 0; }
+.lane-list { display: none; list-style: none; margin: 0; padding: 0; }
+.lane-list li { display: grid; grid-template-columns: minmax(0, 1fr) 6.2em 6.2em; gap: 6px; align-items: center; padding: 4px 0; border-bottom: 1px solid var(--rule-soft); font-size: 13.5px; }
+.lane-list .cell { height: 32px; }
+.lane-list .hdr { font-size: 12px; color: var(--ink-3); border-bottom: 1.5px solid var(--ink); }
+.col-inputs { border-right: 1px solid var(--rule); }
+.block { padding: 20px var(--gutter) 22px; border-bottom: 1px solid var(--rule); }
+.block h2 { margin: 0 0 12px; font-size: 13px; font-weight: 700; font-variation-settings: "wdth" 112; display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.block h2 button { border: 0; background: none; padding: 0; font-size: 13px; font-weight: 500; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; color: var(--ink-2); }
+.block .title { font-size: 17px; font-weight: 600; margin: 0 0 4px; }
+.block .note { margin: 0; font-size: 13.5px; color: var(--ink-2); }
+.facts { display: grid; grid-template-columns: 8.5em minmax(0, 1fr); margin: 12px 0 0; font-size: 13.5px; border-top: 1px solid var(--rule-soft); }
+.facts dt, .facts dd { margin: 0; padding: 6px 0; border-bottom: 1px solid var(--rule-soft); }
+.facts dt { color: var(--ink-3); }
+.facts dd { overflow-wrap: anywhere; }
+.trust { margin-top: 14px; padding: 12px 14px; border: 1.5px solid var(--ink); background: #fff; font-size: 13.5px; }
+.trust strong { display: block; margin-bottom: 2px; }
+.trust p { margin: 0; color: var(--ink-2); }
+.verdict-inline { font: 600 12px var(--mono); padding: 1px 6px; border: 1.5px dashed var(--ink-3); color: var(--ink-2); white-space: nowrap; }
+
+.col-main .block { padding-inline: clamp(16px, 2.6vw, 36px); }
+.sheet-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 20px; align-items: baseline; margin-bottom: 14px; }
+.sheet-head h2 { margin: 0; font-size: 22px; font-weight: 700; font-variation-settings: "wdth" 115; letter-spacing: -0.01em; }
+.sheet-head span { color: var(--ink-2); font-size: 13.5px; }
+.mini-ruler .track { height: 36px; }
+.mini-ruler { padding-top: 26px; padding-bottom: 30px; }
+.mini-ruler .seg { font-size: 11px; }
+.table-scroll { overflow-x: auto; }
+.signers { width: 100%; border-collapse: collapse; font-size: 13.5px; margin-top: 4px; }
+.signers th { text-align: left; font-weight: 500; color: var(--ink-3); font-size: 12.5px; padding: 6px 8px 6px 0; border-bottom: 1.5px solid var(--ink); white-space: nowrap; }
+.signers td { padding: 8px 8px 8px 0; border-bottom: 1px solid var(--rule-soft); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.signers .num { text-align: right; }
+.signers tr[data-signed="false"] td { color: var(--ink-3); }
+.detail { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 0 28px; }
+.detail h3 { margin: 0 0 6px; font-size: 18px; font-weight: 700; font-variation-settings: "wdth" 112; }
+.detail .msg { margin: 0 0 12px; color: var(--ink-2); }
+.pair { display: grid; grid-template-columns: 1fr 1fr; border: 1.5px solid var(--ink); }
+.pair > div { padding: 10px 12px; min-width: 0; }
+.pair > div + div { border-left: 1.5px solid var(--ink); }
+.pair .lbl { font-size: 12px; color: var(--ink-3); display: block; margin-bottom: 2px; }
+.pair .val { font-weight: 700; font-variation-settings: "wdth" 110; }
+.pair .val[data-s="FAIL"] { color: var(--rose); }
+.pair code { display: block; font: 400 11px var(--mono); color: var(--ink-2); margin-top: 4px; overflow-wrap: anywhere; }
+.bytes { margin: 0; font: 400 12px/2 var(--mono); font-variation-settings: "wdth" 80; color: var(--ink-3); overflow-wrap: anywhere; }
+.bytes b { font-weight: 600; color: #fff; background: var(--rose); padding: 1px 3px; }
+.bytes s { color: var(--ink); text-decoration-color: var(--rose); text-decoration-thickness: 2px; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.assume { margin: 0; padding-left: 18px; color: var(--ink-2); font-size: 13.5px; }
+.assume li { margin-bottom: 6px; }
+@media (max-width: 1000px) {
+  .body { grid-template-columns: 1fr; }
+  .col-inputs { border-right: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .col-main { order: -1; }
+}
+@media (max-width: 680px) {
+  .appbar nav { display: none; }
+  .summary { grid-template-columns: 1fr; }
+  .summary-stake { text-align: left; }
+  .col-inputs { grid-template-columns: 1fr; }
+  .detail { grid-template-columns: 1fr; gap: 20px; }
+  .mini-ruler .seg { font-size: 0; padding: 0; }
+  .lane-table { display: none; }
+  .lane-list { display: block; }
+  .lanes { overflow: visible; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="preview-strip" role="note">
+  <a href="../index.html">← All directions</a>
+  <p>Direction B · Survey. Design preview, not the product. Inspector values come from a real local run of synthetic fixtures.</p>
+  <nav aria-label="Preview view"><a href="#landing" data-view-link="landing">Landing</a><a href="#inspector" data-view-link="inspector">Inspector</a></nav>
+</div>
+
+<!-- ================= LANDING ================= -->
+<div class="landing">
+  <header class="grid site-nav">
+    <a class="brand" href="#landing"><span data-mark="28"></span>monocle</a>
+    <nav class="links" aria-label="Main"><a href="#how">How a run works</a><a href="#">Documentation</a><a href="#">Source</a></nav>
+    <a class="btn btn-small cta" href="#inspector">Open inspector</a>
+  </header>
+  <section class="grid hero" aria-labelledby="hero-title">
+    <h1 id="hero-title">Check the arithmetic of finality.</h1>
+    <p class="hero-lede">Alpenglow finalizes a block when enough stake signs. Monocle shows that count, vote by vote. It verifies the aggregate signature, qualifies every key and adds the stake in exact integers against a checkpoint you choose. Then it reports which threshold was met, or which check failed.</p>
+    <div class="hero-actions"><a class="btn" href="#inspector">Inspect a signed example</a><a class="btn btn-line" href="#how">How a run works</a></div>
+    <dl class="spec" aria-label="What Monocle verifies">
+      <dt>Thresholds</dt><dd><b>80%</b> fast path, <b>60%</b> notarization plus <b>60%</b> finalization on the slow path, <b>82%</b> genesis anchor, each reported in its own scope</dd>
+      <dt>Signatures</dt><dd>BLS12-381 aggregates checked against the reconstructed vote bytes, with an actual proof of possession for every selected key</dd>
+      <dt>Experiments</dt><dd><b>1</b> byte changed from an immutable original, <b>2</b> fresh reports compared check by check</dd>
+      <dt>Network</dt><dd>Verification runs in a WebAssembly worker and needs no connection once the page is loaded</dd>
+      <dt>Limits</dt><dd>A fixed, externally trusted checkpoint. Not a light client; a rejection is never proof that a block is non-final</dd>
+    </dl>
+  </section>
+
+  <section class="ruler-wrap" aria-labelledby="ruler-title">
+    <div class="ruler-head"><h2 id="ruler-title">One fast-finalization certificate, measured</h2><p>Synthetic fixture: epoch 42, five validators, public test keys and invented stake.</p></div>
+    <div class="ruler" id="hero-ruler"></div>
+    <div class="ruler-foot"><span><strong>Signed:</strong> ranks 0, 1 and 3, 80 of 100 stake</span><span><strong>Did not sign:</strong> ranks 2 and 4</span><span><strong>Result:</strong> fast finality verified at exactly the 80% threshold</span></div>
+  </section>
+
+  <section class="grid how" id="how" aria-labelledby="how-title">
+    <h2 id="how-title">What happens in a run</h2>
+    <ol>
+      <li><strong>Read the bytes</strong><span>Parses the bundle within fixed limits and records its SHA-256. A digest identifies the bytes; it does not vouch for their source.</span></li>
+      <li><strong>Select the checkpoint</strong><span>You decide which validator set to trust and why. An imported <code>trusted: true</code> grants nothing.</span></li>
+      <li><strong>Verify each certificate</strong><span>Decoding, unique signers, key qualification, the aggregate signature, then exact stake. A failure stops the checks that depend on it.</span></li>
+      <li><strong>Compose finality</strong><span>Fast and slow paths are evaluated separately and never added together. A lone notarization ends <code>MISSING_FINALIZATION</code>.</span></li>
+      <li><strong>Experiment and replay</strong><span>Change one byte, compare fresh reports, export the replay. On import every verdict is recomputed.</span></li>
+    </ol>
+  </section>
+  <footer class="landing-foot"><a class="brand" href="#landing"><span data-mark="20"></span>monocle</a><span>Open-source finality debugger for Alpenglow.</span></footer>
+</div>
+
+<!-- ================= INSPECTOR ================= -->
+<div class="inspector">
+  <header class="appbar">
+    <a class="brand" href="#landing"><span data-mark="24"></span>monocle</a>
+    <nav aria-label="Main"><a href="#landing">Overview</a><a href="#inspector" aria-current="page">Inspector</a></nav>
+    <span class="status">Verifier loaded, works offline</span>
+  </header>
+
+  <section class="summary" aria-labelledby="sum-title">
+    <div>
+      <div class="kicker"><span class="synthetic">Synthetic evidence</span><span>Fast finality bundle, slot 42, epoch 42</span></div>
+      <h1 id="sum-title">✓ Verified. Fast finality.</h1>
+      <p>Block finality through the fast path, under the checkpoint you selected for synthetic fixtures. Ancestry, execution and epoch transitions are not evaluated.</p>
+    </div>
+    <div class="summary-stake"><div class="big">80<small> / 100</small></div><p>signer stake, fast path needs 80%</p></div>
+  </section>
+
+  <section class="lanes" aria-labelledby="lanes-title">
+    <div class="lanes-head"><span id="lanes-title"><strong>Check lanes.</strong> Both runs freshly verified under the same checkpoint. Select a cell to read its diagnostic.</span><span>Experiment: byte 42 of <span class="mono">fast</span>, 01 → 00</span></div>
+    <table class="lane-table" id="lanes"></table>
+    <ul class="lane-list" id="lane-list" aria-label="Check lanes"></ul>
+  </section>
+
+  <div class="body">
+    <aside class="col-inputs" aria-label="Evidence and checkpoint">
+      <section class="block">
+        <h2>Evidence <button>Replace</button></h2>
+        <p class="title">Fast finality bundle</p>
+        <p class="note">C4 synthetic composition case with public test keys.</p>
+        <dl class="facts"><dt>Claim</dt><dd>Block finality</dd><dt>Slot</dt><dd class="mono">42</dd><dt>Certificates</dt><dd class="mono">fast</dd><dt>SHA-256</dt><dd class="mono" id="b-dig"></dd><dt>Profile</dt><dd class="mono">agave-98535e50-base2-v1</dd></dl>
+      </section>
+      <section class="block">
+        <h2>Checkpoint trust <button>Remove selection</button></h2>
+        <p class="title">Synthetic epoch 42</p>
+        <dl class="facts"><dt>Validators</dt><dd>5</dd><dt>Total stake</dt><dd class="mono">100</dd><dt>SHA-256</dt><dd class="mono" id="c-dig"></dd></dl>
+        <div class="trust"><strong>Trust basis: synthetic fixture only</strong><p>You selected this checkpoint for this session. Monocle records the choice; it does not authenticate the validator set.</p></div>
+      </section>
+      <section class="block">
+        <h2>Recorded RPC response</h2>
+        <p class="title">getAgGenesisCert, testnet</p>
+        <p class="note">Slot <span class="mono">444625255</span>. <span class="verdict-inline">— Inconclusive</span> until a historical checkpoint and signing context are supplied.</p>
+      </section>
+      <section class="block">
+        <h2>Replay</h2>
+        <p class="note">Exports the original, the experiment and their digests. Recipients select trust and recompute.</p>
+        <div class="actions"><button class="btn btn-small">Export replay</button><button class="btn btn-small btn-line">Import replay</button></div>
+      </section>
+    </aside>
+
+    <main class="col-main" aria-label="Certificate and diagnostics">
+      <section class="block">
+        <div class="sheet-head"><h2>Certificate fast</h2><span>Fast finalization, threshold 80%, signers 0, 1, 3</span></div>
+        <div class="ruler mini-ruler" id="cert-ruler"></div>
+        <div class="table-scroll" tabindex="0" role="region" aria-label="Signer weights"><table class="signers"><thead><tr><th>Rank</th><th>Identity</th><th>BLS key</th><th>Proof of possession</th><th>Signed</th><th class="num">Stake</th></tr></thead><tbody id="signers"></tbody></table></div>
+      </section>
+      <section class="block">
+        <div class="detail" id="detail"></div>
+      </section>
+      <section class="block">
+        <h2>Trust and scope</h2>
+        <ul class="assume" id="assume"></ul>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script>
+const D = window.MONOCLE;
+function ruler(el, opts) {
+  const ranks = new Set(D.report.cert.ranks);
+  const order = [...D.checkpoint.validators].sort((a, b) => (ranks.has(b.rank) - ranks.has(a.rank)) || a.rank - b.rank);
+  const segs = order.map((v) => `<span class="seg" data-signed="${ranks.has(v.rank)}" style="width:${v.stake}%" title="Rank ${v.rank}, stake ${v.stake}">r${v.rank} · ${v.stake}</span>`).join("");
+  const ticks = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map((t) => `<span style="left:${t}%">${t}</span>`).join("");
+  const marks = `<span class="mark-line dashed" style="left:60%"><span>60% slow</span></span><span class="mark-line" style="left:80%"><span>80% fast</span></span>${opts.genesis ? '<span class="mark-line dashed genesis" style="left:82%"><span>82% genesis</span></span>' : ""}`;
+  el.innerHTML = `<div class="track">${segs}</div>${marks}<div class="ticks">${ticks}</div>`;
+}
+ruler(document.getElementById("hero-ruler"), { genesis: true });
+ruler(document.getElementById("cert-ruler"), { genesis: false });
+
+(function inspector() {
+  const R = D.report, X = D.experiment;
+  const digest = (h) => window.short(h, 16) + "…";
+  document.getElementById("b-dig").textContent = digest(D.example.bundleDigest);
+  document.getElementById("c-dig").textContent = digest(D.checkpoint.digest);
+  const stages = [
+    ["Preflight", R.checks.slice(0, 3), X.checks.slice(0, 3)],
+    ["Certificate fast", R.cert.checks, X.certChecks],
+    ["Composition", R.checks.slice(3), X.checks.slice(3)],
+  ];
+  const cols = stages.flatMap(([g, a, b]) => a.map((c, i) => ({ group: g, stage: c.stage, orig: c, exp: b[i] })));
+  const glyph = { PASS: "✓", FAIL: "×", NOT_CHECKED: "—" };
+  const label = { PASS: "Pass", FAIL: "Fail", NOT_CHECKED: "Not run" };
+  const abbr = { certificate_decoding: "Decoding", key_qualification: "Key qual.", input: "Input", profile: "Profile", context: "Context", signers: "Signers", signature: "Signature", quorum: "Quorum", finality: "Finality" };
+  let sel = { lane: "exp", i: cols.findIndex((c) => c.stage === "signature") };
+  function render() {
+    const groupRow = stages.map(([g, a]) => `<th class="group" colspan="${a.length}">${g}</th>`).join("");
+    const head = cols.map((c) => `<th>${abbr[c.stage]}</th>`).join("");
+    const lane = (key, name) => `<tr><th scope="row">${name}</th>${cols.map((c, i) => {
+      const k = c[key], changed = c.orig.status !== c.exp.status;
+      return `<td><button class="cell" data-s="${k.status}" data-lane="${key}" data-i="${i}" aria-pressed="${sel.lane === key && sel.i === i}" aria-label="${name}, ${words(c.stage)}: ${label[k.status]}"><span class="g" aria-hidden="true">${glyph[k.status]}</span>${label[k.status]}${key === "exp" && changed ? '<span class="chg" title="Changed"></span>' : ""}</button></td>`;
+    }).join("")}</tr>`;
+    document.getElementById("lanes").innerHTML = `<thead><tr><th></th>${groupRow}</tr><tr><th></th>${head}</tr></thead><tbody>${lane("orig", "Original")}${lane("exp", "Experiment")}</tbody>`;
+    document.getElementById("lane-list").innerHTML = `<li class="hdr"><span>Check</span><span>Original</span><span>Experiment</span></li>` + cols.map((c, i) => `<li><span>${cap(words(c.stage))}</span>${["orig", "exp"].map((key) => `<button class="cell" data-s="${c[key].status}" data-lane="${key}" data-i="${i}" aria-pressed="${sel.lane === key && sel.i === i}"><span class="g" aria-hidden="true">${glyph[c[key].status]}</span>${label[c[key].status]}</button>`).join("")}</li>`).join("");
+    const c = cols[sel.i];
+    const raw = D.example.rawHex, hx = (i) => raw.slice(i * 2, i * 2 + 2);
+    let bytes = "";
+    for (let i = 34; i < 56; i++) bytes += (i === 42 ? `<s>${hx(i)}</s> <b>00</b>` : hx(i)) + " ";
+    document.getElementById("detail").innerHTML = `
+      <div><h3>${cap(words(c.stage))}</h3><p class="msg">${(sel.lane === "orig" ? c.orig : c.exp).message}</p>
+        <div class="pair"><div><span class="lbl">Original</span><span class="val" data-s="${c.orig.status}">${glyph[c.orig.status]} ${label[c.orig.status]}</span><code>${c.orig.code}</code></div>
+        <div><span class="lbl">Experiment</span><span class="val" data-s="${c.exp.status}">${glyph[c.exp.status]} ${label[c.exp.status]}</span><code>${c.exp.code}</code></div></div></div>
+      <div><h3>The change</h3><p class="msg">One equal-length replacement in certificate <span class="mono">fast</span>, derived from the immutable original.</p>
+        <p class="bytes">${bytes}</p>
+        <dl class="facts"><dt>Original</dt><dd class="mono">${digest(X.mutation.parent_certificate_digest)}</dd><dt>Experiment</dt><dd class="mono">${digest(X.mutation.result_certificate_digest)}</dd></dl></div>`;
+  }
+  const ranks = new Set(R.cert.ranks);
+  // Key qualification checks PoPs for selected signers only; others are present but unchecked.
+  document.getElementById("signers").innerHTML = D.checkpoint.validators.map((v) => `<tr data-signed="${ranks.has(v.rank)}"><td>${v.rank}</td><td class="mono">${v.identity.slice(0, 8)}…</td><td class="mono">${v.bls.slice(0, 8)}…</td><td>${ranks.has(v.rank) ? "Checked" : "Present, not checked"}</td><td>${ranks.has(v.rank) ? "Yes" : "No"}</td><td class="num">${v.stake}</td></tr>`).join("");
+  document.getElementById("assume").innerHTML = R.assumptions.map((a) => `<li>${a}</li>`).join("");
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest(".cell");
+    if (!b) return;
+    sel = { lane: b.dataset.lane, i: +b.dataset.i };
+    render();
+  });
+  render();
+})();
+</script>
+</body>
+</html>

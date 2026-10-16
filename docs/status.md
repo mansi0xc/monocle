@@ -1,6 +1,6 @@
 # Project status
 
-Updated: 2026-10-13.
+Updated: 2026-10-16.
 
 ## Current state
 
@@ -25,7 +25,10 @@ The genuine Rust/WASM verification paths, immutable tamper experiments, fresh di
 | C6 - Tamper lab and replay | Committed by Mansi: `95a990a` |
 | C7 - Capture integration | Committed by Mansi: `e396ade` |
 | C8 - Landing page and product UI | Committed by Mansi: `75cbd85`; merge confirmed |
-| C9 - Reference logo and palette | Implemented; awaiting owner review/commit |
+| C9 - Reference logo and palette | Committed by Mansi: `8c10872`; merged |
+| C10 - Design directions | Static previews ready for owner review; no product change |
+
+C10 adds three static design-direction previews under `apps/design-study/` (Dusk, Survey, Chronograph) for the owner to choose from. They use captured synthetic-fixture results, run no verifier, and change no product behaviour. The shipped interface remains the C9 design until a direction is selected and implemented in a later checkpoint.
 
 ## Run and validate
 

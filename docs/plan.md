@@ -185,3 +185,14 @@ Acceptance:
 - Trust/result labels and check symbols remain explicit; verification and offline flows are unchanged.
 - TypeScript, formatting, production compilation, and relevant complete browser regressions pass.
 - Update ignored handoff 010, leave changes unstaged, and pause for the owner commit.
+
+## C10 - Design directions (ready for owner review)
+
+Requested 2026-10-16. Critique the C8/C9 landing page and inspector, then explore three distinct visual directions for the Alpenglow launch while keeping the feather-and-lens mark. Each direction is a static browser preview in `apps/design-study/` showing a landing hero and a populated inspector. Preview data was captured from a real local Rust/WASM run of the signed synthetic fixtures and is labelled synthetic on every page. No product code, verifier, contract, fixture, or trust behaviour changes in this checkpoint; implementing a chosen direction is a later checkpoint that requires the owner's selection.
+
+Acceptance:
+
+- Three directions differ in composition, typography, and interaction design, each with landing and inspector views.
+- Previews use captured fixture results and never imply network verification or grant trust.
+- Desktop, tablet, and phone widths render without horizontal overflow; automated WCAG A/AA checks pass.
+- Update ignored handoff 011, leave changes unstaged, and pause for the owner's commit and direction choice.

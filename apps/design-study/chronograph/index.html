@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Monocle — Direction C: Chronograph</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..500&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+<script src="../shared/data.js"></script>
+<script src="../shared/preview.js"></script>
+<style>
+:root {
+  --abyss: #141a2b;
+  --navy: #28324f;
+  --navy-2: #1d2540;
+  --cream: #f2e6d8;
+  --paper: #f8f1e7;
+  --paper-2: #efe4d4;
+  --ink: #1d2438;
+  --ink-2: #4a5068;
+  --ink-3: #5f6376;
+  --burgundy: #aa2d3c;
+  --brass: #b8935a;
+  --brass-soft: rgb(184 147 90 / 0.35);
+  --rule: #d9cbb6;
+  --mark-feather: var(--burgundy);
+  --mark-lens: var(--cream);
+  --serif: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --sans: "Public Sans", ui-sans-serif, system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--abyss); color: var(--cream); font: 400 15px/1.6 var(--sans); -webkit-font-smoothing: antialiased; }
+a { color: inherit; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; }
+.mono { font-family: var(--mono); font-size: 0.9em; }
+html[data-view="landing"] .inspector, html[data-view="inspector"] .landing { display: none; }
+html[data-view="inspector"] body { background: var(--paper); }
+
+.preview-strip { position: sticky; top: 0; z-index: 50; display: flex; gap: 16px; align-items: center; justify-content: space-between; padding: 8px 20px; padding-top: calc(8px + env(safe-area-inset-top, 0px)); background: #0e1220; color: #b9b3aa; font-size: 12.5px; border-bottom: 1px solid rgb(184 147 90 / 0.25); }
+.preview-strip nav { display: flex; gap: 4px; }
+.preview-strip a { text-decoration: none; padding: 4px 10px; border-radius: 2px; }
+.preview-strip a[aria-current="page"] { background: var(--cream); color: var(--ink); }
+.preview-strip p { margin: 0; }
+@media (max-width: 720px) { .preview-strip p { display: none; } }
+
+/* ---------- Landing ---------- */
+.landing { background: radial-gradient(70% 60% at 50% 42%, #24304f 0%, var(--abyss) 72%); }
+.site-nav { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 20px clamp(20px, 4vw, 56px); }
+.site-nav .links { display: flex; gap: 26px; font-size: 14px; color: #c9c0b4; }
+.site-nav .links a { text-decoration: none; }
+.site-nav .links a:hover { color: var(--cream); }
+.brand { display: inline-flex; align-items: center; gap: 10px; font: 500 22px var(--serif); letter-spacing: 0.005em; text-decoration: none; }
+.site-nav .cta { justify-self: end; }
+.btn { display: inline-flex; align-items: center; gap: 10px; border: 1px solid var(--burgundy); background: var(--burgundy); color: #fff6ee; padding: 12px 24px; font: 500 15px var(--sans); text-decoration: none; cursor: pointer; border-radius: 2px; letter-spacing: 0.01em; }
+.btn:hover { background: #95242f; }
+.btn-quiet { background: transparent; border-color: var(--brass-soft); color: var(--cream); }
+.btn-quiet:hover { background: rgb(242 230 216 / 0.06); border-color: var(--brass); }
+.btn-small { padding: 8px 16px; font-size: 14px; }
+
+.hero { padding: clamp(16px, 3vh, 40px) clamp(20px, 4vw, 56px) clamp(48px, 7vh, 80px); text-align: center; }
+.hero h1 { margin: 0 auto; font: 300 clamp(44px, 6.2vw, 92px)/1 var(--serif); letter-spacing: -0.02em; font-variation-settings: "opsz" 72; }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 500px) minmax(0, 1fr); gap: clamp(24px, 4vw, 64px); align-items: center; margin-top: clamp(16px, 3vh, 36px); text-align: left; }
+.hero-lede { font: 400 clamp(17px, 1.3vw, 19px)/1.6 var(--serif); color: #d9cfc2; margin: 0; }
+.hero-lede + .hero-actions { margin-top: 24px; }
+.hero-left { justify-self: end; max-width: 34ch; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.dial-wrap { position: relative; aspect-ratio: 1; width: 100%; max-width: 100%; }
+.dial-wrap svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.readings { list-style: none; margin: 0; padding: 0; max-width: 30ch; }
+.readings li { padding: 12px 0; border-top: 1px solid var(--brass-soft); }
+.readings li:last-child { border-bottom: 1px solid var(--brass-soft); }
+.readings strong { display: block; font: 500 15px var(--sans); color: var(--cream); }
+.readings span { font-size: 13.5px; color: #b7aea2; }
+.readings .num { font-family: var(--mono); color: var(--brass); font-size: 13px; }
+.dial-caption { margin: 18px auto 0; font-size: 12.5px; color: #a49b8f; max-width: 64ch; }
+@media (prefers-reduced-motion: no-preference) {
+  .hand { transform-origin: 250px 250px; animation: sweep 1.6s cubic-bezier(.2,.8,.2,1) both .2s; }
+  @keyframes sweep { from { transform: rotate(-230deg); } to { transform: rotate(0); } }
+}
+@media (max-width: 980px) {
+  .site-nav { grid-template-columns: auto 1fr; }
+  .site-nav .links { display: none; }
+  .hero-grid { grid-template-columns: minmax(0, 1fr); justify-items: center; text-align: center; }
+  .hero-left { justify-self: center; }
+  .hero-actions { justify-content: center; }
+  .dial-wrap { max-width: 420px; }
+  .readings { text-align: left; width: 100%; max-width: 420px; }
+}
+
+.ledger { background: var(--cream); color: var(--ink); padding: clamp(56px, 8vw, 104px) clamp(20px, 4vw, 56px); }
+.ledger h2 { font: 400 clamp(30px, 3.4vw, 48px)/1.08 var(--serif); letter-spacing: -0.015em; margin: 0 auto 40px; max-width: 22ch; text-align: center; }
+.ledger-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0; max-width: 1080px; margin: 0 auto; border-top: 1px solid var(--ink); }
+.ledger-cols section { padding: 24px clamp(16px, 3vw, 40px) 8px; }
+.ledger-cols section + section { border-left: 1px solid var(--rule); }
+.ledger-cols h3 { font: 600 14px var(--sans); margin: 0 0 12px; }
+.ledger-cols ul { list-style: none; margin: 0; padding: 0; }
+.ledger-cols li { padding: 12px 0; border-bottom: 1px solid var(--rule); font: 400 17px/1.5 var(--serif); }
+.ledger-cols li small { display: block; font: 400 13px var(--sans); color: var(--ink-2); margin-top: 2px; }
+.landing-foot { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; padding: 24px clamp(20px, 4vw, 56px) calc(24px + env(safe-area-inset-bottom, 0px)); font-size: 13px; color: #a49b8f; }
+@media (max-width: 760px) { .ledger-cols { grid-template-columns: 1fr; } .ledger-cols section + section { border-left: 0; } }
+
+/* ---------- Inspector (dossier) ---------- */
+.inspector { background: var(--paper); color: var(--ink); min-height: calc(100svh - 41px); }
+.appbar { display: flex; align-items: center; gap: 22px; padding: 10px clamp(16px, 3vw, 32px); background: var(--navy-2); color: var(--cream); }
+.appbar .brand { font-size: 19px; }
+.appbar nav { display: flex; gap: 18px; font-size: 14px; color: #c9c0b4; }
+.appbar nav a { text-decoration: none; padding: 4px 0; }
+.appbar nav a[aria-current="page"] { color: var(--cream); box-shadow: inset 0 -1px 0 var(--brass); }
+.appbar .status { margin-left: auto; font-size: 13px; color: #c9c0b4; }
+.appbar .status b { color: var(--brass); font-weight: 500; }
+
+.dossier { display: grid; grid-template-columns: 200px minmax(0, 720px) 250px; gap: 0 clamp(24px, 3vw, 48px); justify-content: center; padding: 0 clamp(16px, 3vw, 32px); }
+.index { position: sticky; top: 41px; align-self: start; padding-top: 40px; }
+.index p { font: 500 13px var(--sans); color: var(--ink-3); margin: 0 0 10px; }
+.index ol { list-style: none; margin: 0; padding: 0; counter-reset: i; }
+.index li { counter-increment: i; }
+.index a { display: grid; grid-template-columns: 1.8em 1fr; padding: 6px 0 6px 10px; font-size: 14px; text-decoration: none; color: var(--ink-2); border-left: 2px solid transparent; }
+.index a::before { content: counter(i, upper-roman); font: 400 12px var(--serif); color: var(--ink-3); padding-top: 2px; }
+.index a[aria-current="true"] { color: var(--ink); border-left-color: var(--burgundy); font-weight: 500; }
+.index .glyph { margin-left: 6px; font-size: 12px; }
+.index .glyph.ok { color: var(--navy); }
+.index .glyph.bad { color: var(--burgundy); }
+
+.doc { padding: 40px 0 96px; min-width: 0; }
+.doc section { scroll-margin-top: 60px; padding-bottom: 36px; margin-bottom: 36px; border-bottom: 1px solid var(--rule); }
+.doc h2 { font: 400 26px/1.15 var(--serif); letter-spacing: -0.01em; margin: 0 0 14px; display: flex; gap: 12px; align-items: baseline; }
+.doc h2 .n { font: 400 14px var(--serif); color: var(--ink-3); }
+.doc p { margin: 0 0 12px; }
+.muted { color: var(--ink-2); }
+.verdict { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 28px; align-items: center; }
+.seal { width: 132px; height: 132px; }
+.seal text { font: 500 10px var(--sans); letter-spacing: 0.2em; fill: var(--navy); }
+.verdict .tagline { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 6px; font-size: 13px; color: var(--ink-2); }
+.synthetic { font: 500 12px var(--sans); color: var(--burgundy); border: 1px solid var(--burgundy); padding: 1px 8px; border-radius: 2px; }
+.verdict h1 { font: 400 clamp(34px, 4vw, 50px)/1.02 var(--serif); letter-spacing: -0.02em; margin: 0 0 10px; }
+.verdict p { font: 400 17px/1.55 var(--serif); color: var(--ink-2); margin: 0; }
+.readout { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 26px 0 0; border-block: 1px solid var(--ink); }
+.readout div { padding: 12px 14px 12px 0; }
+.readout div + div { padding-left: 14px; border-left: 1px solid var(--rule); }
+.readout dt { font-size: 12.5px; color: var(--ink-3); }
+.readout dd { margin: 2px 0 0; font: 400 22px var(--serif); }
+.readout dd small { font: 400 13px var(--sans); color: var(--ink-3); }
+.basis { padding: 18px 20px 18px 22px; background: var(--paper-2); border-left: 3px solid var(--navy); }
+.basis strong { display: block; font: 500 17px var(--serif); margin-bottom: 4px; }
+.basis p { margin: 0 0 8px; color: var(--ink-2); }
+.basis .link { font-size: 13.5px; text-decoration: underline; text-underline-offset: 3px; color: var(--burgundy); background: none; border: 0; padding: 0; cursor: pointer; }
+.facts { display: grid; grid-template-columns: 9em minmax(0, 1fr); margin: 0; font-size: 14px; }
+.facts dt, .facts dd { padding: 7px 0; margin: 0; border-bottom: 1px dotted var(--rule); }
+.facts dt { color: var(--ink-3); }
+.facts dd { overflow-wrap: anywhere; }
+.trace { list-style: none; margin: 0; padding: 0; }
+.trace-group { font: 500 13px var(--sans); color: var(--ink-3); margin: 18px 0 4px; }
+.trace li { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 12px; padding: 10px 0; border-bottom: 1px dotted var(--rule); }
+.trace li.hl { background: linear-gradient(90deg, rgb(184 147 90 / 0.14), transparent 80%); }
+.trace .g { font-size: 14px; text-align: center; padding-top: 2px; }
+.trace [data-s="PASS"] .g { color: var(--navy); }
+.trace [data-s="FAIL"] .g { color: var(--burgundy); }
+.trace [data-s="NOT_CHECKED"] .g { color: var(--ink-3); }
+.trace strong { font-weight: 600; }
+.trace .msg { display: block; color: var(--ink-2); font-size: 14px; }
+.trace .st { font-size: 12.5px; color: var(--ink-3); margin-left: 8px; }
+.trace .code-inline { display: none; font: 400 11.5px var(--mono); color: var(--ink-3); margin-top: 2px; }
+.table-scroll { overflow-x: auto; }
+.signers { width: 100%; border-collapse: collapse; font-size: 14px; }
+.signers caption { text-align: left; font-size: 13px; color: var(--ink-2); padding-bottom: 8px; }
+.signers th { text-align: left; font-weight: 500; font-size: 12.5px; color: var(--ink-3); padding: 6px 10px 6px 0; border-bottom: 1px solid var(--ink); white-space: nowrap; }
+.signers td { padding: 9px 10px 9px 0; border-bottom: 1px dotted var(--rule); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.signers .num { text-align: right; }
+.signers tfoot td { border-bottom: 0; border-top: 1px solid var(--ink); font-weight: 600; }
+.signers tr[data-signed="false"] td { color: var(--ink-3); }
+.annex { background: var(--paper-2); padding: 22px 22px 18px; }
+.annex h3 { font: 400 20px var(--serif); margin: 0 0 6px; }
+.byteline { display: flex; flex-wrap: wrap; gap: 4px 6px; font: 400 13px var(--mono); margin: 14px 0; color: var(--ink-3); }
+.byteline .hit { color: var(--ink); }
+.byteline .old { text-decoration: line-through; text-decoration-color: var(--burgundy); text-decoration-thickness: 2px; color: var(--ink); }
+.byteline .new { background: var(--burgundy); color: #fff6ee; padding: 0 4px; }
+.cmp { width: 100%; border-collapse: collapse; font-size: 14px; }
+.cmp th { text-align: left; font-weight: 500; font-size: 12.5px; color: var(--ink-3); border-bottom: 1px solid var(--ink); padding: 6px 10px 6px 0; }
+.cmp td { padding: 8px 10px 8px 0; border-bottom: 1px dotted var(--rule); vertical-align: top; }
+.cmp .bad { color: var(--burgundy); font-weight: 600; }
+.cmp .nc { color: var(--ink-3); }
+.cmp .code { display: block; font: 400 11.5px var(--mono); }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
+.inspector .btn-quiet { color: var(--ink); border-color: var(--ink-3); }
+.inspector .btn-quiet:hover { background: var(--paper); }
+.reqs { margin: 10px 0 0; padding-left: 20px; color: var(--ink-2); font-size: 14px; }
+.reqs li { margin-bottom: 6px; }
+
+.margin { padding-top: 40px; font-size: 12.5px; color: var(--ink-2); min-width: 0; }
+.note { padding: 10px 6px 12px; border-top: 1px solid var(--rule); transition: background .2s; }
+.note b { display: block; font: 500 12px var(--sans); color: var(--ink-3); margin-bottom: 2px; }
+.note code { font: 400 11.5px/1.5 var(--mono); color: var(--ink); overflow-wrap: anywhere; }
+.note.hl { background: rgb(184 147 90 / 0.18); }
+@media (max-width: 1220px) {
+  .dossier { grid-template-columns: 190px minmax(0, 1fr); }
+  .trace .code-inline { display: block; }
+  .margin { grid-column: 2; padding-top: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0 24px; padding-bottom: 40px; }
+}
+@media (max-width: 760px) {
+  .appbar nav { display: none; }
+  .dossier { grid-template-columns: minmax(0, 1fr); }
+  .index { top: 41px; z-index: 5; background: var(--paper); padding: 10px clamp(16px, 3vw, 32px); border-bottom: 1px solid var(--rule); margin: 0 calc(-1 * clamp(16px, 3vw, 32px)); overflow-x: auto; }
+  .index p { display: none; }
+  .index ol { display: flex; gap: 4px; }
+  .index a { white-space: nowrap; border-left: 0; border-bottom: 2px solid transparent; padding: 4px 8px; display: inline-block; }
+  .index a::before { content: none; }
+  .index a[aria-current="true"] { border-bottom-color: var(--burgundy); }
+  .doc { padding-top: 24px; }
+  .verdict { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .seal { width: 96px; height: 96px; }
+  .readout { grid-template-columns: minmax(0, 1fr); }
+  .readout div + div { border-left: 0; padding-left: 0; border-top: 1px solid var(--rule); }
+  .margin { grid-column: 1; grid-template-columns: minmax(0, 1fr); }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<div class="preview-strip" role="note">
+  <a href="../index.html">← All directions</a>
+  <p>Direction C · Chronograph. Design preview, not the product. Inspector values come from a real local run of synthetic fixtures.</p>
+  <nav aria-label="Preview view"><a href="#landing" data-view-link="landing">Landing</a><a href="#inspector" data-view-link="inspector">Inspector</a></nav>
+</div>
+
+<!-- ================= LANDING ================= -->
+<div class="landing">
+  <header class="site-nav">
+    <nav class="links" aria-label="Main"><a href="#ledger">What it establishes</a><a href="#">Documentation</a><a href="#">Source</a></nav>
+    <a class="brand" href="#landing"><span data-mark="32"></span>Monocle</a>
+    <a class="btn btn-small btn-quiet cta" href="#inspector">Open inspector</a>
+  </header>
+  <section class="hero" aria-labelledby="hero-title">
+    <h1 id="hero-title">Finality, examined to the last vote.</h1>
+    <div class="hero-grid">
+      <div class="hero-left">
+        <p class="hero-lede">Monocle is a precise instrument for Alpenglow evidence. It checks each certificate’s BLS signature and exact signer stake against a validator checkpoint you choose, then states what the result establishes and what it leaves to you.</p>
+        <div class="hero-actions"><a class="btn" href="#inspector">Examine a signed example</a><a class="btn btn-quiet" href="#ledger">What it establishes</a></div>
+      </div>
+      <div class="dial-wrap" aria-hidden="true"><svg id="dial" viewBox="0 0 500 500"></svg></div>
+      <ul class="readings" aria-label="Dial readings from synthetic fixtures">
+        <li><strong>Fast path</strong><span>One certificate, <span class="num">80 / 100</span> stake against an 80% threshold</span></li>
+        <li><strong>Slow path</strong><span>Notarization and finalization, <span class="num">65 / 100</span> each against 60%, never added</span></li>
+        <li><strong>Genesis anchor</strong><span><span class="num">82 / 100</span> against 82%, kept separate from block finality</span></li>
+      </ul>
+    </div>
+    <p class="dial-caption">Every reading comes from Monocle’s signed synthetic fixtures (public test keys, invented stake). They demonstrate the instrument, not the network.</p>
+  </section>
+
+  <section class="ledger" id="ledger" aria-labelledby="ledger-title">
+    <h2 id="ledger-title">What a result establishes, and what stays with you.</h2>
+    <div class="ledger-cols">
+      <section aria-labelledby="est"><h3 id="est">Monocle establishes</h3><ul>
+        <li>The aggregate signature verifies for the exact signed bytes<small>BLS12-381, with each selected key’s proof of possession checked</small></li>
+        <li>The signers carry enough stake<small>Exact integers against the checkpoint’s original denominator</small></li>
+        <li>Which finality path holds, if any<small>Fast, slow and genesis scopes are reported separately</small></li>
+        <li>What one changed byte breaks<small>A fresh comparison against the immutable original</small></li>
+      </ul></section>
+      <section aria-labelledby="yours"><h3 id="yours">You remain responsible for</h3><ul>
+        <li>Trusting the validator checkpoint<small>Monocle records your reason; it does not authenticate the set</small></li>
+        <li>Context a raw RPC response lacks<small>Recorded getAgGenesisCert responses stay inconclusive without it</small></li>
+        <li>Ancestry, execution and epoch transitions<small>None of these are evaluated</small></li>
+        <li>Reading a rejection correctly<small>Rejected evidence is not proof that a block is non-final</small></li>
+      </ul></section>
+    </div>
+  </section>
+  <footer class="landing-foot"><a class="brand" href="#landing"><span data-mark="22"></span>Monocle</a><span>Open-source finality debugger for Alpenglow. Fixed-checkpoint research tool.</span></footer>
+</div>
+
+<!-- ================= INSPECTOR ================= -->
+<div class="inspector">
+  <header class="appbar">
+    <a class="brand" href="#landing"><span data-mark="24"></span>Monocle</a>
+    <nav aria-label="Main"><a href="#landing">Overview</a><a href="#inspector" aria-current="page">Inspector</a></nav>
+    <span class="status">Local verifier <b>ready offline</b></span>
+  </header>
+  <div class="dossier">
+    <nav class="index" aria-label="Report sections">
+      <p>Fast finality report</p>
+      <ol>
+        <li><a href="#inspector" data-sec="s-verdict" aria-current="true"><span>Verdict <span class="glyph ok" aria-hidden="true">✓</span></span></a></li>
+        <li><a href="#inspector" data-sec="s-trust"><span>Trust basis</span></a></li>
+        <li><a href="#inspector" data-sec="s-evidence"><span>Evidence</span></a></li>
+        <li><a href="#inspector" data-sec="s-trace"><span>Trace</span></a></li>
+        <li><a href="#inspector" data-sec="s-signers"><span>Signers</span></a></li>
+        <li><a href="#inspector" data-sec="s-annex"><span>Experiment <span class="glyph bad" aria-hidden="true">×</span></span></a></li>
+        <li><a href="#inspector" data-sec="s-record"><span>Recorded source</span></a></li>
+      </ol>
+    </nav>
+
+    <article class="doc" aria-label="Verification report">
+      <section id="s-verdict">
+        <div class="verdict">
+          <svg class="seal" viewBox="0 0 132 132" aria-hidden="true">
+            <defs><path id="ring" d="M66 66 m-52 0 a52 52 0 1 1 104 0 a52 52 0 1 1 -104 0" /></defs>
+            <circle cx="66" cy="66" r="64" fill="none" stroke="var(--navy)" stroke-width="1.5" />
+            <circle cx="66" cy="66" r="40" fill="none" stroke="var(--brass)" stroke-width="1" />
+            <text><textPath href="#ring">VERIFIED · SELECTED CHECKPOINT ·</textPath></text>
+            <g transform="translate(40 40) scale(0.0415)"><path fill="var(--burgundy)" fill-rule="evenodd" id="seal-f" /><path fill="var(--navy)" fill-rule="evenodd" id="seal-l" /></g>
+          </svg>
+          <div>
+            <div class="tagline"><span class="synthetic">Synthetic evidence</span><span>Slot 42, epoch 42</span></div>
+            <h1>Fast finality verified</h1>
+            <p>The fast-finalization certificate binds this block and its signers carry the required stake. This holds under the checkpoint you selected and the pinned protocol profile, and nothing more.</p>
+          </div>
+        </div>
+        <dl class="readout">
+          <div><dt>Scope</dt><dd>Block finality</dd></div>
+          <div><dt>Path</dt><dd>Fast, one round</dd></div>
+          <div><dt>Signer stake</dt><dd>80 <small>of 100, needs 80%</small></dd></div>
+        </dl>
+      </section>
+
+      <section id="s-trust">
+        <h2><span class="n">II</span>Trust basis</h2>
+        <div class="basis">
+          <strong>You selected Synthetic epoch 42 as a synthetic fixture.</strong>
+          <p>Five validators, total stake 100. This choice applies only to synthetic evidence in this session. Monocle records it; it does not authenticate the validator set.</p>
+          <button class="link">Remove selection</button>
+        </div>
+      </section>
+
+      <section id="s-evidence">
+        <h2><span class="n">III</span>Evidence</h2>
+        <p class="muted">Fast finality bundle. C4 synthetic composition case using public test keys and invented context.</p>
+        <dl class="facts">
+          <dt>Claim</dt><dd>Block finality at slot 42</dd>
+          <dt>Block ID</dt><dd class="mono">4242…4242</dd>
+          <dt>Certificates</dt><dd class="mono">fast</dd>
+          <dt>Profile</dt><dd class="mono">agave-98535e50-base2-v1</dd>
+        </dl>
+      </section>
+
+      <section id="s-trace">
+        <h2><span class="n">IV</span>Trace</h2>
+        <p class="muted">Each check in the order it ran. Hover or focus a check to find its diagnostic in the margin.</p>
+        <div id="trace"></div>
+      </section>
+
+      <section id="s-signers">
+        <h2><span class="n">V</span>Signers</h2>
+        <div class="table-scroll" tabindex="0" role="region" aria-label="Signer weights">
+        <table class="signers">
+          <caption>Weights from the selected checkpoint. Only selected signers’ proofs of possession are checked.</caption>
+          <thead><tr><th>Rank</th><th>Identity</th><th>Signed</th><th>Proof of possession</th><th class="num">Stake</th></tr></thead>
+          <tbody id="signers"></tbody>
+          <tfoot><tr><td colspan="4">Selected stake</td><td class="num">80 / 100</td></tr></tfoot>
+        </table>
+        </div>
+      </section>
+
+      <section id="s-annex">
+        <h2><span class="n">VI</span>Experiment</h2>
+        <div class="annex">
+          <h3>One signature byte changed</h3>
+          <p class="muted">Derived from the immutable original. Both reports were freshly verified under the same checkpoint.</p>
+          <div class="byteline" id="bytes"></div>
+          <table class="cmp"><thead><tr><th>Check</th><th>Original</th><th>Experiment</th></tr></thead><tbody id="cmp"></tbody></table>
+          <p class="muted" style="margin-top:14px">The experiment is rejected. That says the changed evidence fails; it does not say the block is non-final.</p>
+          <div class="actions"><button class="btn btn-small">Export replay</button><button class="btn btn-small btn-quiet">Discard experiment</button></div>
+        </div>
+      </section>
+
+      <section id="s-record">
+        <h2><span class="n">VII</span>Recorded source</h2>
+        <p><strong>getAgGenesisCert</strong>, recorded testnet response at slot <span class="mono">444625255</span>. <span class="muted">Inconclusive: no signature, quorum or finality check has run.</span></p>
+        <p class="muted">Before it can become verification input, Monocle needs:</p>
+        <ol class="reqs" id="reqs"></ol>
+      </section>
+    </article>
+
+    <aside class="margin" aria-label="Diagnostics and identities" id="margin"></aside>
+  </div>
+</div>
+
+<script>
+const D = window.MONOCLE;
+(function seal() {
+  const tmp = document.createElement("div");
+  tmp.innerHTML = monocleMark(10);
+  const ps = tmp.querySelectorAll("path");
+  document.getElementById("seal-f").setAttribute("d", ps[0].getAttribute("d"));
+  document.getElementById("seal-l").setAttribute("d", ps[1].getAttribute("d"));
+})();
+
+// ---------- Dial: 0–100% stake across a 288° arc ----------
+(function dial() {
+  const svg = document.getElementById("dial");
+  const C = 250, R = 196;
+  const ang = (p) => (p / 100) * 288 - 144;
+  const pt = (p, r) => { const a = (ang(p) - 90) * Math.PI / 180; return [C + r * Math.cos(a), C + r * Math.sin(a)]; };
+  const arc = (p0, p1, r) => { const [x0, y0] = pt(p0, r), [x1, y1] = pt(p1, r); return `M${x0} ${y0} A${r} ${r} 0 ${(p1 - p0) * 2.88 > 180 ? 1 : 0} 1 ${x1} ${y1}`; };
+  let ticks = "";
+  for (let p = 0; p <= 100; p += 2) {
+    const major = p % 10 === 0;
+    const [x0, y0] = pt(p, R), [x1, y1] = pt(p, R - (major ? 14 : 7));
+    ticks += `<line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y1}" stroke="#b8935a" stroke-opacity="${major ? 0.9 : 0.45}" stroke-width="${major ? 1.5 : 1}"/>`;
+    if (major) { const [tx, ty] = pt(p, R - 28); ticks += `<text x="${tx}" y="${ty + 4}" text-anchor="middle" font-family="IBM Plex Mono" font-size="11" fill="#c9c0b4">${p}</text>`; }
+  }
+  const segs = [[0, 40, "#aa2d3c"], [40, 65, "#bf4a57"], [65, 80, "#d27884"]];
+  const arcs = segs.map(([a, b, c]) => `<path d="${arc(a + 0.4, b - 0.4, R + 14)}" stroke="${c}" stroke-width="10" fill="none"/>`).join("");
+  const marker = (p, label, strong, dx) => { const [x0, y0] = pt(p, R + 4), [x1, y1] = pt(p, R + 26), [lx, ly] = pt(p, R + 38); return `<line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y1}" stroke="${strong ? "#f2e6d8" : "#b8935a"}" stroke-width="2"/><text x="${lx + (dx || 0)}" y="${ly + 4}" text-anchor="middle" font-family="Public Sans" font-size="11.5" fill="${strong ? "#f2e6d8" : "#c9c0b4"}">${label}</text>`; };
+  const sub = (cx, cy, val, th, label) => {
+    const r = 30, a0 = -144, sweep = (val / 100) * 288;
+    const p = (deg, rr) => { const a = (deg - 90) * Math.PI / 180; return [cx + rr * Math.cos(a), cy + rr * Math.sin(a)]; };
+    const [sx, sy] = p(a0, r), [ex, ey] = p(a0 + sweep, r), [tx0, ty0] = p(a0 + (th / 100) * 288, r - 6), [tx1, ty1] = p(a0 + (th / 100) * 288, r + 6);
+    return `<circle cx="${cx}" cy="${cy}" r="${r + 10}" fill="#1a2138" stroke="#b8935a" stroke-opacity=".45"/>
+      <path d="M${sx} ${sy} A${r} ${r} 0 ${sweep > 180 ? 1 : 0} 1 ${ex} ${ey}" stroke="#aa2d3c" stroke-width="4" fill="none"/>
+      <line x1="${tx0}" y1="${ty0}" x2="${tx1}" y2="${ty1}" stroke="#f2e6d8" stroke-width="1.5"/>
+      <text x="${cx}" y="${cy + 3}" text-anchor="middle" font-family="IBM Plex Mono" font-size="13" fill="#f2e6d8">${val}</text>
+      <text x="${cx}" y="${cy + 17}" text-anchor="middle" font-family="Public Sans" font-size="9" fill="#c9c0b4">${label}</text>`;
+  };
+  const [hx, hy] = pt(80, R - 44);
+  svg.innerHTML = `
+    <defs><radialGradient id="face" cx=".42" cy=".38" r=".75"><stop offset="0" stop-color="#2c3758"/><stop offset="1" stop-color="#161c2e"/></radialGradient></defs>
+    <circle cx="${C}" cy="${C}" r="${R + 30}" fill="none" stroke="#b8935a" stroke-opacity=".25"/>
+    <circle cx="${C}" cy="${C}" r="${R + 2}" fill="url(#face)" stroke="#b8935a" stroke-opacity=".7" stroke-width="1.5"/>
+    ${ticks}${arcs}
+    ${marker(60, "", false)}${marker(80, "", true)}${marker(82, "", false)}
+    ${sub(178, 292, 65, 60, "notar.")}${sub(322, 292, 65, 60, "final.")}${sub(250, 170, 82, 82, "genesis")}
+    <g class="hand"><line x1="${C}" y1="${C}" x2="${hx}" y2="${hy}" stroke="#f2e6d8" stroke-width="2.5" stroke-linecap="round"/><circle cx="${C}" cy="${C}" r="7" fill="#aa2d3c" stroke="#f2e6d8" stroke-width="2"/></g>
+    <text x="${C}" y="${C + 104}" text-anchor="middle" font-family="Newsreader" font-size="17" fill="#f2e6d8">80 of 100 stake</text>
+    <text x="${C}" y="${C + 123}" text-anchor="middle" font-family="Public Sans" font-size="11" fill="#c9c0b4">fast path, synthetic fixture</text>`;
+})();
+
+// ---------- Dossier ----------
+(function dossier() {
+  const R = D.report, X = D.experiment;
+  const glyph = { PASS: "✓", FAIL: "×", NOT_CHECKED: "—" };
+  const label = { PASS: "pass", FAIL: "fail", NOT_CHECKED: "not run" };
+  const groups = [["Preflight", R.checks.slice(0, 3)], ["Certificate fast", R.cert.checks], ["Composition", R.checks.slice(3)]];
+  let html = "", notes = "";
+  groups.forEach(([g, cs]) => {
+    html += `<p class="trace-group">${g}</p><ol class="trace">`;
+    cs.forEach((c) => {
+      const id = "n-" + g.replace(/\W/g, "") + c.stage;
+      html += `<li data-s="${c.status}" data-note="${id}" tabindex="0"><span class="g" aria-hidden="true">${glyph[c.status]}</span><div><strong>${cap(words(c.stage))}</strong><span class="st">${label[c.status]}</span><span class="msg">${c.message}</span><code class="code-inline">${c.code}</code></div></li>`;
+      notes += `<div class="note" id="${id}"><b>${g}, ${words(c.stage)}</b><code>${c.code}</code></div>`;
+    });
+    html += "</ol>";
+  });
+  document.getElementById("trace").innerHTML = html;
+  document.getElementById("margin").innerHTML = `
+    <div class="note"><b>Bundle SHA-256</b><code>${D.example.bundleDigest}</code></div>
+    <div class="note"><b>Checkpoint SHA-256</b><code>${D.checkpoint.digest}</code></div>
+    <div class="note"><b>Run</b><code>${D.example.runId}</code></div>
+    <div class="note"><b>Policy</b><code>${D.example.policy}</code></div>
+    <div class="note"><b>Experiment certificate SHA-256</b><code>${X.mutation.result_certificate_digest}</code></div>`;
+  const diag = document.createElement("div");
+  diag.innerHTML = notes;
+  diag.querySelectorAll(".note").forEach((n) => { n.hidden = true; document.getElementById("margin").appendChild(n); });
+  document.querySelectorAll(".trace li").forEach((li) => {
+    const n = document.getElementById(li.dataset.note);
+    const on = () => { n.hidden = false; n.classList.add("hl"); li.classList.add("hl"); };
+    const off = () => { n.hidden = true; n.classList.remove("hl"); li.classList.remove("hl"); };
+    li.addEventListener("mouseenter", on); li.addEventListener("mouseleave", off);
+    li.addEventListener("focus", on); li.addEventListener("blur", off);
+  });
+  const ranks = new Set(R.cert.ranks);
+  document.getElementById("signers").innerHTML = D.checkpoint.validators.map((v) => `<tr data-signed="${ranks.has(v.rank)}"><td>${v.rank}</td><td class="mono">${v.identity.slice(0, 12)}…</td><td>${ranks.has(v.rank) ? "Yes" : "No"}</td><td>${ranks.has(v.rank) ? "Checked" : "Present, not checked"}</td><td class="num">${v.stake}</td></tr>`).join("");
+  const raw = D.example.rawHex, hx = (i) => raw.slice(i * 2, i * 2 + 2);
+  let b = `<span>Certificate fast, bytes 38–50:</span>`;
+  for (let i = 38; i <= 50; i++) b += i === 42 ? `<span class="old">${hx(i)}</span><span class="new">00</span>` : `<span class="${i > 42 ? "hit" : ""}">${hx(i)}</span>`;
+  document.getElementById("bytes").innerHTML = b;
+  const rows = [];
+  R.cert.checks.forEach((c, i) => { const e = X.certChecks[i]; if (e.status !== c.status) rows.push([c.stage, c, e]); });
+  R.checks.forEach((c, i) => { const e = X.checks[i]; if (e.status !== c.status) rows.push([c.stage, c, e]); });
+  document.getElementById("cmp").innerHTML = rows.map(([s, a, e]) => `<tr><td>${cap(words(s))}</td><td>${glyph[a.status]} ${label[a.status]}</td><td class="${e.status === "FAIL" ? "bad" : "nc"}">${glyph[e.status]} ${label[e.status]}<span class="code">${e.code}</span></td></tr>`).join("");
+  document.getElementById("reqs").innerHTML = D.capture.requirements.map((r) => `<li>${r}</li>`).join("");
+  const links = [...document.querySelectorAll(".index a")];
+  links.forEach((a) => a.addEventListener("click", (e) => { e.preventDefault(); document.getElementById(a.dataset.sec).scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" }); }));
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((en) => { if (en.isIntersecting) links.forEach((a) => a.setAttribute("aria-current", a.dataset.sec === en.target.id)); });
+  }, { rootMargin: "-20% 0px -70% 0px" });
+  document.querySelectorAll(".doc section").forEach((s) => io.observe(s));
+})();
+</script>
+</body>
+</html>
