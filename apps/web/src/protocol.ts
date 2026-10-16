@@ -19,7 +19,8 @@ export type Checkpoint = {
 };
 export type Selection = {
   digest: ContentDigest;
-  basis: "synthetic" | "operator";
+  /** `registered` also accepts the checkpoint's keys as registered on chain. */
+  basis: "synthetic" | "operator" | "registered";
   reason: string;
 };
 export type Comparison = {

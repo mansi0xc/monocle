@@ -5,7 +5,21 @@ use std::collections::HashMap;
 #[derive(Clone, Debug)]
 pub enum TrustBasis {
     SyntheticFixture,
-    OperatorPinned { reason: String },
+    OperatorPinned {
+        reason: String,
+    },
+    /// Operator-pinned, and the caller additionally accepts every listed key as
+    /// registered on chain, where the vote program verified its proof of
+    /// possession (SIMD-0387). Monocle then does not re-verify proofs, as Agave
+    /// does not. Only this explicit selection grants it; no file field can.
+    RegisteredKeys {
+        reason: String,
+    },
+}
+impl TrustBasis {
+    pub(crate) fn accepts_registered_keys(&self) -> bool {
+        matches!(self, Self::RegisteredKeys { .. })
+    }
 }
 #[derive(Debug)]
 pub(crate) struct TrustedCheckpoint {
@@ -36,7 +50,7 @@ impl TrustStore {
                     "Synthetic selection requires a synthetic checkpoint",
                 ));
             }
-            TrustBasis::OperatorPinned { reason }
+            TrustBasis::OperatorPinned { reason } | TrustBasis::RegisteredKeys { reason }
                 if reason.trim().is_empty() || reason.len() > 1024 =>
             {
                 return Err(Diagnostic::new(

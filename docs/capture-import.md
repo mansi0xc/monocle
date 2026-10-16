@@ -57,7 +57,7 @@ The RPC response does not supply these prerequisites:
 3. Qualification evidence compatible with the implemented PoP policy. A vote-account registration proof that signs a different application payload cannot silently replace the verifier's standard public-key-bound PoP.
 4. Evidence that the producer's message serialization and signer encoding match the chosen verification profile. The response does not carry the full versioned wire framing or its shred-version suffix.
 
-A future converter can be implemented once these inputs and compatibility evidence exist. C7 does not invent a wire message or placeholder context. The supplied recording remains unverified; the genuine synthetic BLS/quorum/finality demos continue to exercise the existing verifier independently.
+C19 supplies these for a cluster you capture yourself, with stated assumptions: a rebuilt rank map, the recorded context, registered-key trust, and the re-encoded wire message. See [mainnet-genesis.md](mainnet-genesis.md). The bundled testnet recording is too old to rebuild from RPC and remains unverified. C7 does not invent a wire message or placeholder context. The supplied recording remains unverified; the genuine synthetic BLS/quorum/finality demos continue to exercise the existing verifier independently.
 
 ## Implementation and test evidence
 

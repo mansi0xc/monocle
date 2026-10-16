@@ -55,7 +55,7 @@ export default function App() {
   } | null>(null);
   const [checkpoint, setCheckpoint] = useState<Checkpoint | null>(null);
   const [selection, setSelection] = useState<Selection | null>(null);
-  const [basis, setBasis] = useState<"synthetic" | "operator">("synthetic");
+  const [basis, setBasis] = useState<Selection["basis"]>("synthetic");
   const [reason, setReason] = useState("");
   const [example, setExample] = useState(examples[0].id);
   const [report, setReport] = useState<EvidenceVerificationReport | null>(null);
@@ -254,7 +254,7 @@ export default function App() {
     if (!checkpoint) return;
     invalidate();
     if (
-      basis === "operator" &&
+      basis !== "synthetic" &&
       (!reason.trim() || encoder.encode(reason).length > 1024)
     ) {
       setError("Record a trust reason between 1 and 1024 UTF-8 bytes.");
@@ -263,7 +263,7 @@ export default function App() {
     setSelection({
       digest: checkpoint.parsed.digest,
       basis,
-      reason: basis === "operator" ? reason : "",
+      reason: basis !== "synthetic" ? reason : "",
     });
     setNotice(
       "Checkpoint selected for this session. Evidence still needs verification.",
@@ -652,7 +652,7 @@ export default function App() {
                         value={basis}
                         onChange={(e) => {
                           invalidate();
-                          setBasis(e.target.value as "synthetic" | "operator");
+                          setBasis(e.target.value as Selection["basis"]);
                         }}
                       >
                         {cp.provenance.kind === "synthetic" && (
@@ -663,8 +663,22 @@ export default function App() {
                         <option value="operator">
                           Operator-pinned checkpoint
                         </option>
+                        {cp.provenance.kind !== "synthetic" && (
+                          <option value="registered">
+                            Operator-pinned, keys registered on chain
+                          </option>
+                        )}
                       </select>
-                      {basis === "operator" ? (
+                      {basis === "registered" && (
+                        <p className="small muted">
+                          Accepts every listed key as registered on chain, where
+                          the vote program checked its proof of possession, so
+                          proofs are not re-verified. Agave makes the same
+                          assumption. Use only for a checkpoint rebuilt from
+                          vote accounts.
+                        </p>
+                      )}
+                      {basis !== "synthetic" ? (
                         <>
                           <label htmlFor="reason">
                             Why do you trust this checkpoint?
@@ -701,7 +715,9 @@ export default function App() {
                       <p className="small">
                         {selection.basis === "synthetic"
                           ? "Synthetic fixture only"
-                          : `Operator-pinned: ${selection.reason}`}
+                          : selection.basis === "registered"
+                            ? `Operator-pinned, registered keys: ${selection.reason}`
+                            : `Operator-pinned: ${selection.reason}`}
                       </p>
                       <p className="small muted">
                         Applies to this session. Monocle does not authenticate

@@ -1,0 +1,38 @@
+{
+  "endpoint": "synthetic:monocle-test-cluster",
+  "epoch": 100,
+  "files": [
+    {
+      "bytes": 154,
+      "file": "000-epoch-info.json",
+      "http_status": 200,
+      "method": "getEpochInfo",
+      "received_at": "2026-10-16T00:00:00.000Z",
+      "request": "{\"id\":1,\"jsonrpc\":\"2.0\",\"method\":\"getEpochInfo\",\"params\":[{\"commitment\":\"finalized\"}]}",
+      "sha256": "48b66ed1790cae08596827158fd961ec2e5a3fe50bfc703eb24ba5a87b4dfb4e"
+    },
+    {
+      "bytes": 908,
+      "file": "001-genesis-cert.json",
+      "http_status": 200,
+      "method": "getAgGenesisCert",
+      "received_at": "2026-10-16T00:00:00.000Z",
+      "request": "{\"id\":2,\"jsonrpc\":\"2.0\",\"method\":\"getAgGenesisCert\",\"params\":[]}",
+      "sha256": "f8fb3aedac1a425cb9d1f8c59330ad88fd162a735f2eed38fb7a0fa01926c77b"
+    },
+    {
+      "bytes": 154,
+      "file": "002-epoch-info-end.json",
+      "http_status": 200,
+      "method": "getEpochInfo",
+      "received_at": "2026-10-16T00:00:00.000Z",
+      "request": "{\"id\":3,\"jsonrpc\":\"2.0\",\"method\":\"getEpochInfo\",\"params\":[{\"commitment\":\"finalized\"}]}",
+      "sha256": "629f68f641189e21a24f08eeade0b0dc4a4055a970df300271858af28aaec2ab"
+    }
+  ],
+  "first_slot": 43205064,
+  "format": "monocle-rpc-capture",
+  "last_slot": 43205065,
+  "mode": "genesis-cert",
+  "schema_version": 1
+}

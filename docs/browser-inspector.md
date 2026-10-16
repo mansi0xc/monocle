@@ -54,6 +54,7 @@ Replacing the checkpoint revokes its selection immediately, including when repla
 | 7 | Mutation request with original source | Derived bundle with exact patch metadata |
 | 8 | Replay archive bytes | Validated archive; no trust selection or current verdict |
 | 9 | Raw genesis JSON-RPC response bytes | Capture inspection and missing prerequisites; never a verification success |
+| 10 | UTF-8 local reason | Explicit operator pin that also accepts the candidate's keys as registered on chain (C19) |
 
 These numbers are the Rust `Operation` enum in `crates/monocle-wasm`; the browser uses the generated `Operation` names from the contracts package rather than literals. Unknown numbers fail with `INVALID_SCHEMA` at path `operation`.
 

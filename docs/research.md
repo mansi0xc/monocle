@@ -92,3 +92,22 @@ Pinned `rpc/src/rpc.rs` lines 932–942 returns `WireBlockCertMessage` from the 
 The [Solana integration guide](https://solana.com/upgrades/alpenglow) documents null versus certificate output and an unavailable-method error. The adapter distinguishes those observations without treating any recorded response as independent proof of current cluster state. Pinned migration code describes the certified genesis anchor through ancestry/handover logic; Monocle retains that precise scope rather than inferring ordinary finality or the first newly produced block from the RPC label.
 
 The user-supplied slot-444625255 response is now a checked-in recording, with an explicit transcription/trailing-newline note and unknown retrieval time. It is inspectable offline but still lacks authenticated historical context and compatible qualification. No current validator-account ordering or current shred version is substituted. Live endpoint access was not required to implement or demonstrate this read-only path. Native/WASM/browser checks cover exact integers, source identity, strict framing, error distinctions, and context/trust separation.
+
+## C19 real-cluster genesis findings (2026-10-16)
+
+Sources: Agave `v4.3.0` (commit `825efd18`, the release mainnet runs) and pinned `98535e50` (`master` at 4.4.0-beta.0, which diverged from it: 476 commits ahead and 42 behind). Also `solana-vote-interface` 6.x, `solana-vote-program` 4.2.2, and `solana-bls-signatures` 3.4.0 (used by Agave v4.3.0) and 4.0.0 (used by Monocle).
+
+- **Same verifier.** `VotePayloadToSign` (genesis tag 6, then slot, block ID and shred version), `bls-cert-verify` (Base2 decode with `max_validators` set to the rank-map length, aggregate verification, stake fraction against the rank-map total) and `BLSPubkeyToRankMap::new` are semantically identical in both revisions.
+- **Same cryptography.** BLS 3.4.0 and 4.0.0 share the signature and proof domain separation tags (`BLS_SIG_…_POP_`, `BLS_POP_…`) and the same compressed-key decoding.
+- **Rank map.**
+  - Vote accounts with nonzero stake and a decodable BLS key are kept; any entry sharing a BLS key or node identity is dropped entirely.
+  - Accounts are sorted by stake descending, then compressed key bytes (a derived `Ord` over `[u8; 48]`).
+  - The denominator is the sum of included stakes.
+- **Snapshot.** `update_epoch_stakes(leader_schedule_epoch)` at the first bank of epoch N stores epoch N+1's stakes from the VAT-filtered snapshot. Mainnet's `leaderScheduleSlotOffset` equals `slotsPerEpoch`. `clone_and_filter_for_vat` requires a BLS key, stake and the minimum balance, then caps at 2,000 accounts, dropping ties at the cutoff. The minimum is rent for 3,762 bytes, plus a slot-parameter-dependent VAT burn (0.8–1.6 SOL) once `alpenglow` (`A1pengvuM6JEcyNuTnMqepBKhwHE3N6PmUrdATGawhJS` in v4.3.0; the ID differs in 4.2.x) is active.
+- **Proofs of possession.** Proofs are verified by the vote program over `"ALPENGLOW" ‖ vote pubkey` and are not stored. Agave trusts vote-state keys without re-verifying.
+- **RPC.** v4.3.0 adds only `getAgGenesisCert`. The genesis certificate account stores just the wincode `WireBlockCertMessage`. `getVoteAccounts` reads the current stakes cache, not the epoch-stakes snapshot.
+- **Chain state on 2026-10-16.**
+  - Mainnet was at epoch 1059, with `getAgGenesisCert` returning `null`, `solana-core` 4.3.0, and the alpenglow feature account absent.
+  - Testnet was at epoch 1061 on 4.4.0-beta.1, with its genesis certificate about 32 epochs old, too old to rebuild from RPC.
+  - Measured slot time was 217 ms, which matches the announced 2026-10-21 activation.
+

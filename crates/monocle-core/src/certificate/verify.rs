@@ -104,9 +104,14 @@ fn rejected_signature(signature: &Signature) -> (Code, &'static str) {
     }
 }
 
-fn qualify(entry: &ValidatorEntry) -> Result<PopVerified<PubkeyAffine>, Diagnostic> {
+/// `registered` is true only under the caller's explicit `TrustBasis::RegisteredKeys`.
+fn qualify(
+    entry: &ValidatorEntry,
+    registered: bool,
+) -> Result<PopVerified<PubkeyAffine>, Diagnostic> {
     let mut key_bytes = [0; 96];
     key_bytes.copy_from_slice(entry.bls_pubkey_hex.as_slice());
+    // Checked decoding applies under every basis: on curve, prime-order subgroup, not identity.
     let key = PubkeyAffine::try_from(&Pubkey(key_bytes)).map_err(|_| {
         Diagnostic::new(
             Code::InvalidPublicKey,
@@ -114,6 +119,13 @@ fn qualify(entry: &ValidatorEntry) -> Result<PopVerified<PubkeyAffine>, Diagnost
             "The selected checkpoint's public key for this signer is malformed, the identity, off curve, or outside the prime-order subgroup. This is a checkpoint defect; the evidence was not judged",
         )
     })?;
+    if registered {
+        // SAFETY: not memory safety but the library's PoP contract. The caller
+        // explicitly selected registered-key trust: every key is the one the vote
+        // program accepted after verifying its proof (SIMD-0387). This mirrors
+        // Agave's `bls_pubkey_compressed_bytes_to_bls_pubkey`. No file field reaches here.
+        return Ok(unsafe { PopVerified::new_unchecked(key) });
+    }
     let proof = entry.proof_of_possession_hex.as_ref().ok_or_else(|| {
         Diagnostic::new(
             Code::MissingPop,
@@ -141,6 +153,7 @@ fn verify_one(
     envelope: &CertificateEnvelope,
     bundle: &ProofBundle,
     checkpoint: &EpochCheckpoint,
+    registered: bool,
     cache: &mut KeyCache,
 ) -> CertificateReport {
     let mut report = CertificateReport::new(envelope);
@@ -273,13 +286,25 @@ fn verify_one(
     for rank in ranks {
         let result = cache
             .entry(rank)
-            .or_insert_with(|| qualify(&checkpoint.validators[rank as usize]));
+            .or_insert_with(|| qualify(&checkpoint.validators[rank as usize], registered));
         match result {
             Ok(key) => keys.push(*key),
             Err(error) => return report.stop(Stage::KeyQualification, error.clone()),
         }
     }
-    report.pass(Stage::KeyQualification, "All selected keys passed checked point decoding and actual public-key-bound PoP verification");
+    if registered {
+        report.set(
+            Stage::KeyQualification,
+            CheckStatus::Pass,
+            Diagnostic::new(
+                Code::RegisteredKeysAccepted,
+                "$",
+                "All selected keys passed checked point decoding. Their proofs of possession were not re-verified: under the registered-key trust you selected, each key is accepted as the one registered on chain, where the vote program verified its proof",
+            ),
+        );
+    } else {
+        report.pass(Stage::KeyQualification, "All selected keys passed checked point decoding and actual public-key-bound PoP verification");
+    }
     let signature_path = bytes(&layout.signature);
     let signature = Signature(decoded.signature);
     // The checked conversion alone decides acceptance; `rejected_signature` only
@@ -407,6 +432,7 @@ pub fn verify_certificates(
     else {
         return report;
     };
+    let registered = checkpoint.basis.accepts_registered_keys();
     let mut cache = KeyCache::new();
     for (index, envelope) in bundle.document().certificates.iter().enumerate() {
         report.certificates.push(verify_one(
@@ -414,10 +440,15 @@ pub fn verify_certificates(
             envelope,
             bundle.document(),
             checkpoint.parsed.document(),
+            registered,
             &mut cache,
         ));
     }
-    report.assumptions.push("PoP policy: verify each selected key's standard compressed-public-key-bound proof with no additional application payload. This does not authenticate the checkpoint or prove a vote-account registration.".into());
+    report.assumptions.push(if registered {
+        "PoP policy: registered-key trust. Selected keys pass checked point decoding but their proofs of possession are not re-verified; this relies on the checkpoint listing exactly the keys the vote program accepted (SIMD-0387), as Agave assumes.".into()
+    } else {
+        "PoP policy: verify each selected key's standard compressed-public-key-bound proof with no additional application payload. This does not authenticate the checkpoint or prove a vote-account registration.".into()
+    });
     report.conclusion = if report
         .certificates
         .iter()

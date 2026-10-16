@@ -23,9 +23,10 @@ pub enum Operation {
     Mutate = 7,
     InspectReplay = 8,
     InspectCapture = 9,
+    SelectRegistered = 10,
 }
 impl Operation {
-    pub const ALL: [Self; 9] = [
+    pub const ALL: [Self; 10] = [
         Self::InspectBundle,
         Self::InspectCheckpoint,
         Self::SelectSynthetic,
@@ -35,6 +36,7 @@ impl Operation {
         Self::Mutate,
         Self::InspectReplay,
         Self::InspectCapture,
+        Self::SelectRegistered,
     ];
     pub fn from_u32(value: u32) -> Option<Self> {
         Self::ALL.into_iter().find(|op| *op as u32 == value)
@@ -69,7 +71,10 @@ impl Session {
         let operation = Operation::from_u32(operation);
         // Failed replacement/selection also revokes earlier trust, including
         // inputs rejected by the bridge-wide size check.
-        if let Some(op @ (InspectCheckpoint | SelectSynthetic | SelectOperator)) = operation {
+        if let Some(
+            op @ (InspectCheckpoint | SelectSynthetic | SelectOperator | SelectRegistered),
+        ) = operation
+        {
             self.trust = TrustStore::new();
             if op == InspectCheckpoint {
                 self.candidate = None;
@@ -100,7 +105,7 @@ impl Session {
                 self.candidate = Some(parsed);
                 result
             })),
-            SelectSynthetic | SelectOperator => value((|| {
+            SelectSynthetic | SelectOperator | SelectRegistered => value((|| {
                 let checkpoint = self.candidate.clone().ok_or_else(|| {
                     diagnostic(
                         Code::MissingCheckpoint,
@@ -125,8 +130,11 @@ impl Session {
                             "Trust reason must be UTF-8",
                         )
                     })?;
-                    TrustBasis::OperatorPinned {
-                        reason: reason.to_owned(),
+                    let reason = reason.to_owned();
+                    if operation == SelectRegistered {
+                        TrustBasis::RegisteredKeys { reason }
+                    } else {
+                        TrustBasis::OperatorPinned { reason }
                     }
                 };
                 self.trust.pin(checkpoint, basis)

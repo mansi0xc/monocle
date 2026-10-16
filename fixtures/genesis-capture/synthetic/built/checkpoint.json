@@ -1,0 +1,51 @@
+{
+  "context": {
+    "epoch": "100",
+    "genesis_hash_hex": "1111111111111111111111111111111111111111111111111111111111111111",
+    "shred_version": 1234
+  },
+  "profile_id": "agave-98535e50-base2-v1",
+  "provenance": {
+    "description": "Validator rank map for epoch 100 rebuilt offline from RPC responses recorded at synthetic:monocle-test-cluster during epoch 99 (slots 42769200-42769203, 1200 slots after the snapshot boundary; manifest sha256:b5f6a6a4cceb570ba892b1dbc9b28a84e36a8c6cd2be51783daffeb3e49c236f). Applies Agave v4.3.0 VAT admission and rank-map rules. Not authenticated: the endpoint and capture timing are assumptions. Keys carry no proofs of possession; selecting registered-key trust accepts them as registered on chain.",
+    "kind": "capture"
+  },
+  "schema_version": 1,
+  "total_stake": "960",
+  "validators": [
+    {
+      "bls_pubkey_hex": "0234fb202ee5e1a408fd08b26bb361c5e73106c46376c91bca53c8a5c7dd067e61443147939cb90687e92fcb6978abd906cf7d5f1d9c656fc6374b77aa9c48f8fccbdbdea4b7b5296016a3f1a01eca49c6d1bcb1f776c023f9ebd2a92de3978d",
+      "identity_hex": "0101010101010101010101010101010101010101010101010101010101010101",
+      "proof_of_possession_hex": null,
+      "rank": 0,
+      "stake": "400"
+    },
+    {
+      "bls_pubkey_hex": "182b24d3af915bac23eee8af96f68da89219d9ad94f5498750f72dfd4dcf8e6ef6e15f66bd2c9d5ec3a84b57bafa890201473be6b67a0418352d62970e86dd06b95b69c3b2f811ad379d17e5a3a3408f6f97b79834983683f46fe4adbcf9f3fe",
+      "identity_hex": "0202020202020202020202020202020202020202020202020202020202020202",
+      "proof_of_possession_hex": null,
+      "rank": 1,
+      "stake": "250"
+    },
+    {
+      "bls_pubkey_hex": "0a4909dc004cd6e5b1117d2ab3ea699fb4feffc41e2f1d071c6a4472607f18a4473758867079d2bd6a25e57a167d814f1893d1dd37e1852b37e0da80117c954c5abe88e33c349946528cf961328eb67eb0d08d6fec24d18d109a74f71562bd94",
+      "identity_hex": "0303030303030303030303030303030303030303030303030303030303030303",
+      "proof_of_possession_hex": null,
+      "rank": 2,
+      "stake": "150"
+    },
+    {
+      "bls_pubkey_hex": "14b88adb9a43c1567639bd63e2e1bb6dfd3d386f27bdf6ab7fc0dd0228f0bcc6e0b8e4be5e1e1067da6a63a6506a34780fc7978cc751af232c4bbc0bb4c39b1d6bf6792e8cd64200dcd48f893934863e0e2302866222f8c95a174d4cbde84edb",
+      "identity_hex": "0404040404040404040404040404040404040404040404040404040404040404",
+      "proof_of_possession_hex": null,
+      "rank": 3,
+      "stake": "150"
+    },
+    {
+      "bls_pubkey_hex": "169e07701831d8f7a168f7059d0392abafbdc9bf363bd7fff182949d2e09a709d9daa5f0e12c124d7c99ad9640bdc1c40be2f8d8cc5554c6a81abeb103e2b15b589fddea866c8d5e1e752df518fcac87295d150151a7cb13650eba61ad330884",
+      "identity_hex": "0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d",
+      "proof_of_possession_hex": null,
+      "rank": 4,
+      "stake": "10"
+    }
+  ]
+}

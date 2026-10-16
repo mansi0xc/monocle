@@ -11,7 +11,9 @@
     "build:web": "npm run prepare:web && npm run typecheck:web && vite build apps/web --config apps/web/vite.config.ts",
     "preview": "vite preview apps/web --config apps/web/vite.config.ts",
     "test:web": "node --experimental-strip-types --test apps/web/tests/runner.test.ts && playwright test --config apps/web/playwright.config.ts",
-    "format:check": "prettier --check \"apps/web/src/*.{ts,tsx,css}\" \"apps/web/tests/*.ts\" \"apps/web/*.ts\" apps/web/index.html apps/web/tsconfig.json scripts/prepare-web.mjs scripts/check-wasm-bridge.mjs package.json"
+    "format:check": "prettier --check \"apps/web/src/*.{ts,tsx,css}\" \"apps/web/tests/*.ts\" \"apps/web/*.ts\" apps/web/index.html apps/web/tsconfig.json scripts/prepare-web.mjs scripts/check-wasm-bridge.mjs scripts/capture-rpc.mjs package.json",
+    "capture:rpc": "node scripts/capture-rpc.mjs",
+    "build:genesis": "cargo run --locked --quiet -p monocle-genesis-checkpoint --"
   },
   "devDependencies": {
     "@axe-core/playwright": "4.13.0",

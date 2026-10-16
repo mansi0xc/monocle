@@ -510,3 +510,93 @@ fn quorum_messages_state_exact_stake_and_the_required_minimum() {
         }
     }
 }
+
+fn run_with(
+    mut bundle: Value,
+    checkpoint: Value,
+    basis: TrustBasis,
+) -> CertificateVerificationReport {
+    let mut trust = TrustStore::new();
+    let digest = trust
+        .pin(
+            parse_checkpoint(&serde_json::to_vec(&checkpoint).unwrap()).unwrap(),
+            basis,
+        )
+        .unwrap();
+    bundle["checkpoint_reference"] = serde_json::to_value(&digest).unwrap();
+    verify_certificates(&request(&bundle, Some(digest)), &trust)
+}
+fn registered() -> TrustBasis {
+    TrustBasis::RegisteredKeys {
+        reason: "Rebuilt from recorded vote accounts".into(),
+    }
+}
+
+#[test]
+fn registered_key_trust_skips_proofs_only_when_explicitly_selected() {
+    let (bundle, cp) = fixture("missing_pop");
+    let operator = TrustBasis::OperatorPinned {
+        reason: "Reviewed locally".into(),
+    };
+    let report = run_with(bundle.clone(), cp.clone(), operator);
+    assert_eq!(report.conclusion, Conclusion::Inconclusive);
+    assert_eq!(
+        stage(&report, Stage::KeyQualification).diagnostic.code,
+        Code::MissingPop
+    );
+    // The same bytes under registered-key trust: keys qualify by registration.
+    let report = run_with(bundle, cp, registered());
+    assert_eq!(report.conclusion, Conclusion::Verified);
+    let qualification = stage(&report, Stage::KeyQualification);
+    assert_eq!(qualification.status, CheckStatus::Pass);
+    assert_eq!(qualification.diagnostic.code, Code::RegisteredKeysAccepted);
+    assert!(
+        report
+            .assumptions
+            .iter()
+            .any(|a| a.contains("registered-key trust"))
+    );
+    // Proofs are not consulted at all under this basis, even a wrong one.
+    let (bundle, cp) = fixture("invalid_pop");
+    assert_eq!(
+        run_with(bundle, cp, registered()).conclusion,
+        Conclusion::Verified
+    );
+}
+
+#[test]
+fn registered_key_trust_still_rejects_bad_points_and_never_rescues_evidence() {
+    for name in ["invalid_pubkey", "identity_pubkey", "wrong_subgroup_key"] {
+        let (bundle, cp) = fixture(name);
+        let report = run_with(bundle, cp, registered());
+        assert_eq!(report.conclusion, Conclusion::Inconclusive, "{name}");
+        assert_eq!(
+            stage(&report, Stage::KeyQualification).diagnostic.code,
+            Code::InvalidPublicKey,
+            "{name}"
+        );
+    }
+    for (name, code) in [
+        ("changed_bitmap", Code::InvalidSignature),
+        ("malformed_signature", Code::MalformedSignature),
+        ("notar_under_quorum", Code::InsufficientStake),
+    ] {
+        let (bundle, cp) = fixture(name);
+        let report = run_with(bundle, cp, registered());
+        assert_eq!(report.conclusion, Conclusion::Rejected, "{name}");
+        assert!(
+            report.certificates[0]
+                .checks
+                .iter()
+                .any(|check| check.diagnostic.code == code),
+            "{name}"
+        );
+    }
+    let (_, cp) = fixture("valid_notarization");
+    let parsed = parse_checkpoint(&serde_json::to_vec(&cp).unwrap()).unwrap();
+    let empty = TrustBasis::RegisteredKeys { reason: " ".into() };
+    assert_eq!(
+        TrustStore::new().pin(parsed, empty).unwrap_err().code,
+        Code::InvalidSchema
+    );
+}

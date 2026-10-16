@@ -30,3 +30,7 @@ test-results/
 
 # Reproducibly generated browser inputs.
 /apps/web/generated/
+
+# Live RPC captures and checkpoints built from them (see docs/mainnet-genesis.md).
+/captures/
+/out/

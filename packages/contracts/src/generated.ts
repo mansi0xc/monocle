@@ -40,6 +40,7 @@ export const DIAGNOSTIC_CODES = [
   "INVALID_PUBLIC_KEY",
   "MISSING_POP",
   "INVALID_POP",
+  "REGISTERED_KEYS_ACCEPTED",
   "MALFORMED_SIGNATURE",
   "SIGNATURE_OUTSIDE_SUBGROUP",
   "IDENTITY_SIGNATURE",
@@ -164,5 +165,6 @@ export const Operation = {
   Mutate: 7,
   InspectReplay: 8,
   InspectCapture: 9,
+  SelectRegistered: 10,
 } as const;
 export type Operation = (typeof Operation)[keyof typeof Operation];

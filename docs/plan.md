@@ -289,7 +289,7 @@ Acceptance:
 
 Result: committed by Mansi as `d86dde0`.
 
-## C18 - Precise diagnostics (ready for owner review)
+## C18 - Precise diagnostics (committed)
 
 Requested 2026-10-16 after Mansi committed C17 (`d86dde0`); the fourth item from the codebase review. Certificate diagnostics said `raw_hex`, `signature`, `bitmap` or `stake`, and four different signature failures shared `INVALID_SIGNATURE`. Name the exact bytes behind each certificate check and give each signature failure its own code.
 
@@ -302,3 +302,18 @@ Acceptance:
 - Display labels describe what each example actually changes; the landing demo shows the code the real verifier produces.
 - The full gate passes. Update the docs and ignored handoff 019; leave changes unstaged and pause for the owner's commit.
 
+Result: committed by Mansi as `9cbce49`.
+
+## C19 - Real-cluster genesis verification tooling (ready for owner review)
+
+Requested 2026-10-16 after Mansi committed C18 (`9cbce49`); feature 1 from the codebase review. Mainnet's Alpenglow genesis certificate is verified against the validator set Agave snapshots at the start of epoch 1063, about 2026-10-20 11:42 UTC, and no RPC serves that snapshot later. So the capture and rebuild tooling must be ready before then. Mansi chose two things: a separate registered-key trust basis, because vote accounts store keys but not proofs of possession; and a separate capture tool, so the verifier stays network-free. See [mainnet-genesis.md](mainnet-genesis.md).
+
+Acceptance:
+
+- `TrustBasis::RegisteredKeys` is selectable only explicitly: bridge operation 10, additive in ABI v2, and an inspector option for captured checkpoints. It skips proof re-verification but keeps checked key decoding. Reports carry `REGISTERED_KEYS_ACCEPTED` and the assumption. No file field can grant it.
+- `scripts/capture-rpc.mjs` records raw responses plus a digest manifest. `tools/genesis-checkpoint` rebuilds Agave v4.3.0's VAT admission and rank map offline, and converts a recorded `getAgGenesisCert` response into a genesis bundle.
+- A committed synthetic capture exercises every exclusion and a stake tie; its genuinely signed certificate verifies only under registered-key trust. The gate reproduces capture, checkpoint and bundle byte for byte.
+- A dry run on current mainnet data parses every vote account, and a real account is kept as a parser test vector.
+- The full gate passes. Update the docs and ignored handoff 020; leave changes unstaged and pause for the owner's commit.
+
+Next (C20, after migration): record the epoch-1063 validator set and the genesis certificate, verify, and present the result.

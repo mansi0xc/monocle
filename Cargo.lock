@@ -64,6 +64,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "bs58"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bf88ba1141d185c399bee5288d850d63b8369520c1eafc32a0430b5b6c287bf4"
+dependencies = [
+ "tinyvec",
+]
+
+[[package]]
 name = "byte-slice-cast"
 version = "1.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -312,6 +321,21 @@ version = "0.1.0"
 dependencies = [
  "monocle-core",
  "serde_json",
+]
+
+[[package]]
+name = "monocle-genesis-checkpoint"
+version = "0.1.0"
+dependencies = [
+ "base64",
+ "bitvec",
+ "bs58",
+ "hex",
+ "monocle-core",
+ "serde_json",
+ "sha2",
+ "solana-bls-signatures",
+ "solana-signer-store",
 ]
 
 [[package]]
@@ -613,6 +637,12 @@ checksum = "d050e60b33d41c19108b32cea32164033a9013fe3b46cbd4457559bfbf77afaa"
 dependencies = [
  "num_cpus",
 ]
+
+[[package]]
+name = "tinyvec"
+version = "1.13.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fd3ca314f692efd6c868f8408f53fe444634a845f96c028b97d35f6a1f79f0ee"
 
 [[package]]
 name = "typenum"

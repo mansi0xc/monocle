@@ -210,11 +210,15 @@ pub fn preflight(request_bytes: &[u8], trust: &TrustStore) -> VerificationReport
             "Local synthetic fixture selection; no real validator-set authenticity claim".into()
         }
         TrustBasis::OperatorPinned { reason } => format!("Operator-pinned checkpoint: {reason}"),
+        TrustBasis::RegisteredKeys { reason } => {
+            format!("Operator-pinned checkpoint with registered-key trust: {reason}")
+        }
     });
-    report.assumptions.push(
-        "Trust selection alone does not qualify BLS keys; later checks must validate each selected signer's PoP"
-            .into(),
-    );
+    report.assumptions.push(if checkpoint.basis.accepts_registered_keys() {
+        "Registered-key trust: the caller accepts the checkpoint's keys as registered on chain, so later checks decode each selected key but do not re-verify its PoP".into()
+    } else {
+        "Trust selection alone does not qualify BLS keys; later checks must validate each selected signer's PoP".into()
+    });
     for stage in STAGES.into_iter().skip(3) {
         report.check(
             stage,

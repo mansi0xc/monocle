@@ -122,6 +122,16 @@ Use the owner's recorded response for an endpoint-independent demonstration, wit
 
 A debugger must say which bytes failed and why. Certificate-level paths end in a half-open byte range of the decoded certificate (`certificates[0].raw_hex[42..234]`), so a viewer can highlight them without reimplementing the wire format. The path stays a string, so the report schema is unchanged. Signature rejections are split into malformed, outside-subgroup, identity and failed-verification codes. The checked library conversion still alone decides acceptance; the split only classifies a rejection it has made. Key-qualification codes are unchanged, since those are checkpoint defects that already leave evidence unjudged.
 
+## D031 - Registered-key trust for real validator sets
+
+Vote accounts store a validator's compressed BLS key but not its proof of possession. The vote program verifies the proof once, at registration, over `"ALPENGLOW" ‖ vote account` (SIMD-0387), and Agave never re-verifies it: its rank map wraps vote-state keys with `PopVerified::new_unchecked`. Requiring proofs would leave every real certificate inconclusive. Fetching each registration transaction would cost about 2,000 archival lookups and still rely on the same RPC to say which key is current.
+
+Mansi chose a separate trust basis, `RegisteredKeys`. The caller selects it at pin time with a recorded reason; no file field can grant it. Under it, key qualification still decodes each key with checked conversions (curve, subgroup, not identity) and then accepts it without a proof, reporting `REGISTERED_KEYS_ACCEPTED` and the assumption. This is the only `unsafe` call in `monocle-core`: the library's `PopVerified::new_unchecked` contract, not memory unsafety. Every other basis and all synthetic examples keep full proof verification.
+
+## D032 - Network capture stays outside the verifier
+
+Live RPC access lives only in `scripts/capture-rpc.mjs`. It writes exact response bytes and a manifest of request bodies and SHA-256 digests. The Rust builder reads only those files, re-checks every digest, and is deterministic. The browser and the native verifier keep their offline, zero-request guarantees; a capture is evidence of what an endpoint said, never trust.
+
 ## Open decisions
 
 Authentic historical checkpoint acquisition and key qualification; supported fallback variants; historical capture source; project publication license. Resolve these at their corresponding checkpoint with evidence and tradeoffs.

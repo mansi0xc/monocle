@@ -21,6 +21,8 @@ Fixtures serve different purposes. A synthetic signature can be cryptographicall
 | Changed signer set | Rejected supplied evidence: the bitmap names different signers, so the unchanged aggregate fails `INVALID_SIGNATURE`; dependent checks remain unperformed. Fixture ID `changed_signature` is kept for compatibility. |
 | Insufficient stake | Signature passes, quorum fails; independently signed below-threshold aggregate |
 
+`fixtures/genesis-capture/synthetic/` holds a synthetic RPC capture: `validators/` and `genesis-cert/`, each with a digest manifest. `built/` holds the checkpoint, bundle and summary the builder produces from it. The cluster exercises every admission and rank-map exclusion and a stake tie, and its genesis certificate is genuinely signed by public test keys. It verifies only under registered-key trust. `fixtures/genesis-capture/mainnet-vote-account.json` is one real mainnet vote account, kept only as a parser test vector.
+
 These are expectations for the presenter, not imported authorization. `scripts/prepare-web.mjs` copies only original evidence/context strings into product assets. Browser verification computes its own results. The recorded RPC sample has a separate control and asset so its provenance is not mixed with synthetic examples.
 
 The C6 lab creates derived experiments in memory; it does not alter the checked-in originals. Full C3/C4 fixture regeneration is part of `scripts/check-web.sh`. Replay files and source captures can be shared locally but their saved labels and reports remain untrusted.

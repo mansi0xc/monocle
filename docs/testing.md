@@ -101,3 +101,16 @@ C18 (precise diagnostics) passes the full gate with 82 Rust tests and 34 Chrome 
 - per-certificate indices in a mixed bundle.
 
 A first gate run lost one browser test to system sleep (confirmed in the power log); the rerun under `caffeinate -i` passed.
+
+C19 (real-cluster genesis tooling) adds `scripts/check-genesis.sh`. It regenerates the synthetic RPC capture and rebuilds its checkpoint and bundle, and `diff -r` must find no difference. Seven builder tests cover:
+
+- reproducing the committed outputs and their exclusion counts;
+- verification only under registered-key trust (`GENESIS_ANCHOR_ESTABLISHED`), with `MISSING_POP` under operator trust and refusal of synthetic trust;
+- `INVALID_SIGNATURE` when tied ranks are swapped;
+- refusal of a modified capture file;
+- the 2,000-account cutoff dropping ties;
+- vote-state version and layout errors;
+- a real mainnet vote account whose node identity matches its listing and whose key decompresses.
+
+Core tests cover registered-key trust skipping proofs only when selected, and still rejecting malformed, identity and non-subgroup keys, wrong signatures and insufficient stake. A bridge test covers operation 10 and its revocation, and a browser test verifies the synthetic rebuilt bundle in the inspector with an accessibility scan.
+

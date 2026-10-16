@@ -42,6 +42,9 @@ pub enum Code {
     InvalidPublicKey,
     MissingPop,
     InvalidPop,
+    // A passing key qualification under the caller's registered-key trust basis:
+    // proofs of possession were deliberately not re-verified.
+    RegisteredKeysAccepted,
     // Signature failures are distinct because a debugger must tell them apart:
     // not a valid uncompressed G2 encoding or not on the curve,
     MalformedSignature,

@@ -53,6 +53,8 @@ One intentional stricter rule: Monocle rejects nonzero unused Base2 padding bits
 
 `TrustStore.pin` is a separate caller action. This proves neither checkpoint authenticity nor the correctness of its rank ordering, stake values, denominator, epoch, or relationship to a real cluster. A valid standard PoP proves possession of a BLS secret key; it does not prove vote-account registration, validator identity ownership, or stake entitlement. Existing on-chain registration proofs may bind additional application data and are not automatically usable under this PoP policy.
 
+C19 adds a separate, explicit basis for real validator sets, `TrustBasis::RegisteredKeys`. Vote accounts store keys but not proofs, and Agave itself does not re-verify proofs. Under this basis key qualification still decodes each selected key with checked conversions, then accepts it without a proof and reports `REGISTERED_KEYS_ACCEPTED`. The assumptions state that the checkpoint must list exactly the keys the vote program accepted. Only the caller's selection grants this; no checkpoint or bundle field can. See [mainnet-genesis.md](mainnet-genesis.md) and decision D031.
+
 Synthetic fixtures use invented context and public test keys. The supplied testnet genesis RPC response at slot 444625255 remains unverified. A future capture adapter needs the matching historical checkpoint, precise source framing, and compatible qualification evidence. C3 does not convert that JSON response into a verified certificate.
 
 ## Result details

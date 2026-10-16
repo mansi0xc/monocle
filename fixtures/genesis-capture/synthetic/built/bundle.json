@@ -1,0 +1,33 @@
+{
+  "certificates": [
+    {
+      "format": "agave-versioned-consensus-v1",
+      "id": "genesis",
+      "kind": "genesis",
+      "raw_hex": "010c88419302000000004747474747474747474747474747474747474747474747474747474747474747082fb62cf2e4c52c69b00cdf63408ef3f24ba0d8d9c96b87a22489ae4c4a898a618fe6ce295f9b9725004aa83347f7510f9669807288f8724ebc8f297a2989d27ec20cf60a1e198c6f0d8f5104c2e174577bf3937d145ac0a5311c95ed4b04b7020bebc3ead0660c20834c53c8068458908ab2592e12359575bbd1ee8776830e8dadce387ecd03cd8c7c43b229e3f6af026b893f86176602e077ed9695d3a05c526cb8e4d7fa62583f3cd097d5e7fe9370c8fb99fc5cab3523bb91d98aed64f604000000000000000005000bd204",
+      "schema_version": 1
+    }
+  ],
+  "checkpoint_reference": "sha256:2bf3a928dd82759b763783e73bb3293934c8c0ebd6581d38644c8fd8244189b1",
+  "claim": {
+    "block_id_hex": "4747474747474747474747474747474747474747474747474747474747474747",
+    "certificate_ids": [
+      "genesis"
+    ],
+    "kind": "genesis_migration",
+    "slot": "43205000"
+  },
+  "context": {
+    "epoch": "100",
+    "genesis_hash_hex": "1111111111111111111111111111111111111111111111111111111111111111",
+    "shred_version": 1234
+  },
+  "mutations": [],
+  "parent_digest": null,
+  "profile_id": "agave-98535e50-base2-v1",
+  "provenance": {
+    "description": "Alpenglow genesis certificate from getAgGenesisCert recorded at synthetic:monocle-test-cluster (manifest sha256:9732bd76c488a07b38f556cf53fa105c5048d40b9cadd987efe1a414040ef932). The wire message is re-encoded from the response fields with the checkpoint's shred version 1234; the response itself carries neither.",
+    "kind": "capture"
+  },
+  "schema_version": 1
+}

@@ -1,0 +1,19 @@
+[package]
+name = "monocle-genesis-checkpoint"
+default-run = "monocle-genesis-checkpoint"
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+publish.workspace = true
+
+# Offline only: reads recorded RPC captures, never the network.
+[dependencies]
+monocle-core = { path = "../../crates/monocle-core" }
+solana-bls-signatures = { version = "=4.0.0", default-features = false }
+solana-signer-store = "=0.1.0"
+bitvec = "=1.1.1"
+serde_json = "=1.0.145"
+sha2 = "=0.10.9"
+hex = "=0.4.3"
+base64 = "=0.22.1"
+bs58 = { version = "=0.5.1", default-features = false, features = ["alloc"] }

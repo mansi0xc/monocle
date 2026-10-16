@@ -160,7 +160,9 @@ self.onmessage = async ({
         const digest = call<string>(
           job.selection.basis === "synthetic"
             ? Operation.SelectSynthetic
-            : Operation.SelectOperator,
+            : job.selection.basis === "registered"
+              ? Operation.SelectRegistered
+              : Operation.SelectOperator,
           encoder.encode(
             job.selection.basis === "synthetic" ? "" : job.selection.reason,
           ),
