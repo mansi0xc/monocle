@@ -161,6 +161,11 @@ button.primary {
   color: var(--on-glow);
   box-shadow: none;
 }
+button.primary:disabled {
+  opacity: 1;
+  background: var(--panel-2);
+  color: var(--dim);
+}
 button.primary:hover:not(:disabled) {
   filter: brightness(1.06);
   box-shadow: none;
@@ -376,6 +381,11 @@ main#inspector {
 .workspace > * {
   min-width: 0;
 }
+@media (min-width: 761px) {
+  .workspace[data-lab="false"] {
+    grid-template-columns: 320px minmax(0, 1fr);
+  }
+}
 .inputs,
 .lab-panel {
   background: var(--night-2);
@@ -488,8 +498,70 @@ main#inspector {
 .loaded-input details[open] .compact-facts dd {
   text-align: left;
 }
+/* Steps: the open one is marked; finished steps stay quiet. */
+.input-section {
+  position: relative;
+}
+.input-section[data-step="current"]::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 2px;
+  background: var(--glow);
+}
+.input-section[data-step="current"] h2 {
+  color: var(--snow);
+}
+.input-section[data-step="pending"] h2 {
+  color: var(--mist);
+}
+.input-section[data-step="current"] .step {
+  color: var(--on-glow);
+  background: var(--amber);
+  box-shadow: none;
+}
+.input-section.sources h2 {
+  font-size: 0.8125rem;
+  color: var(--mist);
+}
+.input-section.sources > button {
+  margin-top: 4px;
+}
+.export-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  margin-top: 14px;
+}
+details.more {
+  margin-top: 14px;
+}
+details.more > summary {
+  font-size: 0.8125rem;
+}
+details.more[open] > summary {
+  margin-bottom: 4px;
+  color: var(--snow);
+}
+.loaded-checkpoint > .compact-facts {
+  margin-bottom: 4px;
+}
+.loaded-checkpoint > details {
+  margin-top: 12px;
+}
+.trust-section:focus {
+  outline: none;
+}
 .trust-controls {
   margin-top: 12px;
+  padding: 12px 14px 14px;
+  border-radius: 12px;
+  background: var(--night);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.trust-controls > p:first-child {
+  margin-top: 0;
 }
 .trust-controls button {
   margin-top: 14px;
@@ -522,28 +594,47 @@ main#inspector {
   color: var(--mist);
   font-size: 0.8125rem;
 }
-.run-section button + button {
-  margin-top: 8px;
-}
-.capture-controls h2,
-.replay-controls h2 {
-  color: var(--mist);
-  font-size: 0.8125rem;
-}
-.capture-controls button,
-.replay-controls button {
-  margin-top: 12px;
-}
-.replay-controls .inline-label {
-  margin-top: 12px;
-}
-.replay-controls details {
-  margin-top: 12px;
-}
 
 /* Centre: evidence report */
 .evidence-panel {
   padding: 22px clamp(18px, 3vw, 40px) 56px;
+}
+.run-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 20px;
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--night-2);
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.run-bar[data-step="current"] {
+  box-shadow: inset 0 0 0 1px rgb(246 193 119 / 0.45);
+}
+.run-bar[data-step="current"] .step {
+  color: var(--on-glow);
+  background: var(--amber);
+  box-shadow: none;
+}
+.run-copy {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+.run-copy p {
+  margin: 0;
+}
+.run-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.run-actions .primary {
+  padding-inline: 22px;
 }
 .panel-top {
   display: flex;
@@ -975,30 +1066,8 @@ td {
 .empty-report > p {
   color: var(--mist);
 }
-.pipeline {
-  list-style: none;
-  margin: 24px 0;
-  padding: 0;
-  counter-reset: stage;
-  border-top: 1px solid var(--line);
-}
-.pipeline li {
-  counter-increment: stage;
-  display: grid;
-  grid-template-columns: 28px 120px minmax(0, 1fr);
-  gap: 12px;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--line);
-  font-size: 0.875rem;
-}
-.pipeline li::before {
-  content: counter(stage);
-  font: 500 0.75rem var(--font-mono);
-  color: var(--dim);
-  padding-top: 2px;
-}
-.pipeline span {
-  color: var(--mist);
+.empty-report > button {
+  margin: 8px 0 18px;
 }
 .empty-footnote {
   font-size: 0.8125rem;
@@ -1293,12 +1362,6 @@ td {
     grid-column: 2;
     justify-items: start;
     padding-top: 0;
-  }
-  .pipeline li {
-    grid-template-columns: 24px minmax(0, 1fr);
-  }
-  .pipeline li span {
-    grid-column: 2;
   }
   .result-facts {
     grid-template-columns: minmax(0, 1fr);

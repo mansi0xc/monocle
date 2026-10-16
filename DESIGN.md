@@ -39,12 +39,20 @@ Text on the glow uses `--on-glow` (`#1A1430`; 10.8:1 on amber, 7.9:1 on rose, 5.
 
 ## Inspector layout
 
-The inspector is a three-column workspace below a sticky app bar:
+The inspector shows one step at a time (C14). Owner feedback was that showing every operation at once felt messy and cramped.
 
 - **App bar:** brand, navigation, the loaded evidence name with its provenance label, the original/experiment report switch (after a comparison), and verifier readiness.
-- **Left rail (the only `complementary` landmark):** numbered steps for evidence, checkpoint trust, and verification, followed by recorded RPC evidence and portable replay. The steps replace the C8 page heading, workflow rail, and step headers, which told the same story three times. A selected checkpoint is an amber-outlined card that states its basis and that Monocle does not authenticate it.
-- **Centre (`Evidence report`):** status line, then the verdict first. That means the outcome badge, title, scope sentence, and a stake meter per certificate. A meter compares stake with its threshold only when the quorum check ran; otherwise it is dimmed and says quorum was not evaluated. Below come the facts, the trace as a chain of status nodes with codes visible inline, certificates, signers, signed bytes, and trust and scope.
-- **Right column (`Experiments`):** tamper lab and the fresh comparison, where each changed check shows original and experiment status side by side.
+- **Left rail (the only `complementary` landmark):**
+  - **Evidence:** the example picker stays visible for quick switching; importing your own bundle sits in a disclosure.
+  - **Checkpoint trust:** importing a checkpoint file sits in a disclosure, opened automatically when imported evidence still needs one.
+  - **Recorded evidence and replay:** the recorded testnet response and replay export stay one click away; file imports sit in a disclosure.
+
+  The open step is marked with an amber edge and a filled step number. Finished steps show a check and stay quiet. The trust choice is a framed control group, and a selected checkpoint becomes an amber-outlined card stating its basis and that Monocle does not authenticate it.
+- **Centre (`Evidence report`):**
+  - A **run bar** holds step 3, Verify, beside the result it produces. Its button only takes the primary glow when verification is the next step. It stays usable earlier, because running without a checkpoint is allowed and ends as inconclusive.
+  - Before a result, the centre names the next action: start with an example, then "Choose the checkpoint you trust" with a "Go to checkpoint trust" button, then "Ready to verify".
+  - After a run, the verdict comes first, then the facts, the trace, the certificates, and the trust and scope.
+- **Right column (`Experiments`):** appears only once a checkpoint is selected or a replay brings an experiment. Before that the workspace has two columns.
 
 At 1181px and wider, the rail and experiment column stay in view and scroll independently. Between 761 and 1180px the experiment column moves below. At 760px and narrower everything stacks, and once a report or capture exists the result moves above the controls.
 

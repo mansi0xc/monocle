@@ -407,20 +407,27 @@ export default function App() {
     activeReport === "derived" && derivedReport ? derivedReport : report;
   const shownBundle =
     activeReport === "derived" && derivedReport && derived ? derived : bundle;
-  const steps = [
-    { label: "Evidence", done: Boolean(bundle) },
-    { label: "Checkpoint trust", done: Boolean(selection) },
-    { label: "Verify", done: Boolean(report) },
-  ];
-  const stepHeading = (index: number) => (
+  // One step is open at a time: load evidence, choose trust, then verify.
+  const current = !bundle ? 0 : !selection ? 1 : 2;
+  const done = [Boolean(bundle), Boolean(selection), Boolean(report)];
+  const stepState = (index: number) =>
+    done[index] ? "done" : current === index ? "current" : "pending";
+  const stepMarker = (index: number) => (
     <span
       className="step"
-      data-done={steps[index].done}
-      aria-label={steps[index].done ? "Done" : `Step ${index + 1}`}
+      data-done={done[index]}
+      aria-label={done[index] ? "Done" : `Step ${index + 1}`}
     >
-      {steps[index].done ? "✓" : index + 1}
+      {done[index] ? "✓" : index + 1}
     </span>
   );
+  const showLab = Boolean(selection || derived);
+  const goToTrust = () => {
+    const target =
+      document.getElementById("basis") ?? document.getElementById("trust-step");
+    target?.scrollIntoView({ block: "center", behavior: "smooth" });
+    target?.focus();
+  };
   return (
     <div className="inspector-app">
       <a className="skip-link" href="#inspector">
@@ -490,13 +497,17 @@ export default function App() {
       </header>
       <main id="inspector" tabIndex={-1}>
         <h1 className="visually-hidden">Monocle evidence inspector</h1>
-        <div className="workspace" data-has-result={Boolean(report || capture)}>
+        <div
+          className="workspace"
+          data-has-result={Boolean(report || capture)}
+          data-lab={showLab}
+        >
           <aside
             className="inputs"
             aria-label="Evidence and checkpoint controls"
           >
-            <section className="input-section">
-              <h2>{stepHeading(0)} Evidence</h2>
+            <section className="input-section" data-step={stepState(0)}>
+              <h2>{stepMarker(0)} Evidence</h2>
               <label htmlFor="example">Signed synthetic example</label>
               <div className="example-control">
                 <select
@@ -512,21 +523,11 @@ export default function App() {
                 </select>
                 <button onClick={loadExample}>Load</button>
               </div>
-              <p className="small muted example-description">
-                {selectedExample.description}
-              </p>
-              <label htmlFor="bundle-file">Or import a proof bundle</label>
-              <input
-                id="bundle-file"
-                type="file"
-                accept=".json,application/json"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  e.target.value = "";
-                  if (file) void importFile("bundle", file);
-                }}
-              />
-              <p className="small muted">Monocle JSON, up to 1 MiB</p>
+              {!bundle && (
+                <p className="small muted example-description">
+                  {selectedExample.description}
+                </p>
+              )}
               {bundle && (
                 <div className="loaded-input">
                   <div className="section-heading">
@@ -546,7 +547,7 @@ export default function App() {
                       Clear evidence
                     </button>
                   </div>
-                  <p className="small">
+                  <p className="small muted">
                     {bundle.parsed.document.provenance.description}
                   </p>
                   <dl className="compact-facts">
@@ -599,28 +600,31 @@ export default function App() {
                   </details>
                 </div>
               )}
+              <details className="more">
+                <summary>Import your own bundle</summary>
+                <label htmlFor="bundle-file">Or import a proof bundle</label>
+                <input
+                  id="bundle-file"
+                  type="file"
+                  accept=".json,application/json"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    e.target.value = "";
+                    if (file) void importFile("bundle", file);
+                  }}
+                />
+                <p className="small muted">Monocle JSON, up to 1 MiB</p>
+              </details>
             </section>
-            <section className="input-section trust-section">
-              <h2>{stepHeading(1)} Checkpoint trust</h2>
-              <p className="small muted">
-                Importing a checkpoint does not make it trusted. Select its
-                basis separately.
-              </p>
-              <label htmlFor="checkpoint-file">Import checkpoint</label>
-              <input
-                id="checkpoint-file"
-                disabled={Boolean(capture)}
-                type="file"
-                accept=".json,application/json"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  e.target.value = "";
-                  if (file) void importFile("checkpoint", file);
-                }}
-              />
-              <p className="small muted">Monocle JSON, up to 4 MiB</p>
+            <section
+              className="input-section trust-section"
+              id="trust-step"
+              tabIndex={-1}
+              data-step={stepState(1)}
+            >
+              <h2>{stepMarker(1)} Checkpoint trust</h2>
               {checkpoint && cp ? (
-                <div className="loaded-input">
+                <div className="loaded-checkpoint">
                   <strong className="file-name">{checkpoint.name}</strong>
                   <dl className="compact-facts">
                     <dt>Source</dt>
@@ -636,23 +640,12 @@ export default function App() {
                     <dt>Total stake</dt>
                     <dd className="mono">{cp.total_stake}</dd>
                   </dl>
-                  <details>
-                    <summary>Checkpoint identity</summary>
-                    <p className="mono small break">
-                      {checkpoint.parsed.digest}
-                    </p>
-                    <p className="small">{cp.provenance.description}</p>
-                    <dl className="compact-facts">
-                      <dt>Genesis hash</dt>
-                      <dd className="mono break">
-                        {cp.context.genesis_hash_hex}
-                      </dd>
-                      <dt>Shred version</dt>
-                      <dd>{cp.context.shred_version}</dd>
-                    </dl>
-                  </details>
                   {!selection ? (
                     <div className="trust-controls">
+                      <p className="small muted">
+                        Loading a checkpoint does not make it trusted. Choose
+                        its basis deliberately.
+                      </p>
                       <label htmlFor="basis">Trust basis</label>
                       <select
                         id="basis"
@@ -695,7 +688,10 @@ export default function App() {
                           applies only to synthetic evidence.
                         </p>
                       )}
-                      <button className="full-width" onClick={selectCheckpoint}>
+                      <button
+                        className="primary full-width"
+                        onClick={selectCheckpoint}
+                      >
                         Use this checkpoint
                       </button>
                     </div>
@@ -723,49 +719,56 @@ export default function App() {
                       </button>
                     </div>
                   )}
+                  <details>
+                    <summary>Checkpoint identity</summary>
+                    <p className="mono small break">
+                      {checkpoint.parsed.digest}
+                    </p>
+                    <p className="small">{cp.provenance.description}</p>
+                    <dl className="compact-facts">
+                      <dt>Genesis hash</dt>
+                      <dd className="mono break">
+                        {cp.context.genesis_hash_hex}
+                      </dd>
+                      <dt>Shred version</dt>
+                      <dd>{cp.context.shred_version}</dd>
+                    </dl>
+                  </details>
                 </div>
               ) : (
                 <p className="empty-note">
                   {capture
                     ? "Capture inspection cannot use an unrelated checkpoint. Load a Monocle proof bundle to select verification context."
-                    : "Load an example or import the validator set for your evidence."}
+                    : bundle
+                      ? "Import the validator checkpoint for this evidence."
+                      : "Signed examples bring their own checkpoint. Load evidence first."}
                 </p>
               )}
-            </section>
-            <section className="input-section run-section">
-              <h2>{stepHeading(2)} Verify</h2>
-              <button
-                className="primary full-width"
-                disabled={!bundle || Boolean(busy)}
-                onClick={verify}
-              >
-                {derived ? "Verify comparison" : "Verify evidence"}
-              </button>
-              {busy && (
-                <button
-                  className="full-width"
-                  onClick={() => {
-                    invalidate();
-                    setNotice("Operation cancelled. No result retained.");
+              <details className="more" open={Boolean(bundle && !checkpoint)}>
+                <summary>
+                  {checkpoint
+                    ? "Import a different checkpoint"
+                    : "Import a checkpoint file"}
+                </summary>
+                <label htmlFor="checkpoint-file">Import checkpoint</label>
+                <input
+                  id="checkpoint-file"
+                  disabled={Boolean(capture)}
+                  type="file"
+                  accept=".json,application/json"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    e.target.value = "";
+                    if (file) void importFile("checkpoint", file);
                   }}
-                >
-                  Cancel operation
-                </button>
-              )}
-              <p className="small muted">
-                {capture
-                  ? "This response lacks historical context. The inspection lists what must be supplied; verification has not run."
-                  : !selection
-                    ? "Without a selected checkpoint, verification remains inconclusive."
-                    : "Verification uses the selected checkpoint and the pinned protocol profile."}
-              </p>
+                />
+                <p className="small muted">
+                  Monocle JSON, up to 4 MiB. Importing grants no trust.
+                </p>
+              </details>
             </section>
-            <section className="input-section capture-controls">
-              <h2>Recorded RPC evidence</h2>
-              <p className="small muted">
-                Inspect a saved getAgGenesisCert response. Historical context is
-                required before it can become verification input.
-              </p>
+            <section className="input-section sources">
+              <h2>Recorded evidence and replay</h2>
               <button
                 className="full-width"
                 onClick={() =>
@@ -778,56 +781,26 @@ export default function App() {
                 Load recorded testnet response
               </button>
               <p className="small muted">
-                Supplied by the project owner; retrieval time and endpoint
-                origin have not been independently established.
+                A saved getAgGenesisCert response supplied by the project owner;
+                its origin has not been independently established.
               </p>
-              <label htmlFor="capture-file">Import genesis RPC response</label>
-              <input
-                id="capture-file"
-                type="file"
-                accept=".json,application/json"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  e.target.value = "";
-                  if (file) void importCapture(file);
-                }}
-              />
-              <p className="small muted">Raw JSON-RPC response, up to 64 KiB</p>
-            </section>
-            <section className="input-section replay-controls">
-              <h2>Portable replay</h2>
-              <p className="small muted">
-                Share original bytes, the experiment, and recorded reports.
-                Trust must be selected again on import.
-              </p>
-              <label className="inline-label">
-                <input
-                  type="checkbox"
-                  checked={includeCheckpoint}
-                  disabled={!checkpoint}
-                  onChange={(e) => setIncludeCheckpoint(e.target.checked)}
-                />{" "}
-                Include checkpoint bytes
-              </label>
-              <button
-                className="full-width"
-                disabled={!bundle || Boolean(busy)}
-                onClick={exportReplay}
-              >
-                Export replay
-              </button>
-              <label htmlFor="replay-file">Import replay file</label>
-              <input
-                id="replay-file"
-                type="file"
-                accept=".json,application/json"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  e.target.value = "";
-                  if (file) void importReplay(file);
-                }}
-              />
-              <p className="small muted">Monocle replay v1, up to 16 MiB</p>
+              <div className="export-row">
+                <button
+                  disabled={!bundle || Boolean(busy)}
+                  onClick={exportReplay}
+                >
+                  Export replay
+                </button>
+                <label className="inline-label">
+                  <input
+                    type="checkbox"
+                    checked={includeCheckpoint}
+                    disabled={!checkpoint}
+                    onChange={(e) => setIncludeCheckpoint(e.target.checked)}
+                  />{" "}
+                  Include checkpoint bytes
+                </label>
+              </div>
               {replayInfo && <p className="small break">{replayInfo}</p>}
               {requiredCheckpoint && (
                 <details>
@@ -840,9 +813,80 @@ export default function App() {
                   </p>
                 </details>
               )}
+              <details className="more">
+                <summary>Import a recorded response or replay</summary>
+                <label htmlFor="capture-file">
+                  Import genesis RPC response
+                </label>
+                <input
+                  id="capture-file"
+                  type="file"
+                  accept=".json,application/json"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    e.target.value = "";
+                    if (file) void importCapture(file);
+                  }}
+                />
+                <p className="small muted">
+                  Raw JSON-RPC response, up to 64 KiB. Historical context is
+                  required before it can be verified.
+                </p>
+                <label htmlFor="replay-file">Import replay file</label>
+                <input
+                  id="replay-file"
+                  type="file"
+                  accept=".json,application/json"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    e.target.value = "";
+                    if (file) void importReplay(file);
+                  }}
+                />
+                <p className="small muted">
+                  Monocle replay v1, up to 16 MiB. Trust is selected again and
+                  every result is recomputed.
+                </p>
+              </details>
             </section>
           </aside>
           <section className="evidence-panel" aria-label="Evidence report">
+            <div className="run-bar" data-step={stepState(2)}>
+              <div className="run-copy">
+                {stepMarker(2)}
+                <div>
+                  <strong>Verify</strong>
+                  <p className="small muted">
+                    {capture
+                      ? "This response lacks historical context; verification has not run."
+                      : !bundle
+                        ? "Load evidence to begin."
+                        : !selection
+                          ? "Without a selected checkpoint, verification stays inconclusive."
+                          : "Uses the selected checkpoint and the pinned protocol profile."}
+                  </p>
+                </div>
+              </div>
+              <div className="run-actions">
+                {busy && (
+                  <button
+                    onClick={() => {
+                      invalidate();
+                      setNotice("Operation cancelled. No result retained.");
+                    }}
+                  >
+                    Cancel operation
+                  </button>
+                )}
+                <button
+                  className={current === 2 ? "primary" : undefined}
+                  disabled={!bundle || Boolean(busy)}
+                  onClick={verify}
+                >
+                  {derived ? "Verify comparison" : "Verify evidence"}
+                </button>
+              </div>
+            </div>
             <div className="panel-top">
               <div className="announcement" role="status" aria-live="polite">
                 {notice}
@@ -904,45 +948,56 @@ export default function App() {
             ) : (
               !busy &&
               !capture && (
-                <div className="empty-report">
-                  <p className="eyebrow">
-                    {bundle ? "Input prepared" : "Your local workspace"}
-                  </p>
-                  <h2>
-                    {bundle
-                      ? "Ready for inspection."
-                      : "Every conclusion needs a trace."}
-                  </h2>
-                  <p>
-                    {bundle
-                      ? "Your input has been structurally inspected. Select a checkpoint, then verify to check signatures, signer weight, and the requested finality claim."
-                      : "Load a signed example or import your evidence. Monocle shows each verification step, from the original bytes to the finality claim."}
-                  </p>
-                  <ol className="pipeline">
-                    <li>
-                      <strong>Decode</strong>
-                      <span>Certificate bytes and signer ranks</span>
-                    </li>
-                    <li>
-                      <strong>Authenticate</strong>
-                      <span>BLS signatures and key proofs of possession</span>
-                    </li>
-                    <li>
-                      <strong>Evaluate</strong>
-                      <span>Exact stake thresholds and finality scope</span>
-                    </li>
-                  </ol>
-                  <p className="empty-footnote">
-                    The built-in examples are synthetic. No live network
-                    connection is required to verify local evidence.
-                  </p>
+                <div className="empty-report" data-next={current}>
+                  {!bundle ? (
+                    <>
+                      <p className="eyebrow">Your local workspace</p>
+                      <h2>Every conclusion needs a trace.</h2>
+                      <p>
+                        Start with a signed example. Monocle shows each check,
+                        from the original bytes to the finality claim, and why
+                        it holds or fails.
+                      </p>
+                      <button className="primary" onClick={loadExample}>
+                        Start with {selectedExample.title.toLowerCase()}
+                      </button>
+                      <p className="empty-footnote">
+                        Built-in examples are synthetic: public test keys and
+                        invented stake. No network connection is needed.
+                      </p>
+                    </>
+                  ) : !selection ? (
+                    <>
+                      <p className="eyebrow">Next step</p>
+                      <h2>Choose the checkpoint you trust.</h2>
+                      <p>
+                        The evidence has been structurally inspected. Signatures
+                        and stake can only be checked against a validator
+                        checkpoint, and Monocle never picks one for you.
+                      </p>
+                      <button onClick={goToTrust}>
+                        Go to checkpoint trust
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <p className="eyebrow">Ready</p>
+                      <h2>Ready to verify.</h2>
+                      <p>
+                        Verification checks each certificate’s signature, signer
+                        keys and exact stake, then the finality claim. You can
+                        also create an experiment first and verify both
+                        together.
+                      </p>
+                    </>
+                  )}
                 </div>
               )
             )}
           </section>
-          <section className="lab-panel" aria-label="Experiments">
-            {bundle ? (
-              <>
+          {showLab && (
+            <section className="lab-panel" aria-label="Experiments">
+              {bundle && (
                 <TamperLab
                   key={bundle.parsed.digest}
                   baseline={bundle}
@@ -958,24 +1013,14 @@ export default function App() {
                     );
                   }}
                 />
-                {report && derivedReport && (
-                  <ComparisonView
-                    reports={{ baseline: report, derived: derivedReport }}
-                  />
-                )}
-              </>
-            ) : (
-              <div className="lab-empty">
-                <h2>Experiments</h2>
-                <p className="small muted">
-                  Load evidence to change one byte of a certificate in a
-                  separate copy. Both the original and the experiment are
-                  verified again under the same checkpoint, and the checks that
-                  changed are listed here.
-                </p>
-              </div>
-            )}
-          </section>
+              )}
+              {report && derivedReport && (
+                <ComparisonView
+                  reports={{ baseline: report, derived: derivedReport }}
+                />
+              )}
+            </section>
+          )}
         </div>
       </main>
       <footer className="app-footer">

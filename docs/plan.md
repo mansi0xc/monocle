@@ -219,7 +219,7 @@ Acceptance:
 - Typography changes only presentation; all browser regressions and accessibility scans pass.
 - Update design docs and ignored handoff 013; leave changes unstaged and pause for the owner's commit.
 
-## C13 - Motion and interaction (ready for owner review)
+## C13 - Motion and interaction (committed)
 
 Requested 2026-10-16 after Mansi committed C12 (`8bc8708`): the pages felt static. Add motion and interaction that explain Monocle's checks:
 
@@ -233,4 +233,20 @@ Acceptance:
 - The landing page still never loads evidence, runs the verifier or grants trust; every interactive result is labelled as recorded synthetic data.
 - Motion never lowers text contrast and is removed under reduced motion; all browser regressions pass, with a new test for the landing interactions.
 - Update docs and ignored handoff 014; leave changes unstaged and pause for the owner's commit.
+
+## C14 - Step-by-step inspector (ready for owner review)
+
+Requested 2026-10-16 after Mansi committed C13 (`f93b6fe`): the inspector felt messy and cramped, with too many operations at once. Use progressive disclosure:
+
+- one open step at a time;
+- the next action named in the centre;
+- Verify in a run bar beside the result;
+- experiments shown once trust is selected or a replay brings one;
+- file imports and less-used tools behind disclosures.
+
+Acceptance:
+
+- No capability is removed; trust remains an explicit choice; verification without a checkpoint stays possible and inconclusive.
+- All existing browser regressions pass unchanged; desktop and phone layouts are inspected without overflow.
+- Update docs and ignored handoff 015; leave changes unstaged and pause for the owner's commit.
 

@@ -22,7 +22,7 @@ The inspector is loaded lazily. Visiting only the landing page does not mean the
 
 ## Design and assets
 
-The C11 Dusk design (chosen from the C10 design study) uses an indigo night canvas, snow text, and an alpenglow rose-to-amber light for actions and emphasis. The supplied feather/lens reference defines the shared mark. The inspector is a three-column workspace: evidence and trust controls, the verdict-first report, and experiments. Explicit labels and symbols distinguish report states. Fonts are bundled locally with licenses, as are the logo and favicon; the ridge illustration is vector code. No new runtime dependency, remote image, analytics endpoint, or external font request is introduced.
+The C11 Dusk design (chosen from the C10 design study) uses an indigo night canvas, snow text, and an alpenglow rose-to-amber light for actions and emphasis. The supplied feather/lens reference defines the shared mark. The inspector shows one step at a time: evidence, then explicit checkpoint trust, then a Verify run bar beside the verdict-first report. Experiments appear once trust is selected, and less-used imports sit behind disclosures. Explicit labels and symbols distinguish report states. Fonts are bundled locally with licenses, as are the logo and favicon; the ridge illustration is vector code. No new runtime dependency, remote image, analytics endpoint, or external font request is introduced.
 
 The implementation details and token values live in [../DESIGN.md](../DESIGN.md). Cryptographic scope remains in [cryptography.md](cryptography.md), [finality.md](finality.md), and [capture-import.md](capture-import.md).
 
