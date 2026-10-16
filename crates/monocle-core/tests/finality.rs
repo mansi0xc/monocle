@@ -289,3 +289,32 @@ fn cryptographic_failure_does_not_get_mislabeled_as_missing_counterpart() {
         assert_eq!(report.certificates[0].conclusion, Conclusion::Verified);
     }
 }
+
+#[test]
+fn a_defective_checkpoint_key_never_rejects_a_block_claim() {
+    let mut case = fixture("fast_finality");
+    let mut checkpoint: Value =
+        serde_json::from_str(case["checkpoint_json"].as_str().unwrap()).unwrap();
+    // Rank 0 signs the fast certificate; give it rank 1's proof of possession.
+    checkpoint["validators"][0]["proof_of_possession_hex"] =
+        checkpoint["validators"][1]["proof_of_possession_hex"].clone();
+    case["checkpoint_json"] = json!(serde_json::to_string(&checkpoint).unwrap());
+    // The bundle pins the original checkpoint digest; release that reference so
+    // the edited checkpoint is accepted and the run reaches key qualification.
+    change_bundle(&mut case, |bundle| {
+        bundle["checkpoint_reference"] = Value::Null
+    });
+    let report = run(&case);
+    assert_eq!(report.conclusion, Conclusion::Inconclusive);
+    assert_eq!(report.evidence_scope, EvidenceScope::Unestablished);
+    assert_eq!(report.certificates.len(), 1);
+    assert_eq!(report.certificates[0].conclusion, Conclusion::Inconclusive);
+    assert!(report.certificates[0].checks.iter().any(|c| {
+        c.stage == Stage::KeyQualification
+            && c.status == CheckStatus::Fail
+            && c.diagnostic.code == Code::InvalidPop
+    }));
+    let finality = report.checks.last().unwrap();
+    assert_eq!(finality.status, CheckStatus::NotChecked);
+    assert_eq!(finality.diagnostic.code, Code::CertificateChecksIncomplete);
+}

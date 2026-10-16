@@ -26,15 +26,20 @@ fn check(stage: Stage, status: CheckStatus, code: Code, message: &str) -> CheckR
         diagnostic: Diagnostic::new(code, "$", message),
     }
 }
-fn unsupported(code: Code) -> bool {
-    matches!(
-        code,
+/// Who a stopped check blames. Only evidence the bundle controls can be rejected.
+/// Unsupported or missing context leaves the check unrun; a defect in the
+/// caller-trusted checkpoint means the check ran and failed on data the
+/// evidence cannot change, so the evidence itself is left unjudged.
+fn outcome(code: Code) -> (CheckStatus, Conclusion) {
+    match code {
         Code::UnsupportedWireVersion
-            | Code::UnsupportedCertificate
-            | Code::UnsupportedSignerEncoding
-            | Code::ContextMismatch
-            | Code::MissingPop
-    )
+        | Code::UnsupportedCertificate
+        | Code::UnsupportedSignerEncoding
+        | Code::ContextMismatch
+        | Code::MissingPop => (CheckStatus::NotChecked, Conclusion::Inconclusive),
+        Code::InvalidPublicKey | Code::InvalidPop => (CheckStatus::Fail, Conclusion::Inconclusive),
+        _ => (CheckStatus::Fail, Conclusion::Rejected),
+    }
 }
 impl CertificateReport {
     fn new(envelope: &CertificateEnvelope) -> Self {
@@ -77,21 +82,9 @@ impl CertificateReport {
         );
     }
     fn stop(mut self, stage: Stage, error: Diagnostic) -> Self {
-        let incomplete = unsupported(error.code);
-        self.conclusion = if incomplete {
-            Conclusion::Inconclusive
-        } else {
-            Conclusion::Rejected
-        };
-        self.set(
-            stage,
-            if incomplete {
-                CheckStatus::NotChecked
-            } else {
-                CheckStatus::Fail
-            },
-            error,
-        );
+        let (status, conclusion) = outcome(error.code);
+        self.conclusion = conclusion;
+        self.set(stage, status, error);
         self
     }
 }
@@ -103,7 +96,7 @@ fn qualify(entry: &ValidatorEntry) -> Result<PopVerified<PubkeyAffine>, Diagnost
         Diagnostic::new(
             Code::InvalidPublicKey,
             format!("validators[{}].bls_pubkey_hex", entry.rank),
-            "Public key is malformed, identity, off curve, or outside the prime-order subgroup",
+            "The selected checkpoint's public key for this signer is malformed, the identity, off curve, or outside the prime-order subgroup. This is a checkpoint defect; the evidence was not judged",
         )
     })?;
     let proof = entry.proof_of_possession_hex.as_ref().ok_or_else(|| {
@@ -121,7 +114,7 @@ fn qualify(entry: &ValidatorEntry) -> Result<PopVerified<PubkeyAffine>, Diagnost
             Diagnostic::new(
                 Code::InvalidPop,
                 format!("validators[{}].proof_of_possession_hex", entry.rank),
-                "Proof of possession failed for this selected public key",
+                "The selected checkpoint's proof of possession does not verify for this signer's key. This is a checkpoint defect; the evidence was not judged",
             )
         })
 }

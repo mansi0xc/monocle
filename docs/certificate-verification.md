@@ -59,8 +59,9 @@ Synthetic fixtures use invented context and public test keys. The supplied testn
 
 `CertificateVerificationReport` adds per-certificate raw SHA-256 identity, decoded kind/slot/block, reconstructed signed bytes, signer ranks, exact selected/total stake, threshold, and five ordered checks: decoding, signers, key qualification, signature, quorum. Global checks cover input, profile, context, and the explicitly unperformed finality stage. `CertificateReport` fields that cannot yet be computed are null or empty; later checks remain `NOT_CHECKED` after a prerequisite fails.
 
-- Invalid supported bytes, contradictory declarations, malformed points, false PoPs, bad signatures, or insufficient stake: `REJECTED`.
+- Evidence defects (invalid supported bytes, contradictory declarations, a malformed or wrong aggregate signature, an invalid signer bitmap, or insufficient stake): `REJECTED`.
 - Missing context or PoP, unsupported profile/version/encoding, or a deferred finality/migration claim: `INCONCLUSIVE`.
+- Defects in the selected checkpoint (a signer's public key is malformed, the identity, off curve or outside the subgroup, or its PoP does not verify): `INCONCLUSIVE`. Key qualification is reported as `FAIL` with `INVALID_PUBLIC_KEY` or `INVALID_POP`, and the message names a checkpoint defect. The evidence cannot change checkpoint data, so it is left unjudged rather than rejected (C15). Before C15 these cases were `REJECTED`.
 - Inspection with every selected certificate passing: `VERIFIED`, scoped to individual certificates.
 
 One failed certificate prevents a mixed bundle from receiving a successful overall inspection. A rejected bundle is not a chain-level proof that a block can never finalize. Reports are outputs, not importable trust tokens.

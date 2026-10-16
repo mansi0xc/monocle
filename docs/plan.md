@@ -234,7 +234,7 @@ Acceptance:
 - Motion never lowers text contrast and is removed under reduced motion; all browser regressions pass, with a new test for the landing interactions.
 - Update docs and ignored handoff 014; leave changes unstaged and pause for the owner's commit.
 
-## C14 - Step-by-step inspector (ready for owner review)
+## C14 - Step-by-step inspector (committed)
 
 Requested 2026-10-16 after Mansi committed C13 (`f93b6fe`): the inspector felt messy and cramped, with too many operations at once. Use progressive disclosure:
 
@@ -249,4 +249,15 @@ Acceptance:
 - No capability is removed; trust remains an explicit choice; verification without a checkpoint stays possible and inconclusive.
 - All existing browser regressions pass unchanged; desktop and phone layouts are inspected without overflow.
 - Update docs and ignored handoff 015; leave changes unstaged and pause for the owner's commit.
+
+## C15 - Checkpoint defects stay inconclusive (ready for owner review)
+
+Requested 2026-10-16 after Mansi committed C14 (`fff1251`); the first item from the codebase review. Previously, an invalid public key or proof of possession in the caller-trusted checkpoint produced `REJECTED`, blaming evidence for a trust-context defect. Classify those failures as `INCONCLUSIVE`. Key qualification still reports `FAIL` with its existing code and a message naming the checkpoint. Evidence defects remain `REJECTED`.
+
+Acceptance:
+
+- Five affected certificate fixtures change only their expected conclusion; regenerated corpora are otherwise byte-identical.
+- New tests cover certificate- and finality-level behaviour.
+- The full native, WASM, parity, and browser gate passes.
+- Update the docs and ignored handoff 016; leave changes unstaged and pause for the owner's commit.
 

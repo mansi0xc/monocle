@@ -362,3 +362,35 @@ fn contracts_profile_is_not_silently_upgraded_to_a_crypto_profile() {
     assert!(report.certificates.is_empty());
     assert_eq!(report.checks[1].diagnostic.code, Code::UnsupportedProfile);
 }
+
+#[test]
+fn checkpoint_key_defects_leave_the_evidence_unjudged() {
+    // Keys and proofs come from the caller-trusted checkpoint, which the evidence
+    // cannot change. Their failure is a trust-context defect, not a rejection.
+    for (name, code) in [
+        ("invalid_pop", Code::InvalidPop),
+        ("wrong_key_pop", Code::InvalidPop),
+        ("invalid_pubkey", Code::InvalidPublicKey),
+        ("identity_pubkey", Code::InvalidPublicKey),
+        ("wrong_subgroup_key", Code::InvalidPublicKey),
+    ] {
+        let (bundle, cp) = fixture(name);
+        let report = run(bundle, cp);
+        let cert = &report.certificates[0];
+        assert_eq!(report.conclusion, Conclusion::Inconclusive, "{name}");
+        assert_eq!(cert.conclusion, Conclusion::Inconclusive, "{name}");
+        let stage = |stage| cert.checks.iter().find(|c| c.stage == stage).unwrap();
+        let qualification = stage(Stage::KeyQualification);
+        assert_eq!(qualification.status, CheckStatus::Fail, "{name}");
+        assert_eq!(qualification.diagnostic.code, code, "{name}");
+        assert!(
+            qualification
+                .diagnostic
+                .message
+                .contains("checkpoint defect"),
+            "{name}"
+        );
+        assert_eq!(stage(Stage::Signature).status, CheckStatus::NotChecked);
+        assert_eq!(stage(Stage::Quorum).status, CheckStatus::NotChecked);
+    }
+}

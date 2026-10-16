@@ -121,3 +121,8 @@ Mutation history records exact before/after bytes and SHA-256 identities. Replay
 ## C7 raw capture boundary
 
 The genesis RPC adapter extracts slot, block ID, aggregate-signature bytes, and bitmap from the supported response shape. It does not reconstruct the versioned wire message or source-vote payload: shred version, historical context, qualified keys, and producer/profile compatibility remain missing. Array lengths and exact-source hashes do not establish point validity, signer identity, stake, or consensus state. The shared parser returns only an inconclusive capture-inspection report, with cryptographic/composition stages unperformed. See [capture-import.md](capture-import.md).
+
+## Who a failure blames (C15)
+
+`REJECTED` is reserved for defects in evidence the bundle controls. Keys and proofs of possession come from the checkpoint that the caller chose to trust. If one of them is malformed or its PoP fails, the trust context is broken. The certificate and the overall result become `INCONCLUSIVE`, and key qualification is marked `FAIL` with a message naming a checkpoint defect. The fix is to correct or replace the checkpoint, not to distrust the evidence. A certificate that fails because of its own signature, bitmap, declarations or stake remains `REJECTED`.
+
