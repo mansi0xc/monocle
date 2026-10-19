@@ -59,7 +59,7 @@ Synthetic fixtures use invented context and public test keys. The supplied testn
 
 ## Result details
 
-`CertificateVerificationReport` adds per-certificate raw SHA-256 identity, decoded kind/slot/block, reconstructed signed bytes, signer ranks, exact selected/total stake, threshold, and five ordered checks: decoding, signers, key qualification, signature, quorum. Global checks cover input, profile, context, and the explicitly unperformed finality stage. `CertificateReport` fields that cannot yet be computed are null or empty; later checks remain `NOT_CHECKED` after a prerequisite fails.
+`CertificateVerificationReport` adds per-certificate raw SHA-256 identity, decoded kind/slot/block, reconstructed signed bytes, signer ranks, exact selected/total stake, threshold, and five ordered checks: decoding, signers, key qualification, signature, quorum. Global checks cover input, profile, context, and the explicitly unperformed finality stage. `CertificateReport` fields that cannot yet be computed are null or empty; later checks remain `NOT_CHECKED` after a prerequisite fails. Since C20 it also carries `layout`, the decoder's field ranges (`{start, end}` per field, null when decoding failed), so viewers label bytes without re-deriving the wire format.
 
 - Evidence defects (invalid supported bytes, contradictory declarations, a malformed or wrong aggregate signature, an invalid signer bitmap, or insufficient stake): `REJECTED`.
 - Missing context or PoP, unsupported profile/version/encoding, or a deferred finality/migration claim: `INCONCLUSIVE`.

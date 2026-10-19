@@ -600,3 +600,23 @@ fn registered_key_trust_still_rejects_bad_points_and_never_rescues_evidence() {
         Code::InvalidSchema
     );
 }
+
+#[test]
+fn reports_carry_the_decoded_wire_layout_or_null() {
+    let (bundle, cp) = fixture("valid_notarization");
+    let report = run(bundle, cp);
+    let layout = report.certificates[0].layout.as_ref().unwrap();
+    assert_eq!(layout.signature, 42..234);
+    assert_eq!(layout.bitmap, 242..246);
+    let json = serde_json::to_value(&report.certificates[0]).unwrap();
+    assert_eq!(
+        json["layout"]["signature"],
+        json!({"start": 42, "end": 234})
+    );
+    assert_eq!(json["layout"]["block_id"], json!({"start": 10, "end": 42}));
+    let (bundle, cp) = fixture("valid_finalization");
+    let json = serde_json::to_value(&run(bundle, cp).certificates[0]).unwrap();
+    assert_eq!(json["layout"]["block_id"], Value::Null);
+    let (bundle, cp) = fixture("unknown_wire_version");
+    assert!(run(bundle, cp).certificates[0].layout.is_none());
+}

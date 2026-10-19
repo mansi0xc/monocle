@@ -51,6 +51,7 @@ impl CertificateReport {
             slot: None,
             block_id_hex: None,
             signed_payload_hex: None,
+            layout: None,
             signer_ranks: Vec::new(),
             selected_stake: None,
             total_stake: None,
@@ -164,6 +165,7 @@ fn verify_one(
         Err(fault) => return report.stop(Stage::CertificateDecoding, fault.at(&raw, 0)),
     };
     let layout = &decoded.layout;
+    report.layout = Some(layout.clone());
     report.kind = Some(decoded.kind);
     report.slot = Some(DecimalU64::new(decoded.slot));
     report.block_id_hex = decoded.block_id.map(hex::encode);

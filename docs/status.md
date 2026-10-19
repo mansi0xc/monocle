@@ -35,7 +35,9 @@ The genuine Rust/WASM verification paths, immutable tamper experiments, fresh di
 | C16 - Continuous integration | Committed by Mansi: `9531c59`; first GitHub run passed |
 | C17 - Generated contracts | Committed by Mansi: `d86dde0` |
 | C18 - Precise diagnostics | Committed by Mansi: `9cbce49` |
-| C19 - Real-cluster genesis verification tooling | Ready for owner review; see [mainnet-genesis.md](mainnet-genesis.md) |
+| C19 - Real-cluster genesis verification tooling | Committed by Mansi: `b0064ac`; see [mainnet-genesis.md](mainnet-genesis.md) |
+| C20 - Annotated certificate bytes | Ready for owner review |
+| C21 - Mainnet genesis verification | Waiting for epoch 1063 (≈ 2026-10-20 11:42 UTC) and migration |
 
 C10 added three static design-direction previews under `apps/design-study/`; the owner chose Dusk, which C11 implements.
 

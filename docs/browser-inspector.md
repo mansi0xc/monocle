@@ -58,7 +58,17 @@ Replacing the checkpoint revokes its selection immediately, including when repla
 
 These numbers are the Rust `Operation` enum in `crates/monocle-wasm`; the browser uses the generated `Operation` names from the contracts package rather than literals. Unknown numbers fail with `INVALID_SCHEMA` at path `operation`.
 
-Responses are `{ok:true,value:...}` or `{ok:false,error:Diagnostic}`. An execution failure has no usable old output. Request run IDs must match the worker envelope and returned report; C6 comparison reports use distinct baseline/derived IDs checked together. The app never accepts imported reports as results.
+Responses are `{ok:true,value:...}` or `{ok:false,error:Diagnostic}`.
+
+## Certificate bytes
+
+Each certificate's **Certificate bytes, fields and signed payload** disclosure shows the original bytes against the layout the Rust decoder reports (C20). It contains:
+
+- a table of the wire fields (version, tag, slot, block ID, signature, bitmap length, bitmap, shred version), with byte ranges and exactly decoded values (u64s via `BigInt`);
+- a 16-byte-per-row hex grid coloured by field.
+
+Every check whose diagnostic path names this certificate's bytes gets a **Show bytes** button, which opens the view and highlights that range; the first failure is highlighted by default. Bytes an experiment changed are outlined and listed with their old values. The table and a live status line carry all of this for assistive technology; the grid repeats it visually and is hidden from it. When decoding fails, there is no layout to label, but located checks still highlight their bytes.
+ An execution failure has no usable old output. Request run IDs must match the worker envelope and returned report; C6 comparison reports use distinct baseline/derived IDs checked together. The app never accepts imported reports as results.
 
 In production, the worker is bundled inline and WASM bytes are loaded once into page memory. Fresh workers receive a copy of those bytes; their startup does not require another fetch. Development mode may still request Vite modules. See [offline behavior](tamper-replay.md#offline-behavior).
 

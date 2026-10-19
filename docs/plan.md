@@ -304,7 +304,7 @@ Acceptance:
 
 Result: committed by Mansi as `9cbce49`.
 
-## C19 - Real-cluster genesis verification tooling (ready for owner review)
+## C19 - Real-cluster genesis verification tooling (committed)
 
 Requested 2026-10-16 after Mansi committed C18 (`9cbce49`); feature 1 from the codebase review. Mainnet's Alpenglow genesis certificate is verified against the validator set Agave snapshots at the start of epoch 1063, about 2026-10-20 11:42 UTC, and no RPC serves that snapshot later. So the capture and rebuild tooling must be ready before then. Mansi chose two things: a separate registered-key trust basis, because vote accounts store keys but not proofs of possession; and a separate capture tool, so the verifier stays network-free. See [mainnet-genesis.md](mainnet-genesis.md).
 
@@ -316,4 +316,20 @@ Acceptance:
 - A dry run on current mainnet data parses every vote account, and a real account is kept as a parser test vector.
 - The full gate passes. Update the docs and ignored handoff 020; leave changes unstaged and pause for the owner's commit.
 
-Next (C20, after migration): record the epoch-1063 validator set and the genesis certificate, verify, and present the result.
+Result: committed by Mansi as `b0064ac`.
+
+## C20 - Annotated certificate bytes (ready for owner review)
+
+Requested 2026-10-16 after Mansi committed C19 (`b0064ac`), while C21 waits for mainnet; feature 5 from the codebase review. C18's byte-range paths named the bytes behind each check, but the inspector still showed certificates as one undifferentiated hex string.
+
+Acceptance:
+
+- Certificate reports carry the decoder's own field layout (null when decoding fails), so the browser never re-derives the wire format.
+- Each certificate's byte view lists the fields with byte ranges and exactly decoded values, and draws a hex grid coloured by field.
+- A "Show bytes" control on every located check highlights its range; the first failure is highlighted by default. Bytes changed by an experiment are marked with their old value.
+- Accessible table and live status, with the grid hidden from assistive technology; no sideways page scroll on phones; automated accessibility scans pass.
+- The full gate passes. Update the docs and ignored handoff 021; leave changes unstaged and pause for the owner's commit.
+
+## C21 - Mainnet genesis verification (waiting)
+
+During epoch 1063, record the validator set; after migration, record the genesis certificate. Then build, verify, and present the result with its manifests, following [mainnet-genesis.md](mainnet-genesis.md).

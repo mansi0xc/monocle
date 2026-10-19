@@ -1,14 +1,28 @@
-import { useState, type CSSProperties } from "react";
+import { useRef, useState, type CSSProperties } from "react";
 import type {
+  ByteRange,
   CertificateReport,
   CheckResult,
   EpochCheckpoint,
   EvidenceVerificationReport,
   ProofBundle,
 } from "../../../packages/contracts/src/index";
+import { byteRange, describe, hexBytes } from "./bytes";
+import { CertificateBytes } from "./CertificateBytes";
 
 export const words = (text: string) => text.replaceAll("_", " ");
-export function Trace({ checks }: { checks: CheckResult[] }) {
+/** `locate` finds a check's bytes in this certificate; `show` reveals them. */
+type Locator = {
+  locate: (check: CheckResult) => ByteRange | null;
+  show: (range: ByteRange) => void;
+};
+export function Trace({
+  checks,
+  bytes,
+}: {
+  checks: CheckResult[];
+  bytes?: Locator;
+}) {
   return (
     <ol className="trace">
       {checks.map((check, i) => (
@@ -38,6 +52,21 @@ export function Trace({ checks }: { checks: CheckResult[] }) {
             {check.diagnostic.code !== "OK" && (
               <span className="mono">{check.diagnostic.path}</span>
             )}
+            {(() => {
+              const range = bytes?.locate(check);
+              return (
+                range && (
+                  <button
+                    type="button"
+                    className="text-button hex-link"
+                    aria-label={`Show ${describe(range)} for ${words(check.stage)}`}
+                    onClick={() => bytes?.show(range)}
+                  >
+                    Show bytes
+                  </button>
+                )
+              );
+            })()}
           </span>
         </li>
       ))}
@@ -191,9 +220,39 @@ function Certificate({
   checkpoint: EpochCheckpoint | null;
   first: boolean;
 }) {
-  const envelope = bundle.certificates.find(
+  const index = bundle.certificates.findIndex(
     (c) => c.id === cert.certificate_id,
   );
+  const envelope = index >= 0 ? bundle.certificates[index] : undefined;
+  const locate = (check: CheckResult) =>
+    envelope
+      ? byteRange(check.diagnostic.path, index, envelope.raw_hex.length / 2)
+      : null;
+  // Open on the bytes behind the first located failure, if any.
+  const [highlight, setHighlight] = useState<ByteRange | null>(
+    () =>
+      cert.checks
+        .filter((c) => c.status === "FAIL")
+        .map(locate)
+        .find((range) => range !== null) ?? null,
+  );
+  const [bytesOpen, setBytesOpen] = useState(false);
+  const bytesView = useRef<HTMLDetailsElement>(null);
+  const show = (range: ByteRange) => {
+    setHighlight(range);
+    setBytesOpen(true);
+    requestAnimationFrame(() =>
+      bytesView.current?.scrollIntoView({ block: "nearest" }),
+    );
+  };
+  const changes = bundle.mutations
+    .filter((m) => m.certificate_id === cert.certificate_id)
+    .map((m) => ({
+      offset: Number(m.offset),
+      before: hexBytes(m.before_hex),
+      after: hexBytes(m.after_hex),
+    }))
+    .filter((c) => Number.isSafeInteger(c.offset));
   return (
     <details className="certificate" data-status={cert.conclusion} open={first}>
       <summary>
@@ -227,10 +286,15 @@ function Certificate({
             )}
           </dd>
         </dl>
-        <Trace checks={cert.checks} />
+        <Trace checks={cert.checks} bytes={{ locate, show }} />
         <Signers certificate={cert} checkpoint={checkpoint} />
-        <details className="bytes">
-          <summary>Signed bytes and certificate identity</summary>
+        <details
+          className="bytes"
+          ref={bytesView}
+          open={bytesOpen}
+          onToggle={(e) => setBytesOpen(e.currentTarget.open)}
+        >
+          <summary>Certificate bytes, fields and signed payload</summary>
           <dl className="facts">
             <dt>Certificate SHA-256</dt>
             <dd className="mono">{cert.raw_digest}</dd>
@@ -245,7 +309,16 @@ function Certificate({
                 Original certificate bytes · {envelope.raw_hex.length / 2} bytes
                 · {envelope.format}
               </p>
-              <pre>{envelope.raw_hex}</pre>
+              {/* Rendered only while open: the grid is large and hidden otherwise. */}
+              {bytesOpen && (
+                <CertificateBytes
+                  rawHex={envelope.raw_hex}
+                  layout={cert.layout}
+                  highlight={highlight}
+                  changes={changes}
+                  onSelect={setHighlight}
+                />
+              )}
             </>
           )}
         </details>

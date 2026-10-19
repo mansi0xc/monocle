@@ -2,11 +2,14 @@
 //! Layout adapted from Agave's Apache-2.0 wire.rs; see docs/certificate-verification.md.
 use super::CertificateKind;
 use crate::{Code, Diagnostic, MAX_VALIDATORS};
+use serde::Serialize;
 use std::ops::Range;
 
 /// Half-open byte ranges of each field within the certificate's raw bytes, so a
-/// diagnostic can name the exact bytes behind a check.
-#[derive(Clone, Debug, PartialEq, Eq)]
+/// diagnostic can name the exact bytes behind a check. Reports carry it so a
+/// viewer labels fields from the decoder itself; each range serializes as
+/// `{start, end}`.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize)]
 pub struct WireLayout {
     pub version: Range<usize>,
     pub kind: Range<usize>,

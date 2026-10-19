@@ -83,6 +83,8 @@ pub struct CertificateReport {
     pub slot: Option<DecimalU64>,
     pub block_id_hex: Option<String>,
     pub signed_payload_hex: Option<String>,
+    /// Field ranges of the decoded wire message; null when decoding failed.
+    pub layout: Option<WireLayout>,
     pub signer_ranks: Vec<u32>,
     pub selected_stake: Option<DecimalU64>,
     pub total_stake: Option<DecimalU64>,

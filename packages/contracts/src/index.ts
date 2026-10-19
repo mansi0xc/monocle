@@ -135,6 +135,22 @@ export function encodeVerifyRequest(request: VerifyRequest): Uint8Array {
   return new TextEncoder().encode(JSON.stringify(request));
 }
 
+/** Half-open byte range within a certificate's decoded raw bytes. */
+export interface ByteRange {
+  start: number;
+  end: number;
+}
+/** Field ranges reported by the Rust decoder; a slot-only finalization has no block ID. */
+export interface WireLayout {
+  version: ByteRange;
+  kind: ByteRange;
+  slot: ByteRange;
+  block_id: ByteRange | null;
+  signature: ByteRange;
+  bitmap_length: ByteRange;
+  bitmap: ByteRange;
+  shred_version: ByteRange;
+}
 export interface CertificateReport {
   certificate_id: string;
   raw_digest: ContentDigest;
@@ -143,6 +159,8 @@ export interface CertificateReport {
   slot: DecimalU64 | null;
   block_id_hex: Hex | null;
   signed_payload_hex: Hex | null;
+  /** Null when the certificate did not decode. */
+  layout: WireLayout | null;
   signer_ranks: number[];
   /** Selected checkpoint weight; signature acceptance is a separate check. */
   selected_stake: DecimalU64 | null;

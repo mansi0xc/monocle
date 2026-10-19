@@ -1031,6 +1031,130 @@ td {
   overflow-wrap: anywhere;
   color: var(--mist);
 }
+
+/* Annotated certificate bytes: field colours come from the decoder's layout. */
+.hex-view {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+}
+[data-field="version"],
+[data-field="kind"] {
+  --field: var(--dim);
+}
+[data-field="slot"] {
+  --field: var(--glacier);
+}
+[data-field="block_id"] {
+  --field: var(--amber);
+}
+[data-field="signature"] {
+  --field: var(--orchid);
+}
+[data-field="bitmap_length"],
+[data-field="bitmap"] {
+  --field: var(--rose);
+}
+[data-field="shred_version"] {
+  --field: var(--mist);
+}
+.hex-fields {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+}
+.hex-fields caption {
+  padding-bottom: 6px;
+  text-align: left;
+  color: var(--dim);
+  font-size: 0.75rem;
+}
+.hex-fields th,
+.hex-fields td {
+  padding: 5px 8px;
+  border-top: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+.hex-fields thead th {
+  border-top: 0;
+  color: var(--dim);
+  font-weight: 500;
+}
+.hex-fields td.hex-range {
+  white-space: nowrap;
+}
+.hex-fields td.mono {
+  color: var(--mist);
+  overflow-wrap: anywhere;
+}
+.hex-fields tr[data-lit] {
+  box-shadow: inset 3px 0 0 var(--field);
+}
+.field-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--snow);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.field-button::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  flex: none;
+  border-radius: 2px;
+  background: var(--field);
+}
+.field-button[aria-pressed="true"] {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.hex-focus,
+.hex-changes {
+  margin: 0;
+  color: var(--mist);
+}
+.hex-grid {
+  overflow-x: auto;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--night);
+  font: 0.75rem/1.9 var(--font-mono);
+}
+.hex-row {
+  display: flex;
+  gap: 5px;
+  white-space: nowrap;
+}
+.hex-offset {
+  margin-right: 6px;
+  color: var(--dim);
+}
+.hex-byte {
+  padding: 0 1px;
+  border-bottom: 2px solid var(--field, transparent);
+  color: var(--mist);
+}
+.hex-byte[data-lit] {
+  border-radius: 3px;
+  background: var(--panel-2);
+  color: var(--snow);
+  box-shadow: 0 0 0 1px var(--rose);
+}
+.hex-byte[data-changed] {
+  outline: 1px dashed var(--amber);
+  outline-offset: 2px;
+}
+.hex-link {
+  margin-top: 4px;
+  font-size: 0.75rem;
+}
 .assumptions ul {
   margin: 0;
   padding-left: 18px;

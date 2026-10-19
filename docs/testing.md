@@ -114,3 +114,11 @@ C19 (real-cluster genesis tooling) adds `scripts/check-genesis.sh`. It regenerat
 
 Core tests cover registered-key trust skipping proofs only when selected, and still rejecting malformed, identity and non-subgroup keys, wrong signatures and insufficient stake. A bridge test covers operation 10 and its revocation, and a browser test verifies the synthetic rebuilt bundle in the inspector with an accessibility scan.
 
+C20 (annotated certificate bytes) adds:
+
+- a Rust test pinning the report's `layout`, both its JSON shape and its null on a decode failure;
+- three Node unit tests for the view helpers: path parsing bounded to the right certificate, exact little-endian u64s, and human range descriptions;
+- two Chrome tests: a failing check's "Show bytes" highlights the signature range, the field table decodes values, a field button re-highlights, and an accessibility scan passes; an experiment's changed byte is marked with its old value, with no sideways scroll at 375 px.
+
+The Rust/TypeScript shape check compiles real reports carrying `layout`. A first screenshot showed the grid wrapping, because the new classes collided with the landing demo's `.byte` rules; they now use a `hex-` prefix.
+
