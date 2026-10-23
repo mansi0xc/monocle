@@ -1,0 +1,27 @@
+{
+  "admission_cutoff_stake": null,
+  "admitted": 673,
+  "capture_epoch": 1063,
+  "checkpoint_digest": "sha256:a83a1b6f8e64efc0ffbb41c8b5404c9bcf06cf4d1d1b3900e468b4ecf8520194",
+  "checkpoint_epoch": 1064,
+  "endpoint": "https://api.mainnet-beta.solana.com",
+  "excluded": {
+    "below_admission_cutoff": 0,
+    "below_minimum_balance": 0,
+    "duplicate_bls_key": 0,
+    "duplicate_node": 0,
+    "invalid_bls_key": 0,
+    "no_bls_key": 4,
+    "zero_stake": 2
+  },
+  "first_slot": 459219797,
+  "genesis_hash": "5eykt4UsFv8P8NJdTREpY1vzqKqZKvdpKuc147dw2N9d",
+  "manifest_sha256": "ced6cf27aa42b58edfa25ba42ba6f7cc85019188d771529ce2161d378d60ab66",
+  "minimum_balance": 19761200,
+  "ranked": 673,
+  "shred_version": 50093,
+  "shred_version_agreement": "3912/3912",
+  "slots_after_boundary": 3797,
+  "total_stake": "438565601666629812",
+  "vote_accounts": 679
+}

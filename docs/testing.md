@@ -122,3 +122,10 @@ C20 (annotated certificate bytes) adds:
 
 The Rust/TypeScript shape check compiles real reports carrying `layout`. A first screenshot showed the grid wrapping, because the new classes collided with the landing demo's `.byte` rules; they now use a `hex-` prefix.
 
+C21 (mainnet genesis verification) adds:
+
+- `scripts/check-genesis.sh` rebuilding the checkpoint and bundle from the recorded mainnet capture, which must match the committed `built/` outputs byte for byte;
+- a builder test that rebuilds from the capture, pins the digest, exclusions and stake figures, and requires `VERIFIED` under registered-key trust, `INCONCLUSIVE` with `MISSING_POP` under operator trust, and `INVALID_SIGNATURE` once the highest-staked signer's bit is cleared;
+- a builder test that only a feature-program account with an activation slot counts as active, including mainnet's pre-funded System-owned feature address;
+- a Chrome test that imports the mainnet bundle and checkpoint, verifies through WASM under registered-key trust, and reads the genesis tag, slot and shred version from the byte view.
+

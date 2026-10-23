@@ -15,6 +15,17 @@ const upload = (name: string) => ({
   mimeType: "application/json",
   buffer: built(name),
 });
+// Built the same way from the capture recorded on mainnet during epoch 1063.
+const mainnet = (name: string) => ({
+  name,
+  mimeType: "application/json",
+  buffer: readFileSync(
+    new URL(
+      `../../../fixtures/genesis-capture/mainnet/built/${name}`,
+      import.meta.url,
+    ),
+  ),
+});
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/#/inspect");
@@ -72,4 +83,53 @@ test("a rebuilt validator set verifies the genesis certificate only under regist
   await expect(
     page.getByText("GENESIS_ANCHOR_ESTABLISHED").first(),
   ).toBeVisible();
+});
+
+test("the recorded mainnet genesis certificate verifies in the browser under registered-key trust", async ({
+  page,
+}, info) => {
+  await page
+    .getByLabel("Or import a proof bundle")
+    .setInputFiles(mainnet("bundle.json"));
+  await expect(page.getByRole("status")).toContainText("Bundle inspected");
+  await page
+    .getByLabel("Import checkpoint", { exact: true })
+    .setInputFiles(mainnet("checkpoint.json"));
+  await expect(page.getByRole("status")).toContainText("Checkpoint inspected");
+  await page.getByLabel("Trust basis").selectOption("registered");
+  const reason = "Rebuilt from the recorded epoch-1063 mainnet capture";
+  await page.getByLabel("Why do you trust this checkpoint?").fill(reason);
+  await page.getByRole("button", { name: "Use this checkpoint" }).click();
+  await page.getByRole("button", { name: "Verify evidence" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Genesis anchor verified" }),
+  ).toBeVisible();
+  await expect(
+    page.getByText(
+      "Signers hold 360285044710320374 of 438565601666629812 stake",
+      { exact: false },
+    ),
+  ).toBeVisible();
+  const genesis = page.locator("details.certificate").first();
+  await genesis
+    .getByRole("button", {
+      name: "Show bytes 42–233 (192 bytes) for signature",
+    })
+    .click();
+  const table = genesis.getByRole("table", {
+    name: "Wire fields reported by the decoder",
+  });
+  await expect(
+    table.getByRole("row", { name: /^Certificate tag/ }),
+  ).toContainText("12 (genesis)");
+  await expect(table.getByRole("row", { name: /^Slot/ })).toContainText(
+    "459652999",
+  );
+  await expect(
+    table.getByRole("row", { name: /^Shred version/ }),
+  ).toContainText("50093");
+  await page.screenshot({
+    path: info.outputPath("mainnet-genesis.png"),
+    fullPage: true,
+  });
 });

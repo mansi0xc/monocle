@@ -7,7 +7,7 @@ C19 adds what Monocle needs to verify a real cluster's genesis certificate:
 - a converter from a recorded `getAgGenesisCert` response to a proof bundle;
 - an explicit **registered-key trust** basis.
 
-The pipeline is tested end to end on a synthetic cluster in exactly the RPC format. It has also been dry-run on mainnet epoch 1059 data. No real genesis certificate has been verified yet: mainnet's appears only after migration.
+The pipeline is tested end to end on a synthetic cluster in exactly the RPC format. C21 then ran it on mainnet: the Alpenglow genesis certificate for slot 459,652,999 **verifies under registered-key trust**, natively and in the browser. The recorded capture is committed, and CI rebuilds the checkpoint and bundle from its bytes. See [Result, 2026-10-21](#result-2026-10-21) for the figures and what they do and do not establish.
 
 ## Timing: capture during epoch 1063
 
@@ -53,11 +53,11 @@ Keep the capture directories. Their manifests and digests are what make a result
 
 ## What the builder reproduces
 
-These rules come from Agave v4.3.0, the release mainnet runs. They are identical at Monocle's pinned `master` revision `98535e50`, which diverged from v4.3.0:
+These rules come from Agave v4.3.0, the release mainnet ran when C19 was written. They are identical at Monocle's pinned `master` revision `98535e50`, which diverged from v4.3.0. Mainnet migrated on v4.3.2; its 23 commits since v4.3.0 add thread pools and performance work but change none of these rules, the signed payload, or certificate verification:
 
 1. **Admission (SIMD-0357, `clone_and_filter_for_vat`).**
    - Keep vote accounts that have a BLS key, nonzero stake, and lamports at least equal to the minimum.
-   - The minimum is the rent-exempt balance for a 3,762-byte V4 vote account. Once the `alpenglow` feature is active, the VAT burn is added; that depends on slot parameters, so the builder refuses post-activation captures.
+   - The minimum is the rent-exempt balance for a 3,762-byte V4 vote account. Once the `alpenglow` feature is active, the VAT burn is added; that depends on slot parameters, so the builder refuses post-activation captures. As in Agave, "active" means the feature program owns the account and it records an activation slot; on 2026-10-20 the mainnet feature address held lamports but was still a System-owned account, which is not a feature.
    - If more than 2,000 accounts remain, drop every account whose stake is at or below the 2,001st-largest stake, ties included.
 2. **Rank map (`BLSPubkeyToRankMap::new`).**
    - Drop keys that fail checked decompression.
@@ -99,3 +99,34 @@ A validator capture of mainnet epoch 1059 at `api.mainnet-beta.solana.com` (slot
 - The node identity in every account's data matched `getVoteAccounts`.
 
 No certificate exists for that epoch, so nothing was verified. The capture is not committed; only one account is kept, as the test vector `fixtures/genesis-capture/mainnet-vote-account.json`.
+
+## Result, 2026-10-21
+
+Mainnet activated the `alpenglow` feature at slot 459,648,000, the first slot of epoch 1064, and its genesis certificate is for slot 459,652,999, the last TowerBFT slot. Verified under **Operator-pinned, keys registered on chain**, the certificate is **VERIFIED** with scope `genesis_migration` (`GENESIS_ANCHOR_ESTABLISHED`, `REGISTERED_KEYS_ACCEPTED`).
+
+| | |
+| --- | --- |
+| Validator capture | Epoch 1063, slots 459,219,797–459,219,814, 2026-10-20 11:51 UTC: 3,797 slots after the boundary. 15 responses; manifest SHA-256 `ced6cf27…d60ab66`. |
+| Certificate capture | Epoch 1064, slots 459,670,307–459,670,311, 2026-10-21 14:55 UTC. 3 responses; manifest SHA-256 `59fcbbb6…5093e3b`. |
+| Rank map for epoch 1064 | 679 vote accounts read; 673 ranked. 4 had no BLS key and 2 had zero stake; none was invalid, duplicated, under the minimum or cut off. |
+| Context | Shred version 50093, reported by all 3,912 cluster nodes; genesis hash `5eykt4Us…`. |
+| Checkpoint digest | `sha256:a83a1b6f8e64efc0ffbb41c8b5404c9bcf06cf4d1d1b3900e468b4ecf8520194` |
+| Signers | 446 of 673 ranks |
+| Stake | 360,285,044,710,320,374 of 438,565,601,666,629,812 lamports (82.15%); the exact 82% threshold is 359,623,793,366,636,446. |
+
+Three control runs behave as designed:
+
+- **Ordinary operator trust** is `INCONCLUSIVE` with `MISSING_POP`: vote accounts store no proofs.
+- **Clearing the highest-staked signer's bit** is `REJECTED` with `INVALID_SIGNATURE`: the signature is well formed but over a different set.
+- **Flipping a signature byte** is `REJECTED` with `MALFORMED_SIGNATURE`.
+
+**The bitmap is shorter than the rank map.** It declares 672 positions, not 673. Agave trims it after the highest signing rank (`aggregate_accumulator.rs`: `ranks.last_one() + 1`), and rank 672 did not sign. Ranks 0–671 must match Agave's exactly, or the aggregate would not verify. Whether Agave also ranked the 673rd account (2,129,065 lamports) cannot be seen from the certificate. Either way the result stands: removing it lowers the threshold, and the signers still hold 82.1507%.
+
+**Two surprises during the run.**
+
+- The feature address was sent lamports before activation and briefly existed as a System-owned account. The builder had treated any existing account as active and refused the capture. It now follows Agave: only an account the feature program owns, with an activation slot, is active.
+- `getAgGenesisCert` responses from devnet and testnet (already migrated) were inspected before mainnet's appeared. Their shape matched the synthetic fixture.
+
+**What this establishes.** Given an honest `api.mainnet-beta.solana.com` at both capture times and keys registered through the vote program, validators holding 82.15% of the rebuilt epoch-1064 stake signed the migration anchor at slot 459,652,999. It does not authenticate the endpoint, prove ordinary block finality, or show that the migration completed. Those remain the assumptions listed above.
+
+**Reproducing it.** `fixtures/genesis-capture/mainnet/` holds both captures exactly as recorded, with their manifests, and the `built/` outputs. `scripts/check-genesis.sh` rebuilds the checkpoint and bundle from the recorded bytes and requires them to match byte for byte. A builder test pins the figures above and checks the verified, operator-trust and cleared-bit verdicts (the flipped byte was a one-off run), and a browser test verifies the same files through WASM. The validator capture includes `getClusterNodes`, which lists the public gossip, TPU and RPC addresses of 3,912 nodes; it is kept in full because the manifest digests cover every file.

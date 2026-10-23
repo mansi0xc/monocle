@@ -38,6 +38,81 @@ fn codes(report: &Value) -> String {
     report.to_string()
 }
 
+const MAINNET: &str = concat!(
+    env!("CARGO_MANIFEST_DIR"),
+    "/../../fixtures/genesis-capture/mainnet"
+);
+
+#[test]
+fn the_recorded_mainnet_genesis_certificate_verifies_only_under_registered_key_trust() {
+    let dir = Path::new(MAINNET);
+    let checkpoint =
+        build_checkpoint(&read_capture(&dir.join("validators"), "validators").unwrap()).unwrap();
+    let bundle = build_bundle(
+        &read_capture(&dir.join("genesis-cert"), "genesis-cert").unwrap(),
+        &checkpoint,
+    )
+    .unwrap();
+    // check-genesis.sh compares the committed outputs byte for byte; these pin the values.
+    let summary = &checkpoint.summary;
+    assert_eq!(
+        summary["checkpoint_digest"],
+        "sha256:a83a1b6f8e64efc0ffbb41c8b5404c9bcf06cf4d1d1b3900e468b4ecf8520194"
+    );
+    assert_eq!(summary["checkpoint_epoch"], 1064);
+    assert_eq!(summary["ranked"], 673);
+    assert_eq!(summary["total_stake"], "438565601666629812");
+    assert_eq!(summary["shred_version"], 50093);
+    assert_eq!(summary["shred_version_agreement"], "3912/3912");
+    assert_eq!(summary["slots_after_boundary"], 3797);
+    assert_eq!(
+        summary["excluded"],
+        json!({"no_bls_key": 4, "zero_stake": 2, "below_minimum_balance": 0, "below_admission_cutoff": 0,
+            "invalid_bls_key": 0, "duplicate_bls_key": 0, "duplicate_node": 0})
+    );
+
+    let registered = TrustBasis::RegisteredKeys {
+        reason: "Rebuilt from the recorded epoch-1063 mainnet capture".into(),
+    };
+    let report = verify(&checkpoint.json, &bundle, registered.clone());
+    assert_eq!(report["conclusion"], "VERIFIED");
+    assert_eq!(report["evidence_scope"], "genesis_migration");
+    assert!(codes(&report).contains("GENESIS_ANCHOR_ESTABLISHED"));
+    assert!(codes(&report).contains("REGISTERED_KEYS_ACCEPTED"));
+    // 446 of 673 ranks signed; the encoder trims the bitmap after the last signer.
+    assert!(
+        codes(&report).contains(
+            "Signers hold 360285044710320374 of 438565601666629812 stake, meeting the exact 82% threshold of 359623793366636446"
+        ),
+        "{report}"
+    );
+
+    let operator = verify(
+        &checkpoint.json,
+        &bundle,
+        TrustBasis::OperatorPinned {
+            reason: "Reviewed".into(),
+        },
+    );
+    assert_eq!(operator["conclusion"], "INCONCLUSIVE");
+    assert!(codes(&operator).contains("MISSING_POP"));
+
+    // Dropping the highest-staked signer leaves a well-formed signature over the wrong set.
+    let mut tampered: Value = serde_json::from_str(&bundle).unwrap();
+    let raw = tampered["certificates"][0]["raw_hex"].as_str().unwrap();
+    let first_ranks = 2 * 245;
+    assert_eq!(
+        &raw[first_ranks..first_ranks + 2],
+        "ff",
+        "ranks 0-7 all signed"
+    );
+    let raw = format!("{}fe{}", &raw[..first_ranks], &raw[first_ranks + 2..]);
+    tampered["certificates"][0]["raw_hex"] = json!(raw);
+    let rejected = verify(&checkpoint.json, &tampered.to_string(), registered);
+    assert_eq!(rejected["conclusion"], "REJECTED");
+    assert!(codes(&rejected).contains("INVALID_SIGNATURE"), "{rejected}");
+}
+
 #[test]
 fn committed_outputs_are_exactly_what_the_builder_produces() {
     let (checkpoint, bundle) = built();
@@ -210,4 +285,28 @@ fn real_mainnet_vote_account_matches_its_listing_and_holds_a_valid_key() {
     assert_eq!(hex::encode(key), vector["bls_pubkey_compressed_hex"]);
     // Bytes read from a wrong offset would essentially never decompress to a subgroup point.
     assert!(solana_bls_signatures::pubkey::PubkeyAffine::try_from(&key).is_ok());
+}
+
+#[test]
+fn only_a_feature_program_account_with_an_activation_slot_is_active() {
+    let account = |owner: &str, data: &[u8]| {
+        let data = base64::engine::general_purpose::STANDARD.encode(data);
+        json!({"context": {"apiVersion": "4.3.2", "slot": 1}, "value": {"data": [data, "base64"],
+            "executable": false, "lamports": 1_000_000, "owner": owner,
+            "rentEpoch": u64::MAX, "space": 9}})
+    };
+    let activated = [1, 0xc0, 0x5a, 0x65, 0x1b, 0, 0, 0, 0];
+    assert!(!feature_active(&json!({"context": {"slot": 1}, "value": null})).unwrap());
+    // Mainnet, 2026-10-20: the feature address was sent lamports before activation.
+    let funded = account("11111111111111111111111111111111", &[]);
+    assert!(!feature_active(&funded).unwrap());
+    assert!(!feature_active(&account("11111111111111111111111111111111", &activated)).unwrap());
+    assert!(
+        !feature_active(&account(FEATURE_PROGRAM, &[0])).unwrap(),
+        "pending"
+    );
+    assert!(feature_active(&account(FEATURE_PROGRAM, &activated)).unwrap());
+    for malformed in [&[][..], &[1], &activated[..8], &[2]] {
+        assert!(feature_active(&account(FEATURE_PROGRAM, malformed)).is_err());
+    }
 }

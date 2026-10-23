@@ -318,7 +318,7 @@ Acceptance:
 
 Result: committed by Mansi as `b0064ac`.
 
-## C20 - Annotated certificate bytes (ready for owner review)
+## C20 - Annotated certificate bytes (committed)
 
 Requested 2026-10-16 after Mansi committed C19 (`b0064ac`), while C21 waits for mainnet; feature 5 from the codebase review. C18's byte-range paths named the bytes behind each check, but the inspector still showed certificates as one undifferentiated hex string.
 
@@ -330,6 +330,17 @@ Acceptance:
 - Accessible table and live status, with the grid hidden from assistive technology; no sideways page scroll on phones; automated accessibility scans pass.
 - The full gate passes. Update the docs and ignored handoff 021; leave changes unstaged and pause for the owner's commit.
 
-## C21 - Mainnet genesis verification (waiting)
+## C21 - Mainnet genesis verification (ready for owner review)
 
-During epoch 1063, record the validator set; after migration, record the genesis certificate. Then build, verify, and present the result with its manifests, following [mainnet-genesis.md](mainnet-genesis.md).
+During epoch 1063, record the validator set; after migration, record the genesis certificate. Then build, verify, and present the result with its manifests, following [mainnet-genesis.md](mainnet-genesis.md). Mansi chose to commit the raw capture as well (2026-10-23), so the rebuild is reproducible from recorded bytes.
+
+Acceptance:
+
+- The validator set is recorded during epoch 1063 and the certificate after migration, each with a digest manifest.
+- The builder rebuilds the epoch-1064 checkpoint and the genesis bundle offline. A builder defect found on the live data is fixed with a regression test: a pre-funded, System-owned feature account counts as inactive, as in Agave.
+- The certificate is verified natively and in the browser under registered-key trust. Operator trust and a tampered signer set give `INCONCLUSIVE` and `REJECTED`.
+- Changes between Agave v4.3.0 and v4.3.2, the release mainnet migrated on, are reviewed for effects on the rank map, payload and certificate verification.
+- The capture and outputs are committed under `fixtures/genesis-capture/mainnet/`; the gate rebuilds the outputs byte for byte. The docs state what the result establishes and assumes.
+- The full gate passes. Update the docs and ignored handoff 022; leave changes unstaged and pause for the owner's commit.
+
+Result: **VERIFIED** with scope `genesis_migration`. 446 of 673 ranked validators signed slot 459,652,999, holding 360,285,044,710,320,374 of 438,565,601,666,629,812 lamports (82.15%).

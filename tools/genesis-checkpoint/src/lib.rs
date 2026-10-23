@@ -376,6 +376,27 @@ pub struct BuiltCheckpoint {
     pub summary: Value,
 }
 
+pub const FEATURE_PROGRAM: &str = "Feature111111111111111111111111111111111111";
+
+/// Whether a recorded `getAccountInfo` result shows the feature activated.
+/// As in Agave's `feature::from_account`, an account the feature program does
+/// not own is not a feature, even when someone has sent it lamports.
+pub fn feature_active(account: &Value) -> Result<bool, Error> {
+    let value = &account["value"];
+    if value.is_null() || value["owner"] != FEATURE_PROGRAM {
+        return Ok(false);
+    }
+    let data = base64::engine::general_purpose::STANDARD
+        .decode(value["data"][0].as_str().unwrap_or(""))
+        .map_err(|e| format!("alpenglow feature account: {e}"))?;
+    // bincode `Feature { activated_at: Option<u64> }`: tag 0 pending, tag 1 activated.
+    match data.as_slice() {
+        [0, ..] => Ok(false),
+        [1, slot @ ..] if slot.len() >= 8 => Ok(true),
+        _ => Err("the alpenglow feature account holds malformed data".into()),
+    }
+}
+
 pub fn build_checkpoint(capture: &Capture) -> Result<BuiltCheckpoint, Error> {
     let schedule_value = capture.result("getEpochSchedule")?;
     if schedule_value["warmup"] != false {
@@ -405,15 +426,8 @@ pub fn build_checkpoint(capture: &Capture) -> Result<BuiltCheckpoint, Error> {
     if ends.iter().any(|end| end["epoch"] != info["epoch"]) {
         return Err("the epoch changed during the capture; record it again".into());
     }
-    let feature = capture.result("getAccountInfo")?;
-    if !feature["value"].is_null() {
-        let data = base64::engine::general_purpose::STANDARD
-            .decode(feature["value"]["data"][0].as_str().unwrap_or(""))
-            .map_err(|e| format!("alpenglow feature account: {e}"))?;
-        // bincode `Feature { activated_at: Option<u64> }`: tag 1 means activated.
-        if data.first() != Some(&0) {
-            return Err("the alpenglow feature is already active; its VAT burn changes the admission minimum, which this builder does not reproduce".into());
-        }
+    if feature_active(&capture.result("getAccountInfo")?)? {
+        return Err("the alpenglow feature is already active; its VAT burn changes the admission minimum, which this builder does not reproduce".into());
     }
     let minimum_balance = u64_at(
         &capture.result("getMinimumBalanceForRentExemption")?,

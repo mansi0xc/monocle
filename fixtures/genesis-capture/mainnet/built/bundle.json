@@ -1,0 +1,33 @@
+{
+  "certificates": [
+    {
+      "format": "agave-versioned-consensus-v1",
+      "id": "genesis",
+      "kind": "genesis",
+      "raw_hex": "010c87bf651b0000000038df705e9a9f388898dfc35b8734893f280be459b48624456adecf7c6f92d37d03a2cb4811c3d49695efd27210e61ef9ef53fcf6a12cb5e38446c6e04d721b9151a2883db762dd3b1e2d3b5c712e696e02f539f3406153f36213a5dbe22526545d553a40f9cbcb96916f94a81dfa07c0e7300f88afb53331184d332cb14a496005f2c1641889df032a37e3937045a4caadaf8bb63c24539b6936d97cfbcf78c4631d44cd27adf042bf73159642fedc7318c2e5deb2e626a7c546cc67af6f461833b7ab1d21f821105244dbab5f7c4ca008235e6775131736698e2b97aa053151570000000000000000a002ffaffef6eff9fcfbffebf57fdff776efed3bd77dfd7791df769fdf7efe5aff7bffbcfa9b9f573ff6db37d7ef7d553d8da3d33abe71aedacd26b5b7b70bf03e06df548964ececa743dfc110e200de85fdefba06acadc3",
+      "schema_version": 1
+    }
+  ],
+  "checkpoint_reference": "sha256:a83a1b6f8e64efc0ffbb41c8b5404c9bcf06cf4d1d1b3900e468b4ecf8520194",
+  "claim": {
+    "block_id_hex": "38df705e9a9f388898dfc35b8734893f280be459b48624456adecf7c6f92d37d",
+    "certificate_ids": [
+      "genesis"
+    ],
+    "kind": "genesis_migration",
+    "slot": "459652999"
+  },
+  "context": {
+    "epoch": "1064",
+    "genesis_hash_hex": "45296998a6f8e2a784db5d9f95e18fc23f70441a1039446801089879b08c7ef0",
+    "shred_version": 50093
+  },
+  "mutations": [],
+  "parent_digest": null,
+  "profile_id": "agave-98535e50-base2-v1",
+  "provenance": {
+    "description": "Alpenglow genesis certificate from getAgGenesisCert recorded at https://api.mainnet-beta.solana.com (manifest sha256:59fcbbb6128b5ed38ad9995c47e3d7ba727c8277c6e5108848bd6a3dd5093e3b). The wire message is re-encoded from the response fields with the checkpoint's shred version 50093; the response itself carries neither.",
+    "kind": "capture"
+  },
+  "schema_version": 1
+}

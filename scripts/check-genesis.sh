@@ -11,3 +11,12 @@ cargo run --locked --quiet -p monocle-genesis-checkpoint -- \
   "$out/validators" "$out/built" "$out/genesis-cert"
 diff -r fixtures/genesis-capture/synthetic "$out"
 echo "Genesis capture pipeline: synthetic capture, checkpoint and bundle reproduce exactly."
+# The recorded mainnet capture cannot be regenerated, but the checkpoint and
+# bundle built from its bytes can.
+mainnet=fixtures/genesis-capture/mainnet
+out=target/genesis-mainnet
+rm -rf "$out"
+cargo run --locked --quiet -p monocle-genesis-checkpoint -- \
+  "$mainnet/validators" "$out" "$mainnet/genesis-cert"
+diff -r "$mainnet/built" "$out"
+echo "Genesis capture pipeline: mainnet checkpoint and bundle rebuild exactly from the recorded capture."

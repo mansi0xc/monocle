@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "format": "monocle-rpc-capture",
+  "mode": "genesis-cert",
+  "endpoint": "https://api.mainnet-beta.solana.com",
+  "epoch": 1064,
+  "first_slot": 459670307,
+  "last_slot": 459670311,
+  "files": [
+    {
+      "file": "000-epoch-info.json",
+      "method": "getEpochInfo",
+      "request": "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"getEpochInfo\",\"params\":[{\"commitment\":\"finalized\"}]}",
+      "http_status": 200,
+      "sha256": "e34f25518c02cc3689ed1363fc1b256702a770412619d37a5e9f482535caa0b6",
+      "bytes": 170,
+      "received_at": "2026-10-21T14:55:06.478Z"
+    },
+    {
+      "file": "001-genesis-cert.json",
+      "method": "getAgGenesisCert",
+      "request": "{\"jsonrpc\":\"2.0\",\"id\":2,\"method\":\"getAgGenesisCert\",\"params\":[]}",
+      "http_status": 200,
+      "sha256": "d84a6289c7ba2a8ee3103d30780694ee04c218705e7d898d5e1cfd5e26ce2236",
+      "bytes": 1229,
+      "received_at": "2026-10-21T14:55:06.793Z"
+    },
+    {
+      "file": "002-epoch-info-end.json",
+      "method": "getEpochInfo",
+      "request": "{\"jsonrpc\":\"2.0\",\"id\":3,\"method\":\"getEpochInfo\",\"params\":[{\"commitment\":\"finalized\"}]}",
+      "http_status": 200,
+      "sha256": "ea8e7c328c445db63670359a2f5dea74f41fedb774f1c70a32fc50eff080d0ba",
+      "bytes": 170,
+      "received_at": "2026-10-21T14:55:07.213Z"
+    }
+  ]
+}

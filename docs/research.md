@@ -111,3 +111,11 @@ Sources: Agave `v4.3.0` (commit `825efd18`, the release mainnet runs) and pinned
   - Testnet was at epoch 1061 on 4.4.0-beta.1, with its genesis certificate about 32 epochs old, too old to rebuild from RPC.
   - Measured slot time was 217 ms, which matches the announced 2026-10-21 activation.
 
+
+## C21 mainnet genesis findings (2026-10-21)
+
+- **Release.** Mainnet migrated on Agave v4.3.2. The 23 commits since v4.3.0 add an optional thread pool to `bls-cert-verify` and certificate verification, a tag check before `StakeAccount::try_from` in the stakes cache, a wincode vote-state serializer and performance changes. None changes admission, the rank map, `VotePayloadToSign` or verification results.
+- **Bitmap length.** `votor/src/aggregate_accumulator.rs` trims a Base2 bitmap to `last_one() + 1` before `encode_base2`, and `solana-signer-store` decoding only requires `bits ≤ max_validators`. So a certificate's bitmap length shows the highest signing rank, not the rank-map size. Mainnet's declares 672 positions against Monocle's 673 ranks.
+- **Feature account.** Before activation the feature address held 1,000,000 lamports as a System-owned, zero-length account. Agave's `feature::from_account` ignores accounts the feature program does not own. After activation it was owned by `Feature111…` with `activated_at` 459,648,000.
+- **Response shape.** `getAgGenesisCert` returns `{block: {blockId: [32 bytes], slot}, signature: {bitmap: [bytes], signature: [192 bytes]}}` on devnet (4.4.0-beta.0, 17 ranks), testnet (4.4.0-beta.1, 485 ranks) and mainnet (4.3.2, 672 positions). This matches the C19 synthetic fixture.
+- **Capture timing held.** The validator set was recorded 3,797 slots (about 14 minutes) after the epoch-1063 boundary through `getVoteAccounts`, which reads the current stakes cache rather than the snapshot. The aggregate verified, so no ranked key or position differed from Agave's snapshot.

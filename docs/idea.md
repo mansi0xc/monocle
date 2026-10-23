@@ -1,6 +1,6 @@
 # Monocle: project idea
 
-Status: MVP, C8 interface workflows, C9 reference mark and C10 design study committed. C11 implements the chosen Dusk design and awaits owner review. Real-network verification remains unestablished.
+Status: MVP, C8 interface workflows, C9 reference mark and C10 design study committed. C11 implements the chosen Dusk design and awaits owner review. C21 verified mainnet's Alpenglow genesis certificate under registered-key trust ([details](mainnet-genesis.md#result-2026-10-21)); other real-network evidence remains unverified.
 
 ## Description
 

@@ -6,7 +6,7 @@ An open-source finality debugger for Solana's Alpenglow consensus.
 
 Monocle is designed to inspect certificate evidence, check signatures and stake thresholds against an explicitly trusted validator checkpoint, and explain the result. Its tamper lab preserves the original evidence, applies one controlled byte replacement, and compares freshly computed checks. Portable replay files preserve exact evidence and optional checkpoint bytes for verification in a loaded production app, including after disconnecting from the network.
 
-**Project status:** C8 adds a landing page and a redesigned browser inspector to the Rust/WASM verifier, tamper lab, replay workflow, and recorded RPC inspection. Signed examples remain synthetic; the separate recorded testnet response is displayed as inconclusive because historical context is missing. Real-network verification remains unestablished.
+**Project status:** C8 adds a landing page and a redesigned browser inspector to the Rust/WASM verifier, tamper lab, replay workflow, and recorded RPC inspection. Signed examples remain synthetic; the separate recorded testnet response is displayed as inconclusive because historical context is missing. C21 verified one real certificate: mainnet's Alpenglow genesis certificate (slot 459,652,999) is VERIFIED under registered-key trust against a validator set recorded during epoch 1063, with the capture committed for reproduction. See [mainnet-genesis.md](docs/mainnet-genesis.md#result-2026-10-21) for what that does and does not establish.
 
 ## What the MVP does
 

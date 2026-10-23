@@ -1,6 +1,6 @@
 # Project status
 
-Updated: 2026-10-16.
+Updated: 2026-10-23.
 
 ## Current state
 
@@ -10,7 +10,9 @@ The landing page restates synthetic fixture results with their diagnostic codes 
 
 The recorded response at slot `444625255` remains **INCONCLUSIVE**. Its historical checkpoint, signing context, producer compatibility, and qualifying proofs have not been established. Capture inspection does not run signature, quorum, or finality checks and never substitutes an unrelated checkpoint.
 
-The genuine Rust/WASM verification paths, immutable tamper experiments, fresh diagnostic comparison, and portable replay remain available for supported Monocle bundles. Fast/slow block finality and genesis-anchor evidence retain their distinct scopes. Successful demonstrations use synthetic public test keys and invented context. No real testnet certificate is cryptographically verified.
+The genuine Rust/WASM verification paths, immutable tamper experiments, fresh diagnostic comparison, and portable replay remain available for supported Monocle bundles. Fast/slow block finality and genesis-anchor evidence retain their distinct scopes. The bundled examples use synthetic public test keys and invented context.
+
+C21 verified one real certificate: **mainnet's Alpenglow genesis certificate (slot 459,652,999) is VERIFIED under registered-key trust**, natively and in the browser. 446 of 673 ranked validators signed, holding 82.15% of the epoch-1064 stake that Monocle rebuilt from a validator set recorded early in epoch 1063. The result is scoped to the genesis/migration anchor. It assumes an honest RPC endpoint and keys registered through the vote program, and it says nothing about ordinary block finality. The recorded capture, its manifests and the built checkpoint and bundle are committed under `fixtures/genesis-capture/mainnet/`; see [mainnet-genesis.md](mainnet-genesis.md#result-2026-10-21).
 
 ## Checkpoint progress
 
@@ -36,8 +38,8 @@ The genuine Rust/WASM verification paths, immutable tamper experiments, fresh di
 | C17 - Generated contracts | Committed by Mansi: `d86dde0` |
 | C18 - Precise diagnostics | Committed by Mansi: `9cbce49` |
 | C19 - Real-cluster genesis verification tooling | Committed by Mansi: `b0064ac`; see [mainnet-genesis.md](mainnet-genesis.md) |
-| C20 - Annotated certificate bytes | Ready for owner review |
-| C21 - Mainnet genesis verification | Waiting for epoch 1063 (≈ 2026-10-20 11:42 UTC) and migration |
+| C20 - Annotated certificate bytes | Committed by Mansi: `c09f851` |
+| C21 - Mainnet genesis verification | Ready for owner review: VERIFIED under registered-key trust |
 
 C10 added three static design-direction previews under `apps/design-study/`; the owner chose Dusk, which C11 implements.
 
@@ -57,6 +59,6 @@ The full C7 gate previously passed 74 native Rust tests and the native/browser c
 
 ## Boundaries and remaining work
 
-Historical checkpoint authentication/qualification and context-backed conversion of raw RPC captures remain unresolved. Base3/fallback, full Agave differential execution, ancestry/execution proofs, authenticated epoch transitions, node footer export, and production hosting remain outside scope. One equal-length mutation per experiment is supported. Firefox/Safari, real mobile devices, and manual assistive-technology use remain untested.
+Checkpoint authentication remains unresolved: a rebuilt rank map is only as honest as the endpoint it was recorded from. Context-backed conversion of raw RPC captures exists only for genesis certificates from a cluster you capture yourself at the right time (C19); the earlier recorded testnet response stays inconclusive because its validator set was never captured. Builds after the `alpenglow` feature activates, where the VAT burn changes the admission minimum, are not supported. Base3/fallback, full Agave differential execution, ancestry/execution proofs, authenticated epoch transitions, node footer export, and production hosting remain outside scope. One equal-length mutation per experiment is supported. Firefox/Safari, real mobile devices, and manual assistive-technology use remain untested.
 
-C9 is one reviewable checkpoint. The detailed handoff and validation evidence remain local under ignored `commits/`. No assistant staging, commit, push, merge, publication, or deployment occurred. Further implementation waits for owner review and commit confirmation.
+C21 is one reviewable checkpoint. The detailed handoff and validation evidence remain local under ignored `commits/`. No assistant staging, commit, push, merge, publication, or deployment occurred. Further implementation waits for owner review and commit confirmation.

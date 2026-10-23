@@ -62,7 +62,7 @@ Ordinary success is conditional on the pinned protocol's consensus safety assump
 
 Genesis success establishes the certificate's **migration anchor** under that context. It does not prove feature activation, TowerBFT transition conditions, or that a node/the cluster completed migration. Pinned migration code also considers local phase, block ancestry, and activation state; those are outside this evidence bundle. A genesis certificate is therefore never displayed as ordinary block finality.
 
-The tested fixtures are synthetic. No real testnet certificate or the earlier genesis RPC response has been verified. Standard public-key PoP qualification, checkpoint authenticity, resource caps, and stricter Base2 padding restrictions remain as documented in [C3](certificate-verification.md). Product worker/UI, arbitrary-input browser import, tamper/replay, and real capture integration remain later checkpoints.
+The C4 fixtures are synthetic, and neither a real testnet certificate nor the earlier genesis RPC response was verified. C21 later verified mainnet's genesis certificate under registered-key trust; see [mainnet-genesis.md](mainnet-genesis.md#result-2026-10-21). Standard public-key PoP qualification, checkpoint authenticity, resource caps, and stricter Base2 padding restrictions remain as documented in [C3](certificate-verification.md). Product worker/UI, arbitrary-input browser import, tamper/replay, and real capture integration remain later checkpoints.
 
 ## Reproduce
 
